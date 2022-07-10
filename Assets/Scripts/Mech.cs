@@ -90,14 +90,25 @@ public class Mech : MonoBehaviour
 
         accumulatedDelta = Vector3.zero;
 
-        RaycastHit hit;
-        if (delta.sqrMagnitude > 0 && Physics.CapsuleCast(
-            rigid.position - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
-            rigid.position + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up, kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude, LayerMask.GetMask("Kinematic"))) {
-            delta = Vector3.zero;
-        }
+        const float pad = 0.1f;
+        for (int i = 0; i < 3; i++) {
+            RaycastHit hit;
+            if (delta.sqrMagnitude > 1e-5f && Physics.CapsuleCast(
+                rigid.position + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
+                rigid.position + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
+                kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude + pad, LayerMask.GetMask("Kinematic"))) {
 
-        rigid.MovePosition(rigid.position + delta);
+                Vector3 safe = delta.normalized * Mathf.Max(hit.distance - pad, 0);
+                rigid.MovePosition(rigid.position + safe);
+
+                delta = Vector3.ProjectOnPlane(delta, hit.normal);
+            }
+            else {
+                rigid.MovePosition(rigid.position + delta);
+
+                break;
+            }
+        }
 
         // if (moveDir.sqrMagnitude > 0) {
         rigid.MoveRotation(Quaternion.Euler(0, cameraController.cameraArm.eulerAngles.y, 0));
