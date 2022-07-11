@@ -8,7 +8,7 @@ public class Mech : MonoBehaviour
 
     CapsuleParams kinematicCapsule;
 
-    CameraController cameraController;
+    public CameraController cameraController;
     UiManager uiManager;
 
     VelocitySolver velocitySolver;
@@ -40,6 +40,9 @@ public class Mech : MonoBehaviour
 
         stemina = maxStemina;
         uiManager.SetMaxStemina(maxStemina);
+
+        GetComponentInChildren<BulletWeapon>().SetOwner(this);
+        GetComponentInChildren<MissileWeapon>().SetOwner(this);
     }
 
     void Update() {
