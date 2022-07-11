@@ -29,7 +29,10 @@ public class CameraController : MonoBehaviour
     }
 
     void Update() {
-        transform.position = Vector3.SmoothDamp(transform.position, mech.transform.position, ref posVel, 0.0f);
+        const float velocityResponsiveness = 1 / 30f;
+
+        transform.position = mech.transform.position - mech.velocity * velocityResponsiveness;
+        // transform.position = Vector3.SmoothDamp(transform.position, mech.transform.position, ref posVel, 0.03f);
 
         Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
         mouseDelta *= mouseSensitivity;
@@ -39,6 +42,10 @@ public class CameraController : MonoBehaviour
 
         transform.localEulerAngles = new Vector3(0, yaw, 0);
         cameraArm.localEulerAngles = new Vector3(pitch, 0, 0);
+
+        // Vector3 targetLocalPos = cameraTarget.localPosition;
+        // targetLocalPos.z = Mathf.LerpUnclamped(-6, -8, mech.boost ? 1 : 0);
+        // cameraTarget.localPosition = targetLocalPos;
 
         Vector3 cameraSpaceSpeed = cameraTarget.rotation * mech.velocity;
 
