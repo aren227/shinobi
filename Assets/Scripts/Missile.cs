@@ -8,11 +8,28 @@ public class Missile : MonoBehaviour
 
     CapsuleCollider capsuleCollider;
 
+    public Transform target;
+
+    const float maxAngleDiff = 90;
+    const float fov = 90;
+
     void Awake() {
         capsuleCollider = GetComponent<CapsuleCollider>();
     }
 
     void Update() {
+        if (target != null) {
+            Vector3 dir = (target.position - transform.position).normalized;
+
+            float maxAngle = maxAngleDiff * Time.deltaTime;
+
+            float angle = Vector3.Angle(dir, transform.forward);
+            if (angle > 0.01f && angle < fov) {
+                Quaternion q = Quaternion.AngleAxis(-Mathf.Min(maxAngle, Vector3.Angle(dir, transform.forward)), Vector3.Cross(dir, transform.forward));
+                transform.forward = q * transform.forward;
+            }
+        }
+
         Vector3 velocity = transform.forward * speed;
 
         Vector3 delta = velocity * Time.deltaTime;

@@ -26,6 +26,8 @@ public class Mech : MonoBehaviour
     const float steminaRestoreRate = 5;
     const float steminaRequiredToBoost = 10;
 
+    public List<ThermalTarget> thermalTargets = new List<ThermalTarget>();
+
     void Awake() {
         cameraController = FindObjectOfType<CameraController>();
         uiManager = FindObjectOfType<UiManager>();
@@ -84,8 +86,11 @@ public class Mech : MonoBehaviour
 
         accumulatedDelta += velocity * Time.deltaTime;
 
+        thermalTargets = GetVisibleThermalTargets();
+
         uiManager.SetStemina(stemina);
         uiManager.SetSpeed(velocity.magnitude);
+        uiManager.SetThermalTargets(thermalTargets, cameraController.cam);
     }
 
     void FixedUpdate() {
@@ -116,6 +121,42 @@ public class Mech : MonoBehaviour
         // if (moveDir.sqrMagnitude > 0) {
         rigid.MoveRotation(Quaternion.Euler(0, cameraController.cameraArm.eulerAngles.y, 0));
         // }
+    }
+
+    List<ThermalTarget> GetVisibleThermalTargets() {
+        ThermalTarget[] targets = FindObjectsOfType<ThermalTarget>();
+        List<ThermalTarget> result = new List<ThermalTarget>();
+
+        Camera cam = cameraController.cam;
+
+        RaycastHit[] hits = new RaycastHit[32];
+
+        foreach (ThermalTarget target in targets) {
+            Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
+            if (0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
+                const float sphereRadius = 0.5f;
+                Vector3 camToTarget = target.transform.position - cam.transform.position;
+
+                int count = Physics.SphereCastNonAlloc(
+                    cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Missile")
+                );
+
+                bool success = true;
+                for (int i = 0; i < count; i++) {
+                    if (hits[i].collider.transform.IsChildOf(transform)) continue;
+                    if (hits[i].collider.gameObject == target.gameObject) continue;
+
+                    success = false;
+                    break;
+                }
+
+                if (success) {
+                    result.Add(target);
+                }
+            }
+        }
+
+        return result;
     }
 }
 

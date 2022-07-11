@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    Camera cam;
+    public Camera cam;
     Mech mech;
 
     float pitch = 0, yaw = 0, roll = 0;
