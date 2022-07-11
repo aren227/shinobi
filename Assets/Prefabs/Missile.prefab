@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1499870885241704519}
   - component: {fileID: 1499870885241704516}
   - component: {fileID: 1499870885241704517}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 1499870885610183317}
   - component: {fileID: 1499870885610183531}
   - component: {fileID: 1499870885610183316}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Missile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -144,6 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c13872be50c1e124582728150c0fca29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 0}
 --- !u!1 &1499870886425619907
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,7 +156,7 @@ GameObject:
   - component: {fileID: 1499870886425619904}
   - component: {fileID: 1499870886425619905}
   - component: {fileID: 1499870886425619906}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
