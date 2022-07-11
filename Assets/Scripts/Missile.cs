@@ -6,6 +6,10 @@ public class Missile : MonoBehaviour
 {
     const float speed = 50f;
 
+    const float lifetime = 10;
+
+    float spawnTimestamp;
+
     CapsuleCollider capsuleCollider;
 
     public Transform target;
@@ -15,6 +19,15 @@ public class Missile : MonoBehaviour
 
     void Awake() {
         capsuleCollider = GetComponent<CapsuleCollider>();
+
+        spawnTimestamp = Time.time;
+    }
+
+    void Explode(Vector3 at) {
+        transform.position = at;
+
+        Destroy(gameObject);
+        FindObjectOfType<ParticleManager>().CreateMissileExplosion(transform.position);
     }
 
     void Update() {
@@ -30,6 +43,11 @@ public class Missile : MonoBehaviour
             }
         }
 
+        if (Time.time - spawnTimestamp >= lifetime) {
+            Explode(transform.position);
+            return;
+        }
+
         Vector3 velocity = transform.forward * speed;
 
         Vector3 delta = velocity * Time.deltaTime;
@@ -40,9 +58,8 @@ public class Missile : MonoBehaviour
             transform.position + capsuleCollider.center + (capsuleCollider.height/2 - capsuleCollider.radius) * transform.forward,
             capsuleCollider.radius, delta.normalized, out hit, delta.magnitude
         )) {
-            Destroy(gameObject);
-
-            FindObjectOfType<ParticleManager>().CreateMissileExplosion(hit.point);
+            Explode(hit.point);
+            return;
         }
 
         transform.position = transform.position + delta;
