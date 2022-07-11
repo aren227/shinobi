@@ -13,6 +13,9 @@ public class Mech : MonoBehaviour
 
     VelocitySolver velocitySolver;
 
+    public Transform leftWeaponPivot;
+    public Transform rightWeaponPivot;
+
     public Vector3 velocity;
 
     Vector3 accumulatedDelta;
@@ -27,6 +30,8 @@ public class Mech : MonoBehaviour
     const float steminaRequiredToBoost = 10;
 
     public List<ThermalTarget> thermalTargets = new List<ThermalTarget>();
+
+    public MechArmature mechArmature;
 
     void Awake() {
         cameraController = FindObjectOfType<CameraController>();
@@ -85,6 +90,9 @@ public class Mech : MonoBehaviour
         velocity = velocitySolver.Update(moveDir, boost);
 
         accumulatedDelta += velocity * Time.deltaTime;
+
+        leftWeaponPivot.forward = cameraController.cameraTarget.forward;
+        rightWeaponPivot.forward = cameraController.cameraTarget.forward;
 
         thermalTargets = GetVisibleThermalTargets();
 

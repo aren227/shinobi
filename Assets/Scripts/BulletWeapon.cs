@@ -8,6 +8,7 @@ public class BulletWeapon : MonoBehaviour
     float lastShoot;
 
     public Transform point;
+    public Transform handle;
 
     Mech owner;
 
