@@ -33,6 +33,8 @@ public class Mech : MonoBehaviour
 
     public MechArmature mechArmature;
 
+    public Inventory inventory = new Inventory();
+
     void Awake() {
         cameraController = FindObjectOfType<CameraController>();
         uiManager = FindObjectOfType<UiManager>();
