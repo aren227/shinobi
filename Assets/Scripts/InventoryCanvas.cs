@@ -39,10 +39,8 @@ public class InventoryCanvas : MonoBehaviour
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.E) && !open) {
-            // @Temp
-            Mech mech = FindObjectOfType<Mech>();
             // @Todo: Find near items.
-            Open(new List<Item>(), mech.inventory);
+            Open(new List<Item>(), Mech.Player.inventory);
         }
         else if ((Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Escape)) && open) {
             Close();

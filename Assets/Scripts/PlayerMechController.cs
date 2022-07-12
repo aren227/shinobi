@@ -79,11 +79,11 @@ public class PlayerMechController : MonoBehaviour
 
         foreach (Target target in targets) {
             if (target.type != mech.targetType) continue;
-            if (target.transform.IsChildOf(transform)) continue;
+            if (target.transform.IsChildOf(mech.transform)) continue;
 
             Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
             if (0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
-                const float sphereRadius = 0.5f;
+                const float sphereRadius = 0.2f;
                 Vector3 camToTarget = target.transform.position - cam.transform.position;
 
                 int count = Physics.SphereCastNonAlloc(
@@ -92,8 +92,8 @@ public class PlayerMechController : MonoBehaviour
 
                 bool success = true;
                 for (int i = 0; i < count; i++) {
-                    if (hits[i].collider.transform.IsChildOf(transform)) continue;
-                    if (hits[i].collider.gameObject == target.gameObject) continue;
+                    if (hits[i].collider.transform.IsChildOf(mech.transform)) continue;
+                    if (hits[i].collider.transform.IsChildOf(target.transform)) continue;
 
                     success = false;
                     break;

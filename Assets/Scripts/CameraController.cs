@@ -5,7 +5,6 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public Camera cam;
-    Mech mech;
 
     float pitch = 0, yaw = 0, roll = 0;
 
@@ -22,13 +21,13 @@ public class CameraController : MonoBehaviour
     void Awake() {
         cam = Camera.main;
         prevMouse = Input.mousePosition;
-        // @Temp
-        mech = FindObjectOfType<Mech>();
 
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update() {
+        Mech mech = Mech.Player;
+
         const float velocityResponsiveness = 1 / 30f;
 
         transform.position = mech.transform.position - mech.velocity * velocityResponsiveness;

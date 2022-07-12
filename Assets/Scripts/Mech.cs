@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Mech : MonoBehaviour
 {
+    public static Mech Player;
+
     Rigidbody rigid;
 
     public float yaw = 0;
@@ -49,6 +51,11 @@ public class Mech : MonoBehaviour
         stemina = maxStemina;
 
         inventory = new Inventory(this);
+
+        // @Temp
+        yaw = Random.Range(0f, 360f);
+
+        if (GetComponent<PlayerMechController>()) Player = this;
     }
 
     void Start() {

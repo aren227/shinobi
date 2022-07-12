@@ -15,19 +15,16 @@ public class SpreadObjects : MonoBehaviour
     List<GameObject> spawned = new List<GameObject>();
     List<GameObject> pool = new List<GameObject>();
 
-    Mech mech;
     Vector3 prevCenter;
 
     void Awake() {
         for (int i = 0; i < COUNT; i++) {
             points.Add(new Vector3(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f)) * UNIT);
         }
-
-        mech = FindObjectOfType<Mech>();
     }
 
     void Start() {
-        Vector3 currCenter = mech.transform.position;
+        Vector3 currCenter = Mech.Player.transform.position;
 
         int x, y, z;
         x = Mathf.FloorToInt(currCenter.x / UNIT);
@@ -84,7 +81,7 @@ public class SpreadObjects : MonoBehaviour
     }
 
     void Update() {
-        Vector3 currCenter = mech.transform.position;
+        Vector3 currCenter = Mech.Player.transform.position;
 
         for (int i = spawned.Count-1; i >= 0; i--) {
             if (Vector3.Distance(spawned[i].transform.position, currCenter) > VIEW_RADIUS) {
