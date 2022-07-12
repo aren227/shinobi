@@ -6,10 +6,9 @@ public class Mech : MonoBehaviour
 {
     Rigidbody rigid;
 
-    CapsuleParams kinematicCapsule;
+    public float yaw = 0;
 
-    public CameraController cameraController;
-    UiManager uiManager;
+    CapsuleParams kinematicCapsule;
 
     VelocitySolver velocitySolver;
 
@@ -22,8 +21,8 @@ public class Mech : MonoBehaviour
 
     bool boost = false;
 
-    const float maxStemina = 500;
-    float stemina = 0;
+    public const float maxStemina = 500;
+    public float stemina = 0;
 
     const float steminaConsumRate = 10;
     const float steminaRestoreRate = 5;
@@ -38,9 +37,6 @@ public class Mech : MonoBehaviour
     public Skeleton skeleton;
 
     void Awake() {
-        cameraController = FindObjectOfType<CameraController>();
-        uiManager = FindObjectOfType<UiManager>();
-
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
 
@@ -51,7 +47,6 @@ public class Mech : MonoBehaviour
         Destroy(capsuleCollider);
 
         stemina = maxStemina;
-        uiManager.SetMaxStemina(maxStemina);
 
         inventory = new Inventory(this);
     }
@@ -64,24 +59,7 @@ public class Mech : MonoBehaviour
         }
     }
 
-    void Update() {
-        Vector3[] dirs = new Vector3[] {
-            Vector3.forward, Vector3.back, Vector3.left, Vector3.right, Vector3.up, Vector3.down
-        };
-        KeyCode[] keys = new KeyCode[] {
-            KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D, KeyCode.Space, KeyCode.LeftControl
-        };
-
-        Vector3 moveDir = Vector3.zero;
-        for (int i = 0; i < 6; i++) {
-            if (Input.GetKey(keys[i])) {
-                moveDir += dirs[i];
-            }
-        }
-        moveDir.Normalize();
-
-        moveDir = cameraController.GetCameraRotation() * moveDir;
-
+    public void Move(Vector3 moveDir) {
         if (boost) {
             stemina = Mathf.Max(stemina - steminaConsumRate * Time.deltaTime, 0);
 
@@ -102,34 +80,15 @@ public class Mech : MonoBehaviour
         velocity = velocitySolver.Update(moveDir, boost);
 
         accumulatedDelta += velocity * Time.deltaTime;
+    }
 
-        leftWeaponPivot.forward = cameraController.cameraTarget.forward;
-        rightWeaponPivot.forward = cameraController.cameraTarget.forward;
+    public void Look(Vector3 forward) {
+        leftWeaponPivot.forward = forward;
+        rightWeaponPivot.forward = forward;
+    }
 
-        if (Input.GetKeyDown(KeyCode.Tab)) {
-            if (targetType == TargetType.THERMAL) targetType = TargetType.VITAL;
-            else targetType = TargetType.THERMAL;
-        }
+    void Update() {
 
-        List<Target> targets = GetVisibleTargets();
-
-        if (Input.GetMouseButtonDown(1)) {
-            // @Todo: Simple algorithm. Need to be refined.
-            List<MissileWeapon> weapons = new List<MissileWeapon>();
-            foreach (Item item in inventory.GetItems()) {
-                if (item is MissileWeapon) weapons.Add(item as MissileWeapon);
-            }
-
-            weapons.Sort((x, y) => x.ammo - y.ammo);
-
-            for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
-                weapons[i].Launch(targets[i].transform);
-            }
-        }
-
-        uiManager.SetStemina(stemina);
-        uiManager.SetSpeed(velocity.magnitude);
-        uiManager.SetTargets(targets, cameraController.cam);
     }
 
     void FixedUpdate() {
@@ -158,47 +117,8 @@ public class Mech : MonoBehaviour
         }
 
         // if (moveDir.sqrMagnitude > 0) {
-        rigid.MoveRotation(Quaternion.Euler(0, cameraController.cameraArm.eulerAngles.y, 0));
+        rigid.MoveRotation(Quaternion.Euler(0, yaw, 0));
         // }
-    }
-
-    List<Target> GetVisibleTargets() {
-        Target[] targets = FindObjectsOfType<Target>();
-        List<Target> result = new List<Target>();
-
-        Camera cam = cameraController.cam;
-
-        RaycastHit[] hits = new RaycastHit[32];
-
-        foreach (Target target in targets) {
-            if (target.type != targetType) continue;
-            if (target.transform.IsChildOf(transform)) continue;
-
-            Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
-            if (0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
-                const float sphereRadius = 0.5f;
-                Vector3 camToTarget = target.transform.position - cam.transform.position;
-
-                int count = Physics.SphereCastNonAlloc(
-                    cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Missile")
-                );
-
-                bool success = true;
-                for (int i = 0; i < count; i++) {
-                    if (hits[i].collider.transform.IsChildOf(transform)) continue;
-                    if (hits[i].collider.gameObject == target.gameObject) continue;
-
-                    success = false;
-                    break;
-                }
-
-                if (success) {
-                    result.Add(target);
-                }
-            }
-        }
-
-        return result;
     }
 
     // @Todo: Generalize to other auxiliary weapons (or shield).

@@ -17,8 +17,6 @@ public class MissileWeapon : MonoBehaviour, Item
 
     public bool Launch(Transform target) {
         if (ammo > 0) {
-            Transform camera = owner.cameraController.cameraTarget;
-
             GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.missile);
 
             const float pushForward = 1f;

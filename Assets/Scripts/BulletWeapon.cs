@@ -23,20 +23,20 @@ public class BulletWeapon : MonoBehaviour
     }
 
     void Update() {
-        Transform camera = owner.cameraController.cameraTarget;
+        // Transform camera = owner.cameraController.cameraTarget;
 
-        Vector3 cameraPoint = camera.position;
-        Vector3 direction = camera.forward;
+        // Vector3 cameraPoint = camera.position;
+        // Vector3 direction = camera.forward;
 
-        if (Input.GetMouseButton(0) && Time.time - lastShoot >= period) {
-            lastShoot = Time.time;
+        // if (Input.GetMouseButton(0) && Time.time - lastShoot >= period) {
+        //     lastShoot = Time.time;
 
-            GameObject obj = GameObject.Instantiate(GameObject.FindObjectOfType<ParticleManager>().bullet);
+        //     GameObject obj = GameObject.Instantiate(GameObject.FindObjectOfType<ParticleManager>().bullet);
 
-            const float pushForward = 8f;
+        //     const float pushForward = 8f;
 
-            obj.transform.position = point.position + point.forward * pushForward;
-            obj.transform.forward = owner.cameraController.cameraTarget.forward;
-        }
+        //     obj.transform.position = point.position + point.forward * pushForward;
+        //     obj.transform.forward = owner.cameraController.cameraTarget.forward;
+        // }
     }
 }
