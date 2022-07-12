@@ -7,6 +7,7 @@ public class ParticleManager : MonoBehaviour
 {
     public GameObject bulletImpact;
     public GameObject bulletTrail;
+    public GameObject bullet;
     public GameObject missile;
     public GameObject missileExplosion;
 

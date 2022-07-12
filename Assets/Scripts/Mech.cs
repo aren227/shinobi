@@ -22,7 +22,7 @@ public class Mech : MonoBehaviour
 
     bool boost = false;
 
-    const float maxStemina = 1000;
+    const float maxStemina = 500;
     float stemina = 0;
 
     const float steminaConsumRate = 10;

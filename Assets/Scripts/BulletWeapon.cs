@@ -31,14 +31,12 @@ public class BulletWeapon : MonoBehaviour
         if (Input.GetMouseButton(0) && Time.time - lastShoot >= period) {
             lastShoot = Time.time;
 
-            RaycastHit hit;
-            if (Physics.Raycast(cameraPoint, direction, out hit, float.PositiveInfinity, ~0)) {
-                particleManager.CreateBulletImpact(hit.point, hit.normal);
-                particleManager.CreateBulletTrail(point.position, hit.point);
-            }
-            else {
-                particleManager.CreateBulletTrail(point.position, cameraPoint + direction * 100);
-            }
+            GameObject obj = GameObject.Instantiate(GameObject.FindObjectOfType<ParticleManager>().bullet);
+
+            const float pushForward = 8f;
+
+            obj.transform.position = point.position + point.forward * pushForward;
+            obj.transform.forward = owner.cameraController.cameraTarget.forward;
         }
     }
 }
