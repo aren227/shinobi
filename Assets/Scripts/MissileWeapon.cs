@@ -2,39 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MissileWeapon : MonoBehaviour
+public class MissileWeapon : MonoBehaviour, Item
 {
     public Transform point;
 
-    Mech owner;
+    public Mech owner { get; set; }
 
-    ParticleManager particleManager;
-
-    public void SetOwner(Mech mech) {
-        owner = mech;
-    }
+    public int ammo = 100;
 
     void Awake() {
-        particleManager = FindObjectOfType<ParticleManager>();
+        // @Temp
+        ammo = Random.Range(50, 500);
     }
 
-    void Update() {
-        Transform camera = owner.cameraController.cameraTarget;
+    public bool Launch(Transform target) {
+        if (ammo > 0) {
+            Transform camera = owner.cameraController.cameraTarget;
 
-        Vector3 cameraPoint = camera.position;
-        Vector3 direction = camera.forward;
+            GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.missile);
 
-        if (Input.GetMouseButtonDown(1)) {
-            foreach (ThermalTarget target in owner.thermalTargets) {
-                GameObject obj = GameObject.Instantiate(GameObject.FindObjectOfType<ParticleManager>().missile);
+            const float pushForward = 1f;
 
-                const float pushForward = 0.5f;
+            obj.transform.position = point.position + point.forward * pushForward;
+            obj.transform.forward = point.forward;
 
-                obj.transform.position = point.position + point.forward * pushForward;
-                obj.transform.forward = point.forward;
+            obj.GetComponent<Missile>().target = target.transform;
 
-                obj.GetComponent<Missile>().target = target.transform;
-            }
+            ammo--;
+            return true;
         }
+        return false;
     }
 }

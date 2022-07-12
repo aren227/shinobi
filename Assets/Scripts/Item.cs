@@ -5,4 +5,6 @@ using UnityEngine;
 public interface Item
 {
     string name { get; }
+
+    Mech owner { get; set; }
 }

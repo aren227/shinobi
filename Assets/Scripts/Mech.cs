@@ -29,17 +29,20 @@ public class Mech : MonoBehaviour
     const float steminaRestoreRate = 5;
     const float steminaRequiredToBoost = 10;
 
-    public List<ThermalTarget> thermalTargets = new List<ThermalTarget>();
+    public TargetType targetType;
 
     public MechArmature mechArmature;
 
-    public Inventory inventory = new Inventory();
+    public Inventory inventory;
+
+    public Skeleton skeleton;
 
     void Awake() {
         cameraController = FindObjectOfType<CameraController>();
         uiManager = FindObjectOfType<UiManager>();
 
         rigid = GetComponent<Rigidbody>();
+        skeleton = GetComponent<Skeleton>();
 
         velocitySolver = FindObjectOfType<AccelerationBasedVelocitySolver>();
 
@@ -50,8 +53,15 @@ public class Mech : MonoBehaviour
         stemina = maxStemina;
         uiManager.SetMaxStemina(maxStemina);
 
-        GetComponentInChildren<BulletWeapon>().SetOwner(this);
-        GetComponentInChildren<MissileWeapon>().SetOwner(this);
+        inventory = new Inventory(this);
+    }
+
+    void Start() {
+        foreach (Inventory.Slot slot in System.Enum.GetValues(typeof(Inventory.Slot))) {
+            GameObject missileWeapon = Instantiate(PrefabRegistry.Instance.missileWeapon);
+
+            SetAuxiliary(missileWeapon.GetComponent<MissileWeapon>(), slot);
+        }
     }
 
     void Update() {
@@ -96,11 +106,30 @@ public class Mech : MonoBehaviour
         leftWeaponPivot.forward = cameraController.cameraTarget.forward;
         rightWeaponPivot.forward = cameraController.cameraTarget.forward;
 
-        thermalTargets = GetVisibleThermalTargets();
+        if (Input.GetKeyDown(KeyCode.Tab)) {
+            if (targetType == TargetType.THERMAL) targetType = TargetType.VITAL;
+            else targetType = TargetType.THERMAL;
+        }
+
+        List<Target> targets = GetVisibleTargets();
+
+        if (Input.GetMouseButtonDown(1)) {
+            // @Todo: Simple algorithm. Need to be refined.
+            List<MissileWeapon> weapons = new List<MissileWeapon>();
+            foreach (Item item in inventory.GetItems()) {
+                if (item is MissileWeapon) weapons.Add(item as MissileWeapon);
+            }
+
+            weapons.Sort((x, y) => x.ammo - y.ammo);
+
+            for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
+                weapons[i].Launch(targets[i].transform);
+            }
+        }
 
         uiManager.SetStemina(stemina);
         uiManager.SetSpeed(velocity.magnitude);
-        uiManager.SetThermalTargets(thermalTargets, cameraController.cam);
+        uiManager.SetTargets(targets, cameraController.cam);
     }
 
     void FixedUpdate() {
@@ -133,15 +162,18 @@ public class Mech : MonoBehaviour
         // }
     }
 
-    List<ThermalTarget> GetVisibleThermalTargets() {
-        ThermalTarget[] targets = FindObjectsOfType<ThermalTarget>();
-        List<ThermalTarget> result = new List<ThermalTarget>();
+    List<Target> GetVisibleTargets() {
+        Target[] targets = FindObjectsOfType<Target>();
+        List<Target> result = new List<Target>();
 
         Camera cam = cameraController.cam;
 
         RaycastHit[] hits = new RaycastHit[32];
 
-        foreach (ThermalTarget target in targets) {
+        foreach (Target target in targets) {
+            if (target.type != targetType) continue;
+            if (target.transform.IsChildOf(transform)) continue;
+
             Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
             if (0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
                 const float sphereRadius = 0.5f;
@@ -167,6 +199,17 @@ public class Mech : MonoBehaviour
         }
 
         return result;
+    }
+
+    // @Todo: Generalize to other auxiliary weapons (or shield).
+    void SetAuxiliary(MissileWeapon weapon, Inventory.Slot slot) {
+        if (inventory.SetItem(weapon, slot)) {
+            Transform pivot = skeleton.GetAuxiliaryPivot(slot);
+
+            weapon.transform.SetParent(pivot, false);
+            weapon.transform.localPosition = Vector3.zero;
+            weapon.transform.localRotation = Quaternion.identity;
+        }
     }
 }
 

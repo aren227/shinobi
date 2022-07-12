@@ -4,12 +4,18 @@ using UnityEngine;
 
 public class Inventory
 {
+    public Mech owner;
+
     public Dictionary<Slot, Item> items = new Dictionary<Slot, Item>();
 
     public Weapon left, right;
     public Weapon sword;
 
     public bool isUsingSword;
+
+    public Inventory(Mech owner) {
+        this.owner = owner;
+    }
 
     public Item GetItem(Slot slot) {
         if (items.ContainsKey(slot)) return items[slot];
@@ -30,7 +36,14 @@ public class Inventory
         if (items.ContainsKey(slot)) return false;
 
         items[slot] = item;
+
+        item.owner = owner;
+
         return true;
+    }
+
+    public List<Item> GetItems() {
+        return new List<Item>(items.Values);
     }
 
     public enum Slot {

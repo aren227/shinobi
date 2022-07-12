@@ -32,7 +32,7 @@ public class UiManager : MonoBehaviour
         speedText.text = $"{Mathf.Round(speedMeterPerSec * (3600f / 1000f))} km/h";
     }
 
-    public void SetThermalTargets(List<ThermalTarget> targets, Camera cam) {
+    public void SetTargets(List<Target> targets, Camera cam) {
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
 
         for (int i = 0; i < targets.Count; i++) {
@@ -45,6 +45,14 @@ public class UiManager : MonoBehaviour
             }
 
             thermalTargetCursors[i].SetActive(true);
+
+            // @Hardcoded
+            Color color;
+            if (targets[i].type == TargetType.THERMAL) color = Color.red;
+            else if (targets[i].type == TargetType.VITAL) color = Color.blue;
+            else color = Color.gray;
+
+            thermalTargetCursors[i].GetComponentInChildren<Image>().color = color;
 
             RectTransform rect = thermalTargetCursors[i].GetComponent<RectTransform>();
 

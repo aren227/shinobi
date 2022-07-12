@@ -13,6 +13,7 @@ public class MechArmature : MonoBehaviour
     void AddBoneRecursive(Transform bone) {
         bones.Add(bone);
         for (int i = 0; i < bone.childCount; i++) {
+            if (bone.GetChild(i).gameObject.layer == LayerMask.NameToLayer("WeaponPivot")) continue;
             AddBoneRecursive(bone.GetChild(i));
         }
     }
