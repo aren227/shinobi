@@ -56,7 +56,7 @@ public class Missile : MonoBehaviour
         if (Physics.CapsuleCast(
             transform.position + capsuleCollider.center - (capsuleCollider.height/2 + capsuleCollider.radius) * transform.forward,
             transform.position + capsuleCollider.center + (capsuleCollider.height/2 - capsuleCollider.radius) * transform.forward,
-            capsuleCollider.radius, delta.normalized, out hit, delta.magnitude
+            capsuleCollider.radius, delta.normalized, out hit, delta.magnitude, ~LayerMask.GetMask("Missile")
         )) {
             Explode(hit.point);
             return;
