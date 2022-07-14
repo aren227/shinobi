@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Skeleton : MonoBehaviour
 {
+    public Transform leftHandWeaponPivot;
+    public Transform rightHandWeaponPivot;
     public Transform leftShoulderWeaponPivot;
     public Transform rightShoulderWeaponPivot;
     public Transform leftArmWeaponPivot;
@@ -11,9 +13,13 @@ public class Skeleton : MonoBehaviour
     public Transform leftLegWeaponPivot;
     public Transform rightLegWeaponPivot;
 
+    public Transform head;
+
     Dictionary<Inventory.Slot, Transform> pivots = new Dictionary<Inventory.Slot, Transform>();
 
     void Awake() {
+        pivots.Add(Inventory.Slot.LEFT_HAND, leftHandWeaponPivot);
+        pivots.Add(Inventory.Slot.RIGHT_HAND, rightHandWeaponPivot);
         pivots.Add(Inventory.Slot.LEFT_SHOULDER, leftShoulderWeaponPivot);
         pivots.Add(Inventory.Slot.RIGHT_SHOULDER, rightShoulderWeaponPivot);
         pivots.Add(Inventory.Slot.LEFT_ARM, leftArmWeaponPivot);
@@ -22,7 +28,7 @@ public class Skeleton : MonoBehaviour
         pivots.Add(Inventory.Slot.RIGHT_LEG, rightLegWeaponPivot);
     }
 
-    public Transform GetAuxiliaryPivot(Inventory.Slot slot) {
+    public Transform GetPivot(Inventory.Slot slot) {
         return pivots[slot];
     }
 }

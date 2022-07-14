@@ -50,6 +50,7 @@ public class UiManager : MonoBehaviour
             Color color;
             if (targets[i].type == TargetType.THERMAL) color = Color.red;
             else if (targets[i].type == TargetType.VITAL) color = Color.blue;
+            else if (targets[i].type == TargetType.MISSILE) color = Color.green;
             else color = Color.gray;
 
             thermalTargetCursors[i].GetComponentInChildren<Image>().color = color;

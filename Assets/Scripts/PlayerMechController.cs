@@ -40,24 +40,42 @@ public class PlayerMechController : MonoBehaviour
 
         mech.Move(moveDir);
 
-        if (Input.GetKeyDown(KeyCode.Tab)) {
-            if (mech.targetType == TargetType.THERMAL) mech.targetType = TargetType.VITAL;
-            else mech.targetType = TargetType.THERMAL;
+        if (Input.GetKeyDown(KeyCode.Alpha1)) mech.targetType = TargetType.VITAL;
+        if (Input.GetKeyDown(KeyCode.Alpha2)) mech.targetType = TargetType.THERMAL;
+
+        Vector3 aimTarget = cameraController.cameraTarget.position + cameraController.cameraTarget.forward * 1000;
+
+        RaycastHit aimHit;
+        if (Physics.Raycast(cameraController.cameraTarget.position, cameraController.cameraTarget.forward, out aimHit, 1000)) {
+            aimTarget = aimHit.point;
         }
 
-        List<Target> targets = GetVisibleTargets();
+        mech.Aim(aimTarget);
 
+        List<Target> targets = mech.GetVisibleTargets();
+
+        if (Input.GetMouseButton(0)) {
+            Weapon leftHand = mech.inventory.GetItem(Inventory.Slot.LEFT_HAND)?.GetComponent<Weapon>();
+            Weapon rightHand = mech.inventory.GetItem(Inventory.Slot.RIGHT_HAND)?.GetComponent<Weapon>();
+
+            if (leftHand) leftHand.Shoot(mech.aimTarget);
+            if (rightHand) rightHand.Shoot(mech.aimTarget);
+        }
         if (Input.GetMouseButtonDown(1)) {
             // @Todo: Simple algorithm. Need to be refined.
-            List<MissileWeapon> weapons = new List<MissileWeapon>();
+
+            List<Weapon> weapons = new List<Weapon>();
             foreach (Item item in mech.inventory.GetItems()) {
-                if (item is MissileWeapon) weapons.Add(item as MissileWeapon);
+                Weapon weapon = item.GetComponent<Weapon>();
+                if (weapon && weapon.type == WeaponType.MISSLE_WEAPON) {
+                    weapons.Add(weapon);
+                }
             }
 
             weapons.Sort((x, y) => x.ammo - y.ammo);
 
             for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
-                weapons[i].Launch(targets[i].transform);
+                weapons[i].Shoot(Vector3.zero, targets[i].transform);
             }
         }
 
@@ -66,45 +84,5 @@ public class PlayerMechController : MonoBehaviour
         uiManager.SetStemina(mech.stemina);
         uiManager.SetSpeed(mech.velocity.magnitude);
         uiManager.SetTargets(targets, cameraController.cam);
-    }
-
-    // @Todo: This should be move to Mech.cs.
-    public List<Target> GetVisibleTargets() {
-        Target[] targets = FindObjectsOfType<Target>();
-        List<Target> result = new List<Target>();
-
-        Camera cam = cameraController.cam;
-
-        RaycastHit[] hits = new RaycastHit[32];
-
-        foreach (Target target in targets) {
-            if (target.type != mech.targetType) continue;
-            if (target.transform.IsChildOf(mech.transform)) continue;
-
-            Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
-            if (0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
-                const float sphereRadius = 0.2f;
-                Vector3 camToTarget = target.transform.position - cam.transform.position;
-
-                int count = Physics.SphereCastNonAlloc(
-                    cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Missile")
-                );
-
-                bool success = true;
-                for (int i = 0; i < count; i++) {
-                    if (hits[i].collider.transform.IsChildOf(mech.transform)) continue;
-                    if (hits[i].collider.transform.IsChildOf(target.transform)) continue;
-
-                    success = false;
-                    break;
-                }
-
-                if (success) {
-                    result.Add(target);
-                }
-            }
-        }
-
-        return result;
     }
 }

@@ -2,9 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface Item
+public class Item : MonoBehaviour
 {
-    string name { get; }
+    public Mech owner { get; private set; }
 
-    Mech owner { get; set; }
+    public Collider itemHintCollider;
+
+    public string displayName;
+
+    public EquipAt equipAt;
+
+    public bool isEquipped => owner != null;
+
+    public void Equip(Mech owner) {
+        if (this.owner != null) return;
+
+        this.owner = owner;
+
+        itemHintCollider.enabled = false;
+    }
+
+    public void Unequip() {
+        if (this.owner == null) return;
+
+        this.owner = null;
+
+        itemHintCollider.enabled = false;
+    }
+}
+
+public enum EquipAt {
+    HANDHELD,
+    AUXILIARY,
 }

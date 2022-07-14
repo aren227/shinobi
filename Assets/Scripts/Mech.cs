@@ -14,16 +14,13 @@ public class Mech : MonoBehaviour
 
     VelocitySolver velocitySolver;
 
-    public Transform leftWeaponPivot;
-    public Transform rightWeaponPivot;
-
     public Vector3 velocity;
 
     Vector3 accumulatedDelta;
 
     bool boost = false;
 
-    public const float maxStemina = 500;
+    public const float maxStemina = 100;
     public float stemina = 0;
 
     const float steminaConsumRate = 10;
@@ -31,6 +28,8 @@ public class Mech : MonoBehaviour
     const float steminaRequiredToBoost = 10;
 
     public TargetType targetType;
+
+    public Vector3 aimTarget;
 
     public MechArmature mechArmature;
 
@@ -52,18 +51,17 @@ public class Mech : MonoBehaviour
 
         inventory = new Inventory(this);
 
-        // @Temp
-        yaw = Random.Range(0f, 360f);
-
         if (GetComponent<PlayerMechController>()) Player = this;
+
+        Aim(transform.position + transform.forward * 10);
     }
 
     void Start() {
-        foreach (Inventory.Slot slot in System.Enum.GetValues(typeof(Inventory.Slot))) {
-            GameObject missileWeapon = Instantiate(PrefabRegistry.Instance.missileWeapon);
+        // foreach (Inventory.Slot slot in System.Enum.GetValues(typeof(Inventory.Slot))) {
+        //     GameObject missileWeapon = Instantiate(PrefabRegistry.Instance.missileWeapon);
 
-            SetAuxiliary(missileWeapon.GetComponent<MissileWeapon>(), slot);
-        }
+        //     Equip(missileWeapon.GetComponent<MissileWeapon>(), slot);
+        // }
     }
 
     public void Move(Vector3 moveDir) {
@@ -89,13 +87,84 @@ public class Mech : MonoBehaviour
         accumulatedDelta += velocity * Time.deltaTime;
     }
 
-    public void Look(Vector3 forward) {
-        leftWeaponPivot.forward = forward;
-        rightWeaponPivot.forward = forward;
+    public void Aim(Vector3 aimTarget) {
+        this.aimTarget = aimTarget;
+
+        skeleton.leftHandWeaponPivot.forward = (aimTarget - skeleton.leftHandWeaponPivot.position).normalized;
+        skeleton.rightHandWeaponPivot.forward = (aimTarget - skeleton.rightHandWeaponPivot.position).normalized;
+
+        skeleton.head.forward = (aimTarget - skeleton.head.position).normalized;
+
+        Vector2 dir = new Vector2(aimTarget.x - transform.position.x, aimTarget.z - transform.position.z);
+        yaw = -Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90;
+    }
+
+    public List<Target> GetVisibleTargets() {
+        List<Target> result = new List<Target>();
+
+        if (targetType == TargetType.NONE) return result;
+
+        Target[] targets = FindObjectsOfType<Target>();
+
+        // @Todo: This is fair but sucks.
+        // Should implement custom aim boundary or something.
+        Camera cam = Camera.main;
+
+        Vector3 prevPos = cam.transform.localPosition;
+        Quaternion prevRot = cam.transform.localRotation;
+
+        if (this != Mech.Player) {
+            cam.transform.position = skeleton.head.position;
+            cam.transform.rotation = skeleton.head.rotation;
+        }
+
+        RaycastHit[] hits = new RaycastHit[32];
+
+        foreach (Target target in targets) {
+            if (target.type != targetType) continue;
+            // Ignore targets in myself.
+            if (target.transform.IsChildOf(transform)) continue;
+
+            Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
+            if (Vector3.Dot(target.transform.position - cam.transform.position, cam.transform.forward) > 0
+                && 0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
+                const float sphereRadius = 0.2f;
+                Vector3 camToTarget = target.transform.position - cam.transform.position;
+
+                int count = Physics.SphereCastNonAlloc(
+                    cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Missile")
+                );
+
+                bool success = true;
+                for (int i = 0; i < count; i++) {
+                    // Ignore myself.
+                    if (hits[i].collider.transform.IsChildOf(transform)) continue;
+                    // Ignore target collider.
+                    if (hits[i].collider.transform.IsChildOf(target.transform)) continue;
+
+                    success = false;
+                    break;
+                }
+
+                if (success) {
+                    result.Add(target);
+                }
+            }
+        }
+
+        // Restore camera transform.
+        if (this != Mech.Player) {
+            cam.transform.localPosition = prevPos;
+            cam.transform.localRotation = prevRot;
+        }
+
+        return result;
     }
 
     void Update() {
-
+        if (this != Mech.Player) {
+            Aim(Mech.Player.transform.position);
+        }
     }
 
     void FixedUpdate() {
@@ -128,14 +197,22 @@ public class Mech : MonoBehaviour
         // }
     }
 
-    // @Todo: Generalize to other auxiliary weapons (or shield).
-    void SetAuxiliary(MissileWeapon weapon, Inventory.Slot slot) {
-        if (inventory.SetItem(weapon, slot)) {
-            Transform pivot = skeleton.GetAuxiliaryPivot(slot);
+    void Equip(Item item, Inventory.Slot slot) {
+        if (inventory.SetItem(item, slot)) {
+            Transform pivot = skeleton.GetPivot(slot);
 
-            weapon.transform.SetParent(pivot, false);
-            weapon.transform.localPosition = Vector3.zero;
-            weapon.transform.localRotation = Quaternion.identity;
+            item.transform.SetParent(pivot, false);
+            item.transform.localPosition = Vector3.zero;
+            item.transform.localRotation = Quaternion.identity;
+        }
+    }
+
+    void Unequip(Inventory.Slot slot) {
+        Item item = inventory.GetItem(slot);
+        if (item != null) {
+            inventory.SetItem(null, slot);
+
+            item.transform.SetParent(null);
         }
     }
 }

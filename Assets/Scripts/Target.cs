@@ -10,4 +10,6 @@ public class Target : MonoBehaviour
 public enum TargetType {
     THERMAL,
     VITAL,
+    MISSILE,
+    NONE,
 }

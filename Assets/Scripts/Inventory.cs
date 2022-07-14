@@ -7,8 +7,6 @@ public class Inventory
     public Mech owner;
 
     public Dictionary<Slot, Item> items = new Dictionary<Slot, Item>();
-
-    public Weapon left, right;
     public Weapon sword;
 
     public bool isUsingSword;
@@ -25,19 +23,18 @@ public class Inventory
     public bool SetItem(Item item, Slot slot) {
         // Remove
         if (item == null) {
-            items.Remove(slot);
-            return true;
-        }
-
-        if (slot == Slot.LEFT_SHOULDER || slot == Slot.RIGHT_SHOULDER) {
-            if (item is Shield) return false;
+            if (items.ContainsKey(slot)) {
+                items.Remove(slot);
+                return true;
+            }
+            return false;
         }
 
         if (items.ContainsKey(slot)) return false;
 
         items[slot] = item;
 
-        item.owner = owner;
+        item.Equip(owner);
 
         return true;
     }
@@ -47,6 +44,8 @@ public class Inventory
     }
 
     public enum Slot {
+        LEFT_HAND,
+        RIGHT_HAND,
         LEFT_SHOULDER,
         RIGHT_SHOULDER,
         LEFT_ARM,
