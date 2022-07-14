@@ -81,8 +81,37 @@ public class PlayerMechController : MonoBehaviour
 
         mech.yaw = cameraController.cameraArm.eulerAngles.y;
 
+        // @Todo: Better ui.
+        if (Input.GetKeyDown(KeyCode.E)) {
+            Item[] items = FindObjectsOfType<Item>();
+            Item selected = null;
+            foreach (Item item in items) {
+                if (item.isEquipped) continue;
+                if (selected == null || Vector3.Distance(selected.transform.position, mech.transform.position) > Vector3.Distance(item.transform.position, mech.transform.position)) {
+                    selected = item;
+                }
+            }
+
+            if (selected != null) TryToEquip(selected);
+        }
+
         uiManager.SetStemina(mech.stemina);
         uiManager.SetSpeed(mech.velocity.magnitude);
         uiManager.SetTargets(targets, cameraController.cam);
+    }
+
+    public void TryToEquip(Item item) {
+        Inventory inventory = mech.inventory;
+        if (item.equipAt == EquipAt.HANDHELD) {
+            if (!mech.Equip(item, Inventory.Slot.LEFT_HAND)) {
+                if (!mech.Equip(item, Inventory.Slot.RIGHT_HAND)) {
+                    // @Todo
+                }
+            }
+            // @Todo: Open selecting screen.
+        }
+        else if (item.equipAt == EquipAt.AUXILIARY) {
+            // @Todo: Open selecting screen.
+        }
     }
 }

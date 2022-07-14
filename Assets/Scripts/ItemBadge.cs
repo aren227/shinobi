@@ -6,17 +6,33 @@ using UnityEngine.Events;
 
 public class ItemBadge : MonoBehaviour
 {
+    bool hovered = false, selected = false;
+
     public void SetItem(Item item) {
         Text text = GetComponentInChildren<Text>();
-        text.text = item.name;
+
+        if (item == null) text.text = "";
+        else text.text = item.displayName;
     }
 
-    public void SetHighlightColor(Color color) {
+    public void SetHovered(bool hovered) {
+        this.hovered = hovered;
+        UpdateColor();
+    }
+
+    public void SetSelected(bool selected) {
+        this.selected = selected;
+        UpdateColor();
+    }
+
+    void UpdateColor() {
         Image image = GetComponent<Image>();
-        image.color = color;
-    }
 
-    public void SetOnClick(UnityAction action) {
-        GetComponentInChildren<Button>().onClick.AddListener(action);
+        Color color = Color.white * 0.1f;
+
+        if (hovered) color += Color.white * 0.6f;
+        if (selected) color += Color.red;
+
+        image.color = color;
     }
 }

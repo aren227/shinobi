@@ -7,9 +7,6 @@ public class Inventory
     public Mech owner;
 
     public Dictionary<Slot, Item> items = new Dictionary<Slot, Item>();
-    public Weapon sword;
-
-    public bool isUsingSword;
 
     public Inventory(Mech owner) {
         this.owner = owner;
@@ -24,7 +21,12 @@ public class Inventory
         // Remove
         if (item == null) {
             if (items.ContainsKey(slot)) {
+                item = items[slot];
+
                 items.Remove(slot);
+
+                item.Unequip();
+
                 return true;
             }
             return false;
@@ -52,5 +54,6 @@ public class Inventory
         RIGHT_ARM,
         LEFT_LEG,
         RIGHT_LEG,
+        SWORD,
     }
 }

@@ -6,8 +6,6 @@ public class Item : MonoBehaviour
 {
     public Mech owner { get; private set; }
 
-    public Collider itemHintCollider;
-
     public string displayName;
 
     public EquipAt equipAt;
@@ -18,16 +16,12 @@ public class Item : MonoBehaviour
         if (this.owner != null) return;
 
         this.owner = owner;
-
-        itemHintCollider.enabled = false;
     }
 
     public void Unequip() {
         if (this.owner == null) return;
 
         this.owner = null;
-
-        itemHintCollider.enabled = false;
     }
 }
 

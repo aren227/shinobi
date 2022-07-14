@@ -197,23 +197,29 @@ public class Mech : MonoBehaviour
         // }
     }
 
-    void Equip(Item item, Inventory.Slot slot) {
+    public bool Equip(Item item, Inventory.Slot slot) {
         if (inventory.SetItem(item, slot)) {
             Transform pivot = skeleton.GetPivot(slot);
 
             item.transform.SetParent(pivot, false);
             item.transform.localPosition = Vector3.zero;
             item.transform.localRotation = Quaternion.identity;
+
+            return true;
         }
+        return false;
     }
 
-    void Unequip(Inventory.Slot slot) {
+    public bool Unequip(Inventory.Slot slot) {
         Item item = inventory.GetItem(slot);
         if (item != null) {
             inventory.SetItem(null, slot);
 
             item.transform.SetParent(null);
+
+            return true;
         }
+        return false;
     }
 }
 
