@@ -12,6 +12,7 @@ public class Skeleton : MonoBehaviour
     public Transform rightArmWeaponPivot;
     public Transform leftLegWeaponPivot;
     public Transform rightLegWeaponPivot;
+    public Transform swordPivot;
 
     public Transform head;
 
@@ -26,6 +27,7 @@ public class Skeleton : MonoBehaviour
         pivots.Add(Inventory.Slot.RIGHT_ARM, rightArmWeaponPivot);
         pivots.Add(Inventory.Slot.LEFT_LEG, leftLegWeaponPivot);
         pivots.Add(Inventory.Slot.RIGHT_LEG, rightLegWeaponPivot);
+        pivots.Add(Inventory.Slot.SWORD, swordPivot);
     }
 
     public Transform GetPivot(Inventory.Slot slot) {

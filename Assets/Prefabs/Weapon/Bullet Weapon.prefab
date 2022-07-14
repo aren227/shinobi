@@ -92,6 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a196d950434c0f49b5bded571da425d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  model: {fileID: 8357882812872352012}
   displayName: Bullet Weapon
   equipAt: 0
 --- !u!114 &2351044697609579308
@@ -191,6 +192,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0c8708f922872547a33963b7b9ca8d8, type: 3}
+--- !u!1 &8357882812872352012 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a0c8708f922872547a33963b7b9ca8d8, type: 3}
+  m_PrefabInstance: {fileID: 9168277652435655773}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8698415220204846006 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a0c8708f922872547a33963b7b9ca8d8, type: 3}

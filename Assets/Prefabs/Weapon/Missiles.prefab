@@ -79,6 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a196d950434c0f49b5bded571da425d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  model: {fileID: 3393682418874776688}
   displayName: Missiles
   equipAt: 1
 --- !u!114 &52004642803056792

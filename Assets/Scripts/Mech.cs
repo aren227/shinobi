@@ -37,6 +37,8 @@ public class Mech : MonoBehaviour
 
     public Skeleton skeleton;
 
+    public GameObject model;
+
     void Awake() {
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
@@ -201,9 +203,10 @@ public class Mech : MonoBehaviour
         if (inventory.SetItem(item, slot)) {
             Transform pivot = skeleton.GetPivot(slot);
 
-            item.transform.SetParent(pivot, false);
+            item.transform.parent = pivot;
             item.transform.localPosition = Vector3.zero;
             item.transform.localRotation = Quaternion.identity;
+            item.transform.localScale = Vector3.one;
 
             return true;
         }
@@ -215,7 +218,9 @@ public class Mech : MonoBehaviour
         if (item != null) {
             inventory.SetItem(null, slot);
 
-            item.transform.SetParent(null);
+            item.transform.parent = null;
+            item.transform.localRotation = Quaternion.identity;
+            item.transform.localScale = Vector3.one;
 
             return true;
         }

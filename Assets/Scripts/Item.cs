@@ -6,6 +6,8 @@ public class Item : MonoBehaviour
 {
     public Mech owner { get; private set; }
 
+    public GameObject model;
+
     public string displayName;
 
     public EquipAt equipAt;
@@ -28,4 +30,5 @@ public class Item : MonoBehaviour
 public enum EquipAt {
     HANDHELD,
     AUXILIARY,
+    SWORD,
 }

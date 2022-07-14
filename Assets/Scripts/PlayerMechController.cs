@@ -20,7 +20,14 @@ public class PlayerMechController : MonoBehaviour
         uiManager.SetMaxStemina(Mech.maxStemina);
     }
 
+    bool IsInteractable() {
+        return !FindObjectOfType<InventoryCanvas2>().open;
+    }
+
     void Update() {
+        // @Temp
+        if (!IsInteractable()) return;
+
         Vector3[] dirs = new Vector3[] {
             Vector3.forward, Vector3.back, Vector3.left, Vector3.right, Vector3.up, Vector3.down
         };
@@ -85,9 +92,10 @@ public class PlayerMechController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E)) {
             Item[] items = FindObjectsOfType<Item>();
             Item selected = null;
+            float minDist = 3;
             foreach (Item item in items) {
                 if (item.isEquipped) continue;
-                if (selected == null || Vector3.Distance(selected.transform.position, mech.transform.position) > Vector3.Distance(item.transform.position, mech.transform.position)) {
+                if (selected == null || minDist > Vector3.Distance(item.transform.position, mech.transform.position)) {
                     selected = item;
                 }
             }
@@ -105,13 +113,12 @@ public class PlayerMechController : MonoBehaviour
         if (item.equipAt == EquipAt.HANDHELD) {
             if (!mech.Equip(item, Inventory.Slot.LEFT_HAND)) {
                 if (!mech.Equip(item, Inventory.Slot.RIGHT_HAND)) {
-                    // @Todo
+                    FindObjectOfType<InventoryCanvas2>().Open(item);
                 }
             }
-            // @Todo: Open selecting screen.
         }
         else if (item.equipAt == EquipAt.AUXILIARY) {
-            // @Todo: Open selecting screen.
+            FindObjectOfType<InventoryCanvas2>().Open(item);
         }
     }
 }
