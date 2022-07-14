@@ -39,6 +39,8 @@ public class Mech : MonoBehaviour
 
     public GameObject model;
 
+    public bool isUsingSword { get; private set; }
+
     void Awake() {
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
@@ -169,6 +171,28 @@ public class Mech : MonoBehaviour
         }
     }
 
+    public void BeginSword() {
+        Item sword = inventory.GetItem(Inventory.Slot.SWORD);
+
+        if (!sword) return;
+
+        isUsingSword = true;
+
+        // Update pivots.
+        // @Todo: Does not consider animation.
+        foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
+            p.Value.transform.SetParent(skeleton.GetPivot(p.Key, isUsingSword), false);
+        }
+    }
+
+    public void EndSword() {
+        isUsingSword = false;
+
+        foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
+            p.Value.transform.SetParent(skeleton.GetPivot(p.Key, isUsingSword), false);
+        }
+    }
+
     void FixedUpdate() {
         Vector3 delta = accumulatedDelta;
 
@@ -201,12 +225,11 @@ public class Mech : MonoBehaviour
 
     public bool Equip(Item item, Inventory.Slot slot) {
         if (inventory.SetItem(item, slot)) {
-            Transform pivot = skeleton.GetPivot(slot);
+            Transform pivot = skeleton.GetPivot(slot, isUsingSword);
 
             item.transform.parent = pivot;
             item.transform.localPosition = Vector3.zero;
             item.transform.localRotation = Quaternion.identity;
-            item.transform.localScale = Vector3.one;
 
             return true;
         }
@@ -220,7 +243,6 @@ public class Mech : MonoBehaviour
 
             item.transform.parent = null;
             item.transform.localRotation = Quaternion.identity;
-            item.transform.localScale = Vector3.one;
 
             return true;
         }

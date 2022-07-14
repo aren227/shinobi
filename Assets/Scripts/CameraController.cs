@@ -42,6 +42,14 @@ public class CameraController : MonoBehaviour
         transform.localEulerAngles = new Vector3(0, yaw, 0);
         cameraArm.localEulerAngles = new Vector3(pitch, 0, 0);
 
+        if (mech.isUsingSword) {
+            cameraArm.localPosition = new Vector3(0, 3f, 0);
+        }
+        else {
+            // @Hardcoded
+            cameraArm.localPosition = new Vector3(3.5f, 2f, 0);
+        }
+
         // Vector3 targetLocalPos = cameraTarget.localPosition;
         // targetLocalPos.z = Mathf.LerpUnclamped(-6, -8, mech.boost ? 1 : 0);
         // cameraTarget.localPosition = targetLocalPos;

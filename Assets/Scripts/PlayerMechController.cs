@@ -47,9 +47,6 @@ public class PlayerMechController : MonoBehaviour
 
         mech.Move(moveDir);
 
-        if (Input.GetKeyDown(KeyCode.Alpha1)) mech.targetType = TargetType.VITAL;
-        if (Input.GetKeyDown(KeyCode.Alpha2)) mech.targetType = TargetType.THERMAL;
-
         Vector3 aimTarget = cameraController.cameraTarget.position + cameraController.cameraTarget.forward * 1000;
 
         RaycastHit aimHit;
@@ -59,34 +56,12 @@ public class PlayerMechController : MonoBehaviour
 
         mech.Aim(aimTarget);
 
-        List<Target> targets = mech.GetVisibleTargets();
-
-        if (Input.GetMouseButton(0)) {
-            Weapon leftHand = mech.inventory.GetItem(Inventory.Slot.LEFT_HAND)?.GetComponent<Weapon>();
-            Weapon rightHand = mech.inventory.GetItem(Inventory.Slot.RIGHT_HAND)?.GetComponent<Weapon>();
-
-            if (leftHand) leftHand.Shoot(mech.aimTarget);
-            if (rightHand) rightHand.Shoot(mech.aimTarget);
-        }
-        if (Input.GetMouseButtonDown(1)) {
-            // @Todo: Simple algorithm. Need to be refined.
-
-            List<Weapon> weapons = new List<Weapon>();
-            foreach (Item item in mech.inventory.GetItems()) {
-                Weapon weapon = item.GetComponent<Weapon>();
-                if (weapon && weapon.type == WeaponType.MISSLE_WEAPON) {
-                    weapons.Add(weapon);
-                }
-            }
-
-            weapons.Sort((x, y) => x.ammo - y.ammo);
-
-            for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
-                weapons[i].Shoot(Vector3.zero, targets[i].transform);
-            }
-        }
-
         mech.yaw = cameraController.cameraArm.eulerAngles.y;
+
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            if (!mech.isUsingSword) mech.BeginSword();
+            else mech.EndSword();
+        }
 
         // @Todo: Better ui.
         if (Input.GetKeyDown(KeyCode.E)) {
@@ -95,17 +70,53 @@ public class PlayerMechController : MonoBehaviour
             float minDist = 3;
             foreach (Item item in items) {
                 if (item.isEquipped) continue;
-                if (selected == null || minDist > Vector3.Distance(item.transform.position, mech.transform.position)) {
+                if (minDist > Vector3.Distance(item.transform.position, mech.transform.position)) {
                     selected = item;
+                    minDist = Vector3.Distance(item.transform.position, mech.transform.position);
                 }
             }
 
             if (selected != null) TryToEquip(selected);
         }
 
+        if (mech.isUsingSword) {
+            uiManager.SetTargets(new List<Target>(), cameraController.cam);
+        }
+        else {
+            if (Input.GetKeyDown(KeyCode.Alpha1)) mech.targetType = TargetType.VITAL;
+            if (Input.GetKeyDown(KeyCode.Alpha2)) mech.targetType = TargetType.THERMAL;
+
+            List<Target> targets = mech.GetVisibleTargets();
+
+            if (Input.GetMouseButton(0)) {
+                Weapon leftHand = mech.inventory.GetItem(Inventory.Slot.LEFT_HAND)?.GetComponent<Weapon>();
+                Weapon rightHand = mech.inventory.GetItem(Inventory.Slot.RIGHT_HAND)?.GetComponent<Weapon>();
+
+                if (leftHand) leftHand.Shoot(mech.aimTarget);
+                if (rightHand) rightHand.Shoot(mech.aimTarget);
+            }
+            if (Input.GetMouseButtonDown(1)) {
+                // @Todo: Simple algorithm. Need to be refined.
+
+                List<Weapon> weapons = new List<Weapon>();
+                foreach (Item item in mech.inventory.GetItems()) {
+                    Weapon weapon = item.GetComponent<Weapon>();
+                    if (weapon && weapon.type == WeaponType.MISSLE_WEAPON) {
+                        weapons.Add(weapon);
+                    }
+                }
+
+                weapons.Sort((x, y) => x.ammo - y.ammo);
+
+                for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
+                    weapons[i].Shoot(Vector3.zero, targets[i].transform);
+                }
+            }
+
+            uiManager.SetTargets(targets, cameraController.cam);
+        }
         uiManager.SetStemina(mech.stemina);
         uiManager.SetSpeed(mech.velocity.magnitude);
-        uiManager.SetTargets(targets, cameraController.cam);
     }
 
     public void TryToEquip(Item item) {
@@ -119,6 +130,12 @@ public class PlayerMechController : MonoBehaviour
         }
         else if (item.equipAt == EquipAt.AUXILIARY) {
             FindObjectOfType<InventoryCanvas2>().Open(item);
+        }
+        else if (item.equipAt == EquipAt.SWORD) {
+            if (inventory.GetItem(Inventory.Slot.SWORD) != null) {
+                mech.Unequip(Inventory.Slot.SWORD);
+            }
+            mech.Equip(item, Inventory.Slot.SWORD);
         }
     }
 }
