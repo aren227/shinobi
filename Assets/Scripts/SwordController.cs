@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SwordController : MonoBehaviour
 {
+    Mech mech;
+
     const float maxAngle = 60;
 
     SwordCanvas swordCanvas;
@@ -15,7 +17,10 @@ public class SwordController : MonoBehaviour
     const float sensitivity = 0.3f;
     const float maxRadius = 1.0f;
 
+    public Mech target;
+
     void Awake() {
+        mech = GetComponent<Mech>();
         swordCanvas = FindObjectOfType<SwordCanvas>();
     }
 
@@ -31,8 +36,15 @@ public class SwordController : MonoBehaviour
 
         swordCanvas.SetAim(dir);
 
-        SwordHitShape hitShape = new SwordHitShape();
-        hitShape.offset = Mathf.Lerp(-1, 1, Mathf.PerlinNoise(0, Time.time)) * 60;
+        SwordHitShape hitShape;
+        if (target != null) {
+            hitShape = mech.GetSwordHitShape(target);
+            hitShape.offset = Mathf.Lerp(-1, 1, Mathf.PerlinNoise(0, Time.time)) * 60;
+        }
+        else {
+            hitShape = new SwordHitShape();
+            for (int i = 0; i < 6; i++) hitShape.proportions[i] = 0;
+        }
 
         swordCanvas.SetSwordHitShape(hitShape);
     }

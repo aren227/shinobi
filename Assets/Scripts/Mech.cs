@@ -277,6 +277,33 @@ public class Mech : MonoBehaviour
         }
         return false;
     }
+
+    float DistanceToProportion(Transform sliceTarget) {
+        float dist = Vector3.Distance(skeleton.cockpit.position, sliceTarget.position);
+
+        const float minDist = 1;
+        const float maxDist = 10;
+
+        return 1-Mathf.InverseLerp(minDist, maxDist, dist);
+    }
+
+    public SwordHitShape GetSwordHitShape(Mech mech) {
+        SwordHitShape shape = new SwordHitShape();
+
+        shape.fillRate[0] = DistanceToProportion(mech.skeleton.rightArmSlicePivot) * shape.fillRate[0];
+        shape.fillRate[1] = DistanceToProportion(mech.skeleton.rightBodySlicePivot) * shape.fillRate[1];
+        shape.fillRate[2] = DistanceToProportion(mech.skeleton.rightLegSlicePivot) * shape.fillRate[2];
+        shape.fillRate[3] = DistanceToProportion(mech.skeleton.leftLegSlicePivot) * shape.fillRate[3];
+        shape.fillRate[4] = DistanceToProportion(mech.skeleton.leftBodySlicePivot) * shape.fillRate[4];
+        shape.fillRate[5] = DistanceToProportion(mech.skeleton.leftArmSlicePivot) * shape.fillRate[5];
+
+        // @Temp
+        Vector3 localVelocity = skeleton.headBone.rotation * mech.velocity;
+
+        shape.offset = localVelocity.x;
+
+        return shape;
+    }
 }
 
 class CapsuleParams {

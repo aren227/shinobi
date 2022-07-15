@@ -28,6 +28,15 @@ public class Skeleton : MonoBehaviour
 
     public Transform headBone;
 
+    public Transform cockpit;
+
+    public Transform leftArmSlicePivot;
+    public Transform rightArmSlicePivot;
+    public Transform leftBodySlicePivot;
+    public Transform rightBodySlicePivot;
+    public Transform leftLegSlicePivot;
+    public Transform rightLegSlicePivot;
+
     Animator animator;
 
     Dictionary<Inventory.Slot, Transform> pivots = new Dictionary<Inventory.Slot, Transform>();
@@ -68,7 +77,9 @@ public class Skeleton : MonoBehaviour
     }
 
     void Update() {
-        Vector2 motion = new Vector2(mech.velocity.x, mech.velocity.z) / 10f;
+        Vector3 localVelocity = Quaternion.Inverse(mech.transform.rotation) * mech.velocity;
+        Vector2 motion = new Vector2(localVelocity.x, localVelocity.z) / 10f;
+
         if (motion.magnitude > 1) motion = motion.normalized;
 
         animator.SetFloat("X", motion.x);
