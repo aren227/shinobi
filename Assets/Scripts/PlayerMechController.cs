@@ -80,7 +80,26 @@ public class PlayerMechController : MonoBehaviour
         }
 
         if (mech.isUsingSword) {
-            uiManager.SetTargets(new List<Target>(), cameraController.cam);
+            mech.targetType = TargetType.VITAL;
+
+            List<Target> targets;
+
+            targets = mech.GetVisibleTargets(maxCount: 1);
+
+            if (Input.GetMouseButtonDown(1)) {
+                if (targets.Count > 0 && Input.GetMouseButtonDown(1)) {
+                    cameraController.locked = targets[0].transform;
+                }
+            }
+            else if (Input.GetMouseButton(1)) {
+                targets.Clear();
+                targets.Add(cameraController.locked.GetComponent<Target>());
+            }
+            else if (Input.GetMouseButtonUp(1)) {
+                cameraController.locked = null;
+            }
+
+            uiManager.SetTargets(targets, cameraController.cam);
         }
         else {
             if (Input.GetKeyDown(KeyCode.Alpha1)) mech.targetType = TargetType.VITAL;

@@ -18,6 +18,8 @@ public class CameraController : MonoBehaviour
 
     Vector3 posVel;
 
+    public Transform locked;
+
     void Awake() {
         cam = Camera.main;
         prevMouse = Input.mousePosition;
@@ -36,12 +38,6 @@ public class CameraController : MonoBehaviour
         Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
         mouseDelta *= mouseSensitivity;
 
-        yaw = (yaw + mouseDelta.x) % 360;
-        pitch = Mathf.Clamp(pitch - mouseDelta.y, -89, 89);
-
-        transform.localEulerAngles = new Vector3(0, yaw, 0);
-        cameraArm.localEulerAngles = new Vector3(pitch, 0, 0);
-
         if (mech.isUsingSword) {
             cameraArm.localPosition = new Vector3(0, 3f, 0);
         }
@@ -49,6 +45,26 @@ public class CameraController : MonoBehaviour
             // @Hardcoded
             cameraArm.localPosition = new Vector3(3.5f, 2f, 0);
         }
+
+        if (locked) {
+            Vector3 fromTo = locked.position - cameraArm.position;
+
+            yaw = -Mathf.Atan2(fromTo.z, fromTo.x) * Mathf.Rad2Deg + 90;
+
+            transform.localEulerAngles = new Vector3(0, yaw, 0);
+
+            fromTo = locked.position - cameraTarget.position;
+
+            Vector3 proj = new Vector3(fromTo.x, 0, fromTo.z);
+            pitch = -Mathf.Atan2(fromTo.y, proj.magnitude) * Mathf.Rad2Deg;
+        }
+        else {
+            yaw = (yaw + mouseDelta.x) % 360;
+            pitch = Mathf.Clamp(pitch - mouseDelta.y, -89, 89);
+        }
+
+        transform.localEulerAngles = new Vector3(0, yaw, 0);
+        cameraArm.localEulerAngles = new Vector3(pitch, 0, 0);
 
         // Vector3 targetLocalPos = cameraTarget.localPosition;
         // targetLocalPos.z = Mathf.LerpUnclamped(-6, -8, mech.boost ? 1 : 0);

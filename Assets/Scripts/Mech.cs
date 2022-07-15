@@ -103,7 +103,7 @@ public class Mech : MonoBehaviour
         yaw = -Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90;
     }
 
-    public List<Target> GetVisibleTargets() {
+    public List<Target> GetVisibleTargets(int maxCount = 256) {
         List<Target> result = new List<Target>();
 
         if (targetType == TargetType.NONE) return result;
@@ -153,6 +153,27 @@ public class Mech : MonoBehaviour
                 if (success) {
                     result.Add(target);
                 }
+            }
+        }
+
+        if (maxCount < result.Count) {
+            List<KeyValuePair<Target, float>> distList = new List<KeyValuePair<Target, float>>();
+
+            foreach (Target target in result) {
+                Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
+                distList.Add(new KeyValuePair<Target, float>(target, Vector2.Distance(Vector2.one * 0.5f, viewport)));
+            }
+
+            distList.Sort((x, y) => {
+                float f = x.Value - y.Value;
+                if (f == 0) return 0;
+                if (f > 0) return 1;
+                return -1;
+            });
+
+            result.Clear();
+            for (int i = 0; i < maxCount; i++) {
+                result.Add(distList[i].Key);
             }
         }
 
