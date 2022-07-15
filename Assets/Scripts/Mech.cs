@@ -105,10 +105,10 @@ public class Mech : MonoBehaviour
     public void Aim(Vector3 aimTarget) {
         this.aimTarget = aimTarget;
 
-        skeleton.leftHandWeaponPivot.forward = (aimTarget - skeleton.leftHandWeaponPivot.position).normalized;
-        skeleton.rightHandWeaponPivot.forward = (aimTarget - skeleton.rightHandWeaponPivot.position).normalized;
+        skeleton.leftGunPivot.forward = (aimTarget - skeleton.leftGunPivot.position).normalized;
+        skeleton.rightGunPivot.forward = (aimTarget - skeleton.rightGunPivot.position).normalized;
 
-        skeleton.head.forward = (aimTarget - skeleton.head.position).normalized;
+        skeleton.headBone.forward = (aimTarget - skeleton.headBone.position).normalized;
 
         Vector2 dir = new Vector2(aimTarget.x - transform.position.x, aimTarget.z - transform.position.z);
         yaw = -Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90;
@@ -129,8 +129,8 @@ public class Mech : MonoBehaviour
         Quaternion prevRot = cam.transform.localRotation;
 
         if (this != Mech.Player) {
-            cam.transform.position = skeleton.head.position;
-            cam.transform.rotation = skeleton.head.rotation;
+            cam.transform.position = skeleton.headBone.position;
+            cam.transform.rotation = skeleton.headBone.rotation;
         }
 
         RaycastHit[] hits = new RaycastHit[32];

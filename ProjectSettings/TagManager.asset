@@ -12,16 +12,16 @@ TagManager:
   - 
   - Water
   - UI
-  - Player
+  - Mech
   - Kinematic
   - Missile
   - Weapon
-  - 
-  - WeaponPivot
+  - Thruster
+  - Pivot
   - ItemHint
   - RTRender
   - UIObject
-  - 
+  - Cockpit
   - 
   - 
   - 
