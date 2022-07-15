@@ -18,7 +18,10 @@ public class Mech : MonoBehaviour
 
     Vector3 accumulatedDelta;
 
-    bool boost = false;
+    public bool boost = false;
+    float boostSince;
+
+    const float minimumBoostTime = 0.3f;
 
     public const float maxStemina = 100;
     public float stemina = 0;
@@ -45,7 +48,7 @@ public class Mech : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
 
-        velocitySolver = FindObjectOfType<AccelerationBasedVelocitySolver>();
+        velocitySolver = GetComponent<AccelerationBasedVelocitySolver>();
 
         CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
         kinematicCapsule = new CapsuleParams() { center = capsuleCollider.center, radius = capsuleCollider.radius, height = capsuleCollider.height };
@@ -71,24 +74,32 @@ public class Mech : MonoBehaviour
     public void Move(Vector3 moveDir) {
         if (boost) {
             stemina = Mathf.Max(stemina - steminaConsumRate * Time.deltaTime, 0);
-
-            bool boostInput = Input.GetKey(KeyCode.LeftShift) && moveDir.sqrMagnitude > 0;
-
-            if (!boostInput || stemina <= 0) {
-                boost = false;
+            if (stemina <= 0 && Time.time - boostSince > minimumBoostTime) {
+                EndBoost();
             }
         }
         else {
             stemina = Mathf.Min(stemina + steminaRestoreRate * Time.deltaTime, maxStemina);
-            if (Input.GetKeyDown(KeyCode.LeftShift) && moveDir.sqrMagnitude > 0 && stemina >= steminaRequiredToBoost) {
-                stemina -= steminaRequiredToBoost;
-                boost = true;
-            }
         }
 
         velocity = velocitySolver.Update(moveDir, boost);
 
         accumulatedDelta += velocity * Time.deltaTime;
+    }
+
+    public bool BeginBoost() {
+        if (stemina < steminaRequiredToBoost) return false;
+
+        stemina -= steminaRequiredToBoost;
+
+        boost = true;
+        boostSince = Time.time;
+
+        return true;
+    }
+
+    public void EndBoost() {
+        boost = false;
     }
 
     public void Aim(Vector3 aimTarget) {
@@ -146,6 +157,9 @@ public class Mech : MonoBehaviour
                     // Ignore target collider.
                     if (hits[i].collider.transform.IsChildOf(target.transform)) continue;
 
+                    // Vital target should always visible.
+                    if (targetType == TargetType.VITAL && hits[i].collider.transform.IsChildOf(target.transform.root)) continue;
+
                     success = false;
                     break;
                 }
@@ -184,12 +198,6 @@ public class Mech : MonoBehaviour
         }
 
         return result;
-    }
-
-    void Update() {
-        if (this != Mech.Player) {
-            Aim(Mech.Player.transform.position);
-        }
     }
 
     public void BeginSword() {

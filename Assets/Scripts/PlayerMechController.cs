@@ -45,6 +45,13 @@ public class PlayerMechController : MonoBehaviour
 
         moveDir = cameraController.GetCameraRotation() * moveDir;
 
+        if (moveDir.sqrMagnitude > 0 && Input.GetKeyDown(KeyCode.LeftShift) && !mech.boost) {
+            mech.BeginBoost();
+        }
+        else if (!Input.GetKey(KeyCode.LeftShift) && mech.boost) {
+            mech.EndBoost();
+        }
+
         mech.Move(moveDir);
 
         Vector3 aimTarget = cameraController.cameraTarget.position + cameraController.cameraTarget.forward * 1000;

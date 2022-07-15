@@ -497,6 +497,8 @@ GameObject:
   - component: {fileID: 7580416314343576958}
   - component: {fileID: 7580416314343576959}
   - component: {fileID: 7580416314343576961}
+  - component: {fileID: 3629586524374499110}
+  - component: {fileID: 8250393955911717736}
   m_Layer: 0
   m_Name: Mech
   m_TagString: Untagged
@@ -618,6 +620,113 @@ MonoBehaviour:
   right: {fileID: 0}
   mech: {fileID: 0}
   mechArmature: {fileID: 0}
+--- !u!114 &3629586524374499110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7580416314343576954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dba8ba1f4b6fc54b92f9f595beccb14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boostAccelerationCurve:
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.00054858637
+        value: 0.0011525154
+        inSlope: 164.19879
+        outSlope: 164.19879
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.017088212
+      - serializedVersion: 3
+        time: 0.04406804
+        value: 2.5150054
+        inSlope: -0.000007418291
+        outSlope: -0.000007418291
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.30278018
+      - serializedVersion: 3
+        time: 0.15076354
+        value: 0.75620383
+        inSlope: -0.046468344
+        outSlope: -0.046468344
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.061994605
+      - serializedVersion: 3
+        time: 1.0010473
+        value: 1.2383728
+        inSlope: -0.05770385
+        outSlope: -0.05770385
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.03312939
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    duration: 2
+    minValue: 0
+    maxValue: 1
+  boostAccelerationSmoothTimeCurve:
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 3.2825818
+        outSlope: 3.2825818
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.02377058
+      - serializedVersion: 3
+        time: 0.499207
+        value: 0.9961703
+        inSlope: 0.04380629
+        outSlope: 0.04380629
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.07539873
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.030508237
+        outSlope: 0.030508237
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.040022016
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    duration: 2
+    minValue: 0
+    maxValue: 1
+--- !u!114 &8250393955911717736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7580416314343576954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df1a52492cf2d764c8aba6a8e760f7f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7580416314347094965
 GameObject:
   m_ObjectHideFlags: 0

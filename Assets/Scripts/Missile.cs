@@ -14,7 +14,7 @@ public class Missile : MonoBehaviour
 
     public Transform target;
 
-    const float maxAngleDiff = 90;
+    const float maxAngleDiff = 80;
     const float fov = 90;
 
     void Awake() {
