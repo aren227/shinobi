@@ -45,6 +45,8 @@ public class Skeleton : MonoBehaviour
 
     List<SurfaceRenderer>[] surfaceRenderersByBone;
 
+    GameObject sliceBox;
+
     string[] boneNames = new string[] {
         "Bone", "Head", "UArm.L", "LArm.L", "UArm.R", "LArm.R",
         "ULeg.L", "LLeg.L", "ULeg.R", "LLeg.R"
@@ -88,6 +90,8 @@ public class Skeleton : MonoBehaviour
 
         animator.SetFloat("X", motion.x);
         animator.SetFloat("Y", motion.y);
+
+        SetBodySlice(new Vector3(1, 1, 0).normalized, Mathf.InverseLerp(-1, 1, Mathf.Sin(Time.time)));
     }
 
     void FindRecursive(Transform current, Transform[] array, string[] names) {
@@ -220,6 +224,30 @@ public class Skeleton : MonoBehaviour
 
     public void AddHole(int bone, Vector3 globalPos) {
         // @Todo
+    }
+
+    public void SetBodySlice(Vector3 dir, float ratio) {
+        if (sliceBox == null) {
+            sliceBox = Instantiate(PrefabRegistry.Instance.sliceEffectBox);
+            sliceBox.transform.parent = cockpit;
+
+            foreach (List<SurfaceRenderer> surfaceRenderers in surfaceRenderersByBone) {
+                foreach (SurfaceRenderer surfaceRenderer in surfaceRenderers) {
+                    surfaceRenderer.holes.Add(sliceBox.GetComponent<MeshFilter>());
+                }
+            }
+        }
+
+        const float radius = 4;
+        const float thickness = 0.15f;
+        const float depth = 4;
+
+        Vector3 from = -dir * radius;
+        Vector3 to = dir * Mathf.Lerp(-radius, radius, ratio);
+
+        sliceBox.transform.localScale = new Vector3(Vector3.Distance(from, to) + thickness, thickness, depth);
+        sliceBox.transform.localPosition = (from + to) / 2;
+        sliceBox.transform.localRotation = Quaternion.FromToRotation(Vector3.right, dir);
     }
 }
 

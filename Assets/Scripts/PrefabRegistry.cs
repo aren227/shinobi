@@ -8,6 +8,7 @@ public class PrefabRegistry : MonoBehaviour
 
     public GameObject missileWeapon;
     public GameObject missile;
+    public GameObject sliceEffectBox;
 
     void Awake() {
         Instance = this;
