@@ -8,7 +8,9 @@ public class Skeleton : MonoBehaviour
 
     public Transform pivotRoot;
     public Transform boneRoot;
-    public Transform modelRoot;
+    public Transform modelRoot; // Frame
+    public Transform modelRoot2; // Armor
+    public Transform colliderRoot;
 
     public Transform leftHandPivot;
     public Transform rightHandPivot;
@@ -40,6 +42,8 @@ public class Skeleton : MonoBehaviour
     Animator animator;
 
     Dictionary<Inventory.Slot, Transform> pivots = new Dictionary<Inventory.Slot, Transform>();
+
+    List<SurfaceRenderer>[] surfaceRenderersByBone;
 
     string[] boneNames = new string[] {
         "Bone", "Head", "UArm.L", "LArm.L", "UArm.R", "LArm.R",
@@ -106,17 +110,22 @@ public class Skeleton : MonoBehaviour
 
         Transform[] bones = new Transform[boneNames.Length];
         Transform[] models = new Transform[modelNames.Length];
+        Transform[] models2 = new Transform[modelNames.Length];
+        Transform[] colliders = new Transform[modelNames.Length];
 
         FindRecursive(boneRoot, bones, boneNames);
         FindRecursive(modelRoot, models, modelNames);
+        FindRecursive(modelRoot2, models2, modelNames);
+        FindRecursive(colliderRoot, colliders, boneNames);
 
         for (int i = 0; i < boneNames.Length; i++) {
             if (bones[i] == null) Debug.LogError($"Bone {boneNames[i]} not found!");
             if (models[i] == null) Debug.LogError($"Model {modelNames[i]} not found!");
+            if (models2[i] == null) Debug.LogError($"Model2 {modelNames[i]} not found!");
+            if (colliders[i] == null) Debug.LogError($"Collider {boneNames[i]} not found!");
         }
 
-        // Reset bones to rest pose.
-        // @Todo
+        // Assume that bones are in rest pose.
 
         // Attach model
         // We need another root objects because pivots of model is arbitrary.
@@ -135,6 +144,38 @@ public class Skeleton : MonoBehaviour
             models[i].transform.parent = modelRoots[i].transform;
         }
 
+        // Attach armor
+        GameObject[] modelRoots2 = new GameObject[modelNames.Length];
+        for (int i = 0; i < modelNames.Length; i++) {
+            modelRoots2[i] = new GameObject("Model2");
+            modelRoots2[i].transform.parent = bones[i];
+
+            Matrix4x4 modelToBone = bones[i].worldToLocalMatrix * models2[i].localToWorldMatrix;
+            Matrix4x4 boneToModel = modelToBone.inverse;
+
+            modelRoots2[i].transform.localPosition = boneToModel.ExtractPosition();
+            modelRoots2[i].transform.localRotation = boneToModel.ExtractRotation();
+            modelRoots2[i].transform.localScale = boneToModel.ExtractScale();
+
+            models2[i].transform.parent = modelRoots2[i].transform;
+        }
+
+        // Attach collider
+        GameObject[] colliderRoots = new GameObject[modelNames.Length];
+        for (int i = 0; i < modelNames.Length; i++) {
+            colliderRoots[i] = new GameObject("Collider");
+            colliderRoots[i].transform.parent = colliders[i];
+
+            Matrix4x4 modelToBone = bones[i].worldToLocalMatrix * colliders[i].localToWorldMatrix;
+            Matrix4x4 boneToModel = modelToBone.inverse;
+
+            colliderRoots[i].transform.localPosition = boneToModel.ExtractPosition();
+            colliderRoots[i].transform.localRotation = boneToModel.ExtractRotation();
+            colliderRoots[i].transform.localScale = boneToModel.ExtractScale();
+
+            colliders[i].transform.parent = colliderRoots[i].transform;
+        }
+
         // Attach pivot
         Pivot[] pivots = GetComponentsInChildren<Pivot>();
         foreach (Pivot pivot in pivots) {
@@ -144,6 +185,23 @@ public class Skeleton : MonoBehaviour
                     break;
                 }
             }
+        }
+
+        surfaceRenderersByBone = new List<SurfaceRenderer>[boneNames.Length];
+        for (int i = 0; i < boneNames.Length; i++) {
+            surfaceRenderersByBone[i] = new List<SurfaceRenderer>();
+            AddSurfaceRendererRecursively(bones[i], i);
+        }
+    }
+
+    void AddSurfaceRendererRecursively(Transform curr, int index) {
+        for (int i = 0; i < curr.childCount; i++) {
+            Transform child = curr.GetChild(i);
+            if (child.GetComponent<MeshRenderer>()) {
+                surfaceRenderersByBone[index].Add(child.gameObject.AddComponent<SurfaceRenderer>());
+            }
+
+            AddSurfaceRendererRecursively(child, index);
         }
     }
 
@@ -158,6 +216,10 @@ public class Skeleton : MonoBehaviour
             if (slot == Inventory.Slot.SWORD) return middleBackPivot;
             return pivots[slot];
         }
+    }
+
+    public void AddHole(int bone, Vector3 globalPos) {
+        // @Todo
     }
 }
 
