@@ -35,7 +35,16 @@ public class Bullet : MonoBehaviour
             Damagable damagable = hit.collider.GetComponent<Damagable>();
 
             if (damagable) {
-                damagable.Hit(hit.point, hit.normal, 1);
+                damagable.Hit(hit.point, hit.normal, 10);
+            }
+
+            // @Todo: We can search mech by collider.
+            Mech mech = hit.collider.GetComponentInParent<Mech>();
+            if (mech) {
+                Part part = mech.skeleton.GetPartByCollider(hit.collider);
+                if (part) {
+                    part.Hit(hit.point, hit.normal, 10);
+                }
             }
 
             return;

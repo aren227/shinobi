@@ -10,7 +10,8 @@ public class Skeleton : MonoBehaviour
     public Transform boneRoot;
     public Transform modelRoot; // Frame
     public Transform modelRoot2; // Armor
-    public Transform colliderRoot;
+    public Transform frameColliderRoot;
+    public Transform armorColliderRoot;
 
     public Transform leftHandPivot;
     public Transform rightHandPivot;
@@ -44,6 +45,10 @@ public class Skeleton : MonoBehaviour
     Dictionary<Inventory.Slot, Transform> pivots = new Dictionary<Inventory.Slot, Transform>();
 
     List<SurfaceRenderer>[] surfaceRenderersByBone;
+
+    Part[] parts;
+
+    Dictionary<Collider, Part> partByCollider = new Dictionary<Collider, Part>();
 
     GameObject sliceBox;
 
@@ -115,18 +120,32 @@ public class Skeleton : MonoBehaviour
         Transform[] bones = new Transform[boneNames.Length];
         Transform[] models = new Transform[modelNames.Length];
         Transform[] models2 = new Transform[modelNames.Length];
-        Transform[] colliders = new Transform[modelNames.Length];
+        Transform[] frameColliders = new Transform[modelNames.Length];
+        Transform[] armorColliders = new Transform[modelNames.Length];
 
         FindRecursive(boneRoot, bones, boneNames);
         FindRecursive(modelRoot, models, modelNames);
         FindRecursive(modelRoot2, models2, modelNames);
-        FindRecursive(colliderRoot, colliders, boneNames);
+        FindRecursive(frameColliderRoot, frameColliders, boneNames);
+        FindRecursive(armorColliderRoot, armorColliders, boneNames);
 
         for (int i = 0; i < boneNames.Length; i++) {
             if (bones[i] == null) Debug.LogError($"Bone {boneNames[i]} not found!");
             if (models[i] == null) Debug.LogError($"Model {modelNames[i]} not found!");
             if (models2[i] == null) Debug.LogError($"Model2 {modelNames[i]} not found!");
-            if (colliders[i] == null) Debug.LogError($"Collider {boneNames[i]} not found!");
+            if (frameColliders[i] == null) Debug.LogError($"Frame collider {boneNames[i]} not found!");
+            if (armorColliders[i] == null) Debug.LogError($"Armor collider {boneNames[i]} not found!");
+        }
+
+        parts = new Part[boneNames.Length];
+        for (int i = 0; i < boneNames.Length; i++) {
+            Part part = bones[i].GetComponent<Part>();
+            if (!part) {
+                Debug.Log($"Part component not found in {bones[i]}!");
+            }
+            parts[i] = part;
+
+            part.skeleton = this;
         }
 
         // Assume that bones are in rest pose.
@@ -146,6 +165,8 @@ public class Skeleton : MonoBehaviour
             modelRoots[i].transform.localScale = boneToModel.ExtractScale();
 
             models[i].transform.parent = modelRoots[i].transform;
+
+            parts[i].frameRoot = modelRoots[i].transform;
         }
 
         // Attach armor
@@ -162,22 +183,44 @@ public class Skeleton : MonoBehaviour
             modelRoots2[i].transform.localScale = boneToModel.ExtractScale();
 
             models2[i].transform.parent = modelRoots2[i].transform;
+
+            parts[i].armorRoot = modelRoots2[i].transform;
         }
 
-        // Attach collider
-        GameObject[] colliderRoots = new GameObject[modelNames.Length];
+        // Attach frame collider
+        GameObject[] frameColliderRoots = new GameObject[modelNames.Length];
         for (int i = 0; i < modelNames.Length; i++) {
-            colliderRoots[i] = new GameObject("Collider");
-            colliderRoots[i].transform.parent = bones[i];
+            frameColliderRoots[i] = new GameObject("Frame Collider");
+            frameColliderRoots[i].transform.parent = bones[i];
 
-            Matrix4x4 modelToBone = bones[i].worldToLocalMatrix * colliders[i].localToWorldMatrix;
+            Matrix4x4 modelToBone = bones[i].worldToLocalMatrix * frameColliders[i].localToWorldMatrix;
             Matrix4x4 boneToModel = modelToBone.inverse;
 
-            colliderRoots[i].transform.localPosition = boneToModel.ExtractPosition();
-            colliderRoots[i].transform.localRotation = boneToModel.ExtractRotation();
-            colliderRoots[i].transform.localScale = boneToModel.ExtractScale();
+            frameColliderRoots[i].transform.localPosition = boneToModel.ExtractPosition();
+            frameColliderRoots[i].transform.localRotation = boneToModel.ExtractRotation();
+            frameColliderRoots[i].transform.localScale = boneToModel.ExtractScale();
 
-            colliders[i].transform.parent = colliderRoots[i].transform;
+            frameColliders[i].transform.parent = frameColliderRoots[i].transform;
+
+            AddColliderToPart(frameColliders[i].GetComponent<Collider>(), isArmor: false, parts[i]);
+        }
+
+        // Attach armor collider
+        GameObject[] armorColliderRoots = new GameObject[modelNames.Length];
+        for (int i = 0; i < modelNames.Length; i++) {
+            armorColliderRoots[i] = new GameObject("Armor Collider");
+            armorColliderRoots[i].transform.parent = bones[i];
+
+            Matrix4x4 modelToBone = bones[i].worldToLocalMatrix * armorColliders[i].localToWorldMatrix;
+            Matrix4x4 boneToModel = modelToBone.inverse;
+
+            armorColliderRoots[i].transform.localPosition = boneToModel.ExtractPosition();
+            armorColliderRoots[i].transform.localRotation = boneToModel.ExtractRotation();
+            armorColliderRoots[i].transform.localScale = boneToModel.ExtractScale();
+
+            armorColliders[i].transform.parent = armorColliderRoots[i].transform;
+
+            AddColliderToPart(armorColliders[i].GetComponent<Collider>(), isArmor: true, parts[i]);
         }
 
         // Attach pivot
@@ -220,6 +263,17 @@ public class Skeleton : MonoBehaviour
             if (slot == Inventory.Slot.SWORD) return middleBackPivot;
             return pivots[slot];
         }
+    }
+
+    public void AddColliderToPart(Collider collider, bool isArmor, Part part) {
+        partByCollider[collider] = part;
+        if (isArmor) part.armorColliders.Add(collider);
+        else part.frameColliders.Add(collider);
+    }
+
+    public Part GetPartByCollider(Collider collider) {
+        if (partByCollider.ContainsKey(collider)) return partByCollider[collider];
+        return null;
     }
 
     public void AddHole(int bone, Vector3 globalPos) {
