@@ -17,7 +17,6 @@ public class SurfaceRenderer : MonoBehaviour
         meshFilter = GetComponent<MeshFilter>();
     }
 
-
     public void AppendToCommandBuffer(CommandBuffer cb) {
         if (holes.Count == 0) {
             // Just write front depth.
@@ -54,11 +53,12 @@ public class SurfaceRenderer : MonoBehaviour
             // Draw object.
             cb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
             // Do pass 0, 1.
-            cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthPassMat);
+            cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthPassMat, 0, 0);
+            cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthPassMat, 0, 1);
 
             // Draw holes for real.
             foreach (MeshFilter meshFilter in holes) {
-                cb.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, depthWriteMat, 0, 2);
+                cb.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, depthPassMat, 0, 2);
             }
         }
     }

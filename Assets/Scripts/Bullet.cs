@@ -32,6 +32,12 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject);
             FindObjectOfType<ParticleManager>().CreateBulletImpact(hit.point, hit.normal);
 
+            Damagable damagable = hit.collider.GetComponent<Damagable>();
+
+            if (damagable) {
+                damagable.Hit(hit.point, hit.normal, 1);
+            }
+
             return;
         }
 

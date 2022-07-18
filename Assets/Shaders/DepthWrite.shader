@@ -52,22 +52,5 @@ Shader "Unlit/DepthWrite"
             CGPROGRAM
             ENDCG
         }
-
-        // 5
-        Pass
-        {
-            Cull Front
-            ZTest Less
-            ColorMask 0
-
-            Stencil {
-                Ref 1
-                Comp Equal
-                Pass Keep
-            }
-
-            CGPROGRAM
-            ENDCG
-        }
     }
 }

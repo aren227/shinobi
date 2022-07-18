@@ -41,9 +41,9 @@ Shader "Unlit/DepthPass"
             float f = tex2D(_FrontDepth, uv).r;
             float b = tex2D(_BackDepth, uv).r;
 #if !defined(UNITY_REVERSED_Z)
-            if (b < 1 && f <= d && d <= b) discard;
+            if (b < 1 && f < d && d < b) discard;
 #else
-            if (b <= d && d <= f) discard;
+            if (b < d && d < f) discard;
 #endif
             return 0;
         }
@@ -71,6 +71,23 @@ Shader "Unlit/DepthPass"
                 Ref 1
                 Comp Always
                 Pass Replace
+            }
+
+            CGPROGRAM
+            ENDCG
+        }
+
+        // 5
+        Pass
+        {
+            Cull Front
+            ZTest Less
+            ColorMask 0
+
+            Stencil {
+                Ref 1
+                Comp Equal
+                Pass Keep
             }
 
             CGPROGRAM

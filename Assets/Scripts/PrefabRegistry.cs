@@ -4,13 +4,21 @@ using UnityEngine;
 
 public class PrefabRegistry : MonoBehaviour
 {
-    public static PrefabRegistry Instance;
+    public static PrefabRegistry Instance {
+        get {
+            if (_instance == null) {
+                _instance = FindObjectOfType<PrefabRegistry>();
+            }
+            return _instance;
+        }
+    }
+
+    static PrefabRegistry _instance;
 
     public GameObject missileWeapon;
     public GameObject missile;
     public GameObject sliceEffectBox;
 
-    void Awake() {
-        Instance = this;
-    }
+    public GameObject bulletHole;
+    public Material bulletHoleMat;
 }

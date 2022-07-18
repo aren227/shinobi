@@ -233,7 +233,8 @@ public class Skeleton : MonoBehaviour
 
             foreach (List<SurfaceRenderer> surfaceRenderers in surfaceRenderersByBone) {
                 foreach (SurfaceRenderer surfaceRenderer in surfaceRenderers) {
-                    surfaceRenderer.holes.Add(sliceBox.GetComponent<MeshFilter>());
+                    // @Todo
+                    // surfaceRenderer.holes.Add(sliceBox.GetComponent<MeshFilter>());
                 }
             }
         }
