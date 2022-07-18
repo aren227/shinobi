@@ -168,7 +168,7 @@ public class Skeleton : MonoBehaviour
         GameObject[] colliderRoots = new GameObject[modelNames.Length];
         for (int i = 0; i < modelNames.Length; i++) {
             colliderRoots[i] = new GameObject("Collider");
-            colliderRoots[i].transform.parent = colliders[i];
+            colliderRoots[i].transform.parent = bones[i];
 
             Matrix4x4 modelToBone = bones[i].worldToLocalMatrix * colliders[i].localToWorldMatrix;
             Matrix4x4 boneToModel = modelToBone.inverse;
