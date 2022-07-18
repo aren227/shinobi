@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Skeleton : MonoBehaviour
 {
-    Mech mech;
+    public Mech mech { get; private set; }
 
     public Transform pivotRoot;
     public Transform boneRoot;
@@ -40,21 +40,30 @@ public class Skeleton : MonoBehaviour
     public Transform leftLegSlicePivot;
     public Transform rightLegSlicePivot;
 
+    public Transform swordSwingMirror;
+    public Transform swordSwingPivot;
+
     Animator animator;
 
     Dictionary<Inventory.Slot, Transform> pivots = new Dictionary<Inventory.Slot, Transform>();
 
     List<SurfaceRenderer>[] surfaceRenderersByBone;
 
-    Part[] parts;
-
     Dictionary<Collider, Part> partByCollider = new Dictionary<Collider, Part>();
+
+    Dictionary<PartName, Part> parts = new Dictionary<PartName, Part>();
 
     GameObject sliceBox;
 
     string[] boneNames = new string[] {
         "Bone", "Head", "UArm.L", "LArm.L", "UArm.R", "LArm.R",
         "ULeg.L", "LLeg.L", "ULeg.R", "LLeg.R"
+    };
+
+    PartName[] bonePartNames = new PartName[] {
+        PartName.BODY, PartName.HEAD, PartName.UPPER_LEFT_ARM, PartName.LOWER_LEFT_ARM,
+        PartName.UPPER_RIGHT_ARM, PartName.LOWER_RIGHT_ARM,
+        PartName.UPPER_LEFT_LEG, PartName.LOWER_LEFT_LEG, PartName.UPPER_RIGHT_LEG, PartName.LOWER_RIGHT_LEG,
     };
 
     string[] modelNames = new string[] {
@@ -137,13 +146,11 @@ public class Skeleton : MonoBehaviour
             if (armorColliders[i] == null) Debug.LogError($"Armor collider {boneNames[i]} not found!");
         }
 
-        parts = new Part[boneNames.Length];
+        parts = new Dictionary<PartName, Part>();
         for (int i = 0; i < boneNames.Length; i++) {
             Part part = bones[i].GetComponent<Part>();
-            if (!part) {
-                Debug.Log($"Part component not found in {bones[i]}!");
-            }
-            parts[i] = part;
+
+            parts[part.partName] = part;
 
             part.skeleton = this;
         }
@@ -166,7 +173,7 @@ public class Skeleton : MonoBehaviour
 
             models[i].transform.parent = modelRoots[i].transform;
 
-            parts[i].frameRoot = modelRoots[i].transform;
+            parts[bonePartNames[i]].frameRoot = modelRoots[i].transform;
         }
 
         // Attach armor
@@ -184,7 +191,7 @@ public class Skeleton : MonoBehaviour
 
             models2[i].transform.parent = modelRoots2[i].transform;
 
-            parts[i].armorRoot = modelRoots2[i].transform;
+            parts[bonePartNames[i]].armorRoot = modelRoots2[i].transform;
         }
 
         // Attach frame collider
@@ -202,7 +209,7 @@ public class Skeleton : MonoBehaviour
 
             frameColliders[i].transform.parent = frameColliderRoots[i].transform;
 
-            AddColliderToPart(frameColliders[i].GetComponent<Collider>(), isArmor: false, parts[i]);
+            AddColliderToPart(frameColliders[i].GetComponent<Collider>(), isArmor: false, parts[bonePartNames[i]]);
         }
 
         // Attach armor collider
@@ -220,7 +227,7 @@ public class Skeleton : MonoBehaviour
 
             armorColliders[i].transform.parent = armorColliderRoots[i].transform;
 
-            AddColliderToPart(armorColliders[i].GetComponent<Collider>(), isArmor: true, parts[i]);
+            AddColliderToPart(armorColliders[i].GetComponent<Collider>(), isArmor: true, parts[bonePartNames[i]]);
         }
 
         // Attach pivot
@@ -252,11 +259,14 @@ public class Skeleton : MonoBehaviour
         }
     }
 
-    public Transform GetPivot(Inventory.Slot slot, bool isUsingSword) {
-        if (isUsingSword) {
+    public Transform GetPivot(Inventory.Slot slot) {
+        if (mech.isUsingSword) {
             if (slot == Inventory.Slot.LEFT_HAND) return leftBackPivot;
             if (slot == Inventory.Slot.RIGHT_HAND) return rightBackPivot;
-            if (slot == Inventory.Slot.SWORD) return rightHandPivot;
+            if (slot == Inventory.Slot.SWORD) {
+                if (mech.swordController.isRightHanded) return rightHandPivot;
+                return leftHandPivot;
+            }
             return pivots[slot];
         }
         else {
@@ -304,6 +314,23 @@ public class Skeleton : MonoBehaviour
         sliceBox.transform.localPosition = (from + to) / 2;
         sliceBox.transform.localRotation = Quaternion.FromToRotation(Vector3.right, dir);
     }
+
+    public Part GetPart(PartName partName) {
+        return parts[partName];
+    }
+}
+
+public enum PartName {
+    BODY,
+    HEAD,
+    UPPER_LEFT_ARM,
+    LOWER_LEFT_ARM,
+    UPPER_RIGHT_ARM,
+    LOWER_RIGHT_ARM,
+    UPPER_LEFT_LEG,
+    LOWER_LEFT_LEG,
+    UPPER_RIGHT_LEG,
+    LOWER_RIGHT_LEG,
 }
 
 public static class MatrixExtensions

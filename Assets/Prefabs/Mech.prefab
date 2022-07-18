@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 7580416314343576958}
   - component: {fileID: 7580416314343576959}
   - component: {fileID: 3629586524374499110}
+  - component: {fileID: 4267320952509503351}
   m_Layer: 6
   m_Name: Mech
   m_TagString: Untagged
@@ -402,6 +403,8 @@ MonoBehaviour:
   rightBodySlicePivot: {fileID: 5282379}
   leftLegSlicePivot: {fileID: 14433130}
   rightLegSlicePivot: {fileID: 85979290}
+  swordSwingMirror: {fileID: 172289683213307002}
+  swordSwingPivot: {fileID: 4014103693937500916}
 --- !u!114 &3629586524374499110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -497,6 +500,24 @@ MonoBehaviour:
     duration: 2
     minValue: 0
     maxValue: 1
+--- !u!114 &4267320952509503351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7580416314343576954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2e880b25bdba694793896f0c8fd3e66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  swingAngleVelocityCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &890810036567636188
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -566,6 +587,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7580416314343576955}
     m_Modifications:
+    - target: {fileID: 1589493497639033708, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_RootOrder
+      value: 26
+      objectReference: {fileID: 0}
+    - target: {fileID: 2585045764435604962, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6530760968580074920, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -616,9 +645,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+--- !u!4 &172289683213307002 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1589493497639033708, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+  m_PrefabInstance: {fileID: 1471299836588693270}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3824323617174428656 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2412136606399204582, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+  m_PrefabInstance: {fileID: 1471299836588693270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4014103693937500916 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2585045764435604962, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
   m_PrefabInstance: {fileID: 1471299836588693270}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &5677621962718251385 stripped
@@ -1075,6 +1114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 3
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1098,6 +1138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 2
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1121,6 +1162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 4
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1144,6 +1186,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 1
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1197,6 +1240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 9
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1220,6 +1264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 0
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1243,6 +1288,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 6
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1271,6 +1317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 8
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1294,6 +1341,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 7
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}
@@ -1317,6 +1365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f32b79f5b469d541a76f822277cb296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  partName: 5
   skeleton: {fileID: 0}
   frameRoot: {fileID: 0}
   armorRoot: {fileID: 0}

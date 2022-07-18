@@ -173,7 +173,7 @@ public class InventoryCanvas2 : MonoBehaviour
         this.picked = picked;
 
         foreach (Inventory.Slot slot in selectableSlots) {
-            Transform pivot = mech.skeleton.GetPivot(slot, false);
+            Transform pivot = mech.skeleton.GetPivot(slot);
 
             GameObject cloned = Instantiate(uiSphere, pivot.position, Quaternion.identity);
             cloned.transform.parent = pivot;

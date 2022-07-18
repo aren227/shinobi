@@ -8,6 +8,7 @@ public class PlayerMechController : MonoBehaviour
 
     CameraController cameraController;
     SwordController swordController;
+    SwordController2 swordController2;
     UiManager uiManager;
 
     void Awake() {
@@ -16,6 +17,7 @@ public class PlayerMechController : MonoBehaviour
         uiManager = FindObjectOfType<UiManager>();
 
         mech = GetComponent<Mech>();
+        swordController2 = GetComponent<SwordController2>();
     }
 
     void Start() {
@@ -95,23 +97,31 @@ public class PlayerMechController : MonoBehaviour
 
             targets = mech.GetVisibleTargets(maxCount: 1);
 
-            if (Input.GetMouseButtonDown(1)) {
-                if (targets.Count > 0 && Input.GetMouseButtonDown(1)) {
-                    cameraController.locked = targets[0].transform;
-                }
-            }
-            else if (Input.GetMouseButton(1)) {
-                targets.Clear();
-                targets.Add(cameraController.locked.GetComponent<Target>());
-            }
-            else if (Input.GetMouseButtonUp(1)) {
-                cameraController.locked = null;
-            }
+            // if (Input.GetMouseButtonDown(1)) {
+            //     if (targets.Count > 0 && Input.GetMouseButtonDown(1)) {
+            //         cameraController.locked = targets[0].transform;
+            //     }
+            // }
+            // else if (Input.GetMouseButton(1)) {
+            //     targets.Clear();
+            //     targets.Add(cameraController.locked.GetComponent<Target>());
+            // }
+            // else if (Input.GetMouseButtonUp(1)) {
+            //     cameraController.locked = null;
+            // }
 
             if (targets.Count > 0) swordController.target = targets[0].GetComponentInParent<Mech>();
             else swordController.target = null;
 
             uiManager.SetTargets(targets, cameraController.cam);
+
+            // Newer version
+            if (swordController2.state == SwordSwingState.IDLE && Input.GetMouseButtonDown(0)) {
+                swordController2.BeginSwing();
+            }
+            if (Input.GetMouseButtonDown(1)) {
+                swordController2.SwitchHand();
+            }
         }
         else {
             if (Input.GetKeyDown(KeyCode.Alpha1)) mech.targetType = TargetType.VITAL;

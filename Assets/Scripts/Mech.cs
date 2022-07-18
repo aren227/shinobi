@@ -39,14 +39,18 @@ public class Mech : MonoBehaviour
     public Inventory inventory;
 
     public Skeleton skeleton;
+    public SwordController2 swordController;
 
     public GameObject model;
 
     public bool isUsingSword { get; private set; }
 
+    public bool isKilled { get; private set; }
+
     void Awake() {
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
+        swordController = GetComponent<SwordController2>();
 
         velocitySolver = GetComponent<AccelerationBasedVelocitySolver>();
 
@@ -72,6 +76,8 @@ public class Mech : MonoBehaviour
     }
 
     public void Move(Vector3 moveDir) {
+        if (isKilled) return;
+
         if (boost) {
             stemina = Mathf.Max(stemina - steminaConsumRate * Time.deltaTime, 0);
             if (stemina <= 0 && Time.time - boostSince > minimumBoostTime) {
@@ -200,6 +206,13 @@ public class Mech : MonoBehaviour
         return result;
     }
 
+    public void UpdatePivots() {
+        // @Todo: Does not consider animation.
+        foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
+            p.Value.transform.SetParent(skeleton.GetPivot(p.Key), false);
+        }
+    }
+
     public void BeginSword() {
         Item sword = inventory.GetItem(Inventory.Slot.SWORD);
 
@@ -207,22 +220,18 @@ public class Mech : MonoBehaviour
 
         isUsingSword = true;
 
-        // Update pivots.
-        // @Todo: Does not consider animation.
-        foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
-            p.Value.transform.SetParent(skeleton.GetPivot(p.Key, isUsingSword), false);
-        }
+        UpdatePivots();
     }
 
     public void EndSword() {
         isUsingSword = false;
 
-        foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
-            p.Value.transform.SetParent(skeleton.GetPivot(p.Key, isUsingSword), false);
-        }
+        UpdatePivots();
     }
 
     void FixedUpdate() {
+        if (isKilled) return;
+
         Vector3 delta = accumulatedDelta;
 
         accumulatedDelta = Vector3.zero;
@@ -254,7 +263,7 @@ public class Mech : MonoBehaviour
 
     public bool Equip(Item item, Inventory.Slot slot) {
         if (inventory.SetItem(item, slot)) {
-            Transform pivot = skeleton.GetPivot(slot, isUsingSword);
+            Transform pivot = skeleton.GetPivot(slot);
 
             item.transform.parent = pivot;
             item.transform.localPosition = Vector3.zero;
@@ -304,6 +313,15 @@ public class Mech : MonoBehaviour
         shape.offset = localVelocity.x * velocityOffsetScale;
 
         return shape;
+    }
+
+    public void Kill() {
+        if (isKilled) return;
+
+        isKilled = true;
+        rigid.isKinematic = false;
+
+        Debug.Log("Mech killed.");
     }
 }
 
