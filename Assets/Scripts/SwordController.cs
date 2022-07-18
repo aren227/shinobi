@@ -36,10 +36,11 @@ public class SwordController : MonoBehaviour
 
         swordCanvas.SetAim(dir);
 
+        float angle = (90 - Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 360f) % 360f;
+
         SwordHitShape hitShape;
         if (target != null) {
             hitShape = mech.GetSwordHitShape(target);
-            hitShape.offset = Mathf.Lerp(-1, 1, Mathf.PerlinNoise(0, Time.time)) * 60;
         }
         else {
             hitShape = new SwordHitShape();
@@ -47,5 +48,17 @@ public class SwordController : MonoBehaviour
         }
 
         swordCanvas.SetSwordHitShape(hitShape);
+
+        SwordHitPoint hitPoint;
+        bool hit = hitShape.IsHit(angle, out hitPoint);
+
+        if (hit) {
+            swordCanvas.SetAimColor(Color.red);
+
+            if (mech.isUsingSword && Input.GetMouseButtonDown(0)) {
+                Debug.Log("Hit");
+            }
+        }
+        else swordCanvas.SetAimColor(Color.white);
     }
 }

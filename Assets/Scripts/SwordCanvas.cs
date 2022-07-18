@@ -28,12 +28,16 @@ public class SwordCanvas : MonoBehaviour
         rect.anchoredPosition = crosshair.GetComponent<RectTransform>().anchoredPosition + pos * aimCircleCanvasRadius;
     }
 
+    public void SetAimColor(Color color) {
+        aimCircle.color = color;
+    }
+
     public void SetSwordHitShape(SwordHitShape hitShape) {
         radialParent.localEulerAngles = new Vector3(0, 0, -hitShape.offset);
 
         float sum = 0;
         for (int i = 0; i < 6; i++) {
-            radials[i].transform.localEulerAngles = new Vector3(0, 0, -180 - sum);
+            radials[i].transform.localEulerAngles = new Vector3(0, 0, -180 - sum - hitShape.proportions[i]*360/2 + hitShape.proportions[i]*360*hitShape.fillRate[i]/2);
             radials[i].GetComponent<Image>().fillAmount = hitShape.proportions[i] * hitShape.fillRate[i];
 
             sum += hitShape.proportions[i] * 360;

@@ -298,9 +298,10 @@ public class Mech : MonoBehaviour
         shape.fillRate[5] = DistanceToProportion(mech.skeleton.leftArmSlicePivot) * shape.fillRate[5];
 
         // @Temp
-        Vector3 localVelocity = skeleton.headBone.rotation * mech.velocity;
+        Vector3 localVelocity = skeleton.headBone.rotation * (mech.velocity - velocity);
 
-        shape.offset = localVelocity.x;
+        const float velocityOffsetScale = 3;
+        shape.offset = localVelocity.x * velocityOffsetScale;
 
         return shape;
     }

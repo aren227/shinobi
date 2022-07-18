@@ -91,7 +91,7 @@ public class Skeleton : MonoBehaviour
         animator.SetFloat("X", motion.x);
         animator.SetFloat("Y", motion.y);
 
-        SetBodySlice(new Vector3(1, 1, 0).normalized, Mathf.InverseLerp(-1, 1, Mathf.Sin(Time.time)));
+        // SetBodySlice(new Vector3(1, 1, 0).normalized, Mathf.InverseLerp(-1, 1, Mathf.Sin(Time.time)));
     }
 
     void FindRecursive(Transform current, Transform[] array, string[] names) {

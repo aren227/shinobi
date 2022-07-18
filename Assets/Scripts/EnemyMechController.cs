@@ -18,7 +18,9 @@ public class EnemyMechController : MonoBehaviour
     }
 
     void Start() {
-        foreach (Inventory.Slot slot in System.Enum.GetValues(typeof(Inventory.Slot))) {
+        foreach (Inventory.Slot slot in new Inventory.Slot[] {
+            //
+        }) {
             GameObject missileWeapon = Instantiate(PrefabRegistry.Instance.missileWeapon);
 
             mech.Equip(missileWeapon.GetComponent<Item>(), slot);
@@ -26,23 +28,23 @@ public class EnemyMechController : MonoBehaviour
     }
 
     void Update() {
-        mech.Move((targetPos - mech.transform.position).normalized);
+        // mech.Move((targetPos - mech.transform.position).normalized);
         mech.Aim(Mech.Player.transform.position);
 
         if (Vector3.Distance(mech.transform.position, targetPos) < 3) {
             targetPos = Random.insideUnitSphere * 100;
         }
 
-        if (Time.time - lastShoot > delay) {
-            foreach (Item item in mech.inventory.GetItems()) {
-                Weapon weapon = item.GetComponent<Weapon>();
-                if (weapon) {
-                    weapon.Shoot(Vector3.zero, Mech.Player.transform);
-                }
-            }
+        // if (Time.time - lastShoot > delay) {
+        //     foreach (Item item in mech.inventory.GetItems()) {
+        //         Weapon weapon = item.GetComponent<Weapon>();
+        //         if (weapon) {
+        //             weapon.Shoot(Vector3.zero, Mech.Player.transform);
+        //         }
+        //     }
 
-            lastShoot = Time.time;
-            delay = Random.Range(0f, 3f);
-        }
+        //     lastShoot = Time.time;
+        //     delay = Random.Range(0f, 3f);
+        // }
     }
 }
