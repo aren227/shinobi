@@ -33,6 +33,17 @@ public class Missile : MonoBehaviour
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (Collider collider in colliders) {
+            Vector3 target = collider.ClosestPoint(at);
+            Vector3 v = (target - at);
+
+            RaycastHit hit;
+            bool blocked = false;
+            if (Physics.Raycast(at, v.normalized, out hit, v.magnitude)) {
+                if (hit.distance < v.magnitude - 0.01f) blocked = true;
+            }
+
+            if (blocked) continue;
+
             Mech mech = collider.GetComponentInParent<Mech>();
             if (mech) {
                 mech.GiveDamage(collider, explosionDamage);
