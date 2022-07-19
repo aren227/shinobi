@@ -36,8 +36,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Ui Cam Post Processing
+  - Main Cam Post Processing
   m_SortingLayers:
   - name: Default
     uniqueID: 0

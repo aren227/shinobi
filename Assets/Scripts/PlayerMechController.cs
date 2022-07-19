@@ -20,10 +20,6 @@ public class PlayerMechController : MonoBehaviour
         swordController2 = GetComponent<SwordController2>();
     }
 
-    void Start() {
-        uiManager.SetMaxStemina(Mech.maxStemina);
-    }
-
     bool IsInteractable() {
         return !FindObjectOfType<InventoryCanvas2>().open;
     }
@@ -144,7 +140,7 @@ public class PlayerMechController : MonoBehaviour
         }
 
         uiManager.SetTargets(mech.targets, cameraController.cam);
-        uiManager.SetStemina(mech.stemina);
+        uiManager.SetStemina(Mech.maxStemina, mech.stemina, mech.skeleton.thruster.GetSteminaRequiredToBoost());
         uiManager.SetSpeed(mech.velocity.magnitude);
     }
 

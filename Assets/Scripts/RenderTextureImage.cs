@@ -22,7 +22,7 @@ public class RenderTextureImage : MonoBehaviour
 
     void Update() {
         if (canvas.enabled) {
-            Vector2Int dim = GetSize(rectTransform);
+            Vector2Int dim = GetSize(canvasScaler, rectTransform);
 
             if (renderTexture == null || dim.x != renderTexture.width || dim.y != renderTexture.height) {
                 CreateRenderTexture(dim);
@@ -43,7 +43,7 @@ public class RenderTextureImage : MonoBehaviour
         image.texture = renderTexture;
     }
 
-    Vector2Int GetSize(RectTransform rect) {
+    public static Vector2Int GetSize(CanvasScaler canvasScaler, RectTransform rect) {
         float wRatio = Screen.width / canvasScaler.referenceResolution.x;
         float hRatio = Screen.height / canvasScaler.referenceResolution.y;
         float ratio =
