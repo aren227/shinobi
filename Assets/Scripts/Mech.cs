@@ -472,7 +472,7 @@ public class Mech : MonoBehaviour
             weapons.Sort((x, y) => x.ammo - y.ammo);
 
             for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
-                weapons[i].Shoot(Vector3.zero, targets[i].transform);
+                weapons[i].Shoot(Vector3.zero, targets[i].skeleton.cockpit.transform);
             }
         }
     }
