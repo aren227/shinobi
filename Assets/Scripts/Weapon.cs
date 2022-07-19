@@ -23,10 +23,12 @@ public class Weapon : MonoBehaviour
         if (type == WeaponType.BULLET_WEAPON) {
             GameObject obj = GameObject.Instantiate(GameObject.FindObjectOfType<ParticleManager>().bullet);
 
-            const float pushForward = 8f;
+            const float pushForward = 4f;
 
-            obj.transform.position = point.position + point.forward * pushForward;
-            obj.transform.forward = (aimTarget - obj.transform.position).normalized;
+            Vector3 dir = (aimTarget - point.position).normalized;
+
+            obj.transform.position = point.position + dir * pushForward;
+            obj.transform.forward = dir;
         }
         else if (type == WeaponType.MISSLE_WEAPON) {
             GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.missile);
