@@ -5,8 +5,8 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     const float speed = 600f;
-
     const float lifetime = 10;
+    const int damage = 10;
 
     float spawnTimestamp;
 
@@ -32,28 +32,8 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject);
             FindObjectOfType<ParticleManager>().CreateBulletImpact(hit.point, hit.normal);
 
-            // @Todo: Generalize to damagable.
-
-            Damagable damagable = hit.collider.GetComponent<Damagable>();
-
-            if (damagable) {
-                damagable.Hit(hit.point, hit.normal, 10);
-            }
-
-            // @Todo: We can search mech by collider.
             Mech mech = hit.collider.GetComponentInParent<Mech>();
-            if (mech) {
-                Part part = mech.skeleton.GetPartByCollider(hit.collider);
-                if (part) {
-                    part.Hit(hit.point, hit.normal, 10);
-                }
-            }
-
-            Thruster thruster = hit.collider.GetComponent<Thruster>();
-            if (thruster) thruster.Hit(10);
-
-            Cockpit cockpit = hit.collider.GetComponent<Cockpit>();
-            if (cockpit) cockpit.Hit(10);
+            if (mech) mech.GiveDamage(hit.collider, damage);
 
             return;
         }

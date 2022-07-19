@@ -55,6 +55,7 @@ public class Skeleton : MonoBehaviour
     List<SurfaceRenderer>[] surfaceRenderersByBone;
 
     Dictionary<Collider, Part> partByCollider = new Dictionary<Collider, Part>();
+    Dictionary<Transform, PartName> partByPivot = new Dictionary<Transform, PartName>();
 
     Dictionary<PartName, Part> parts = new Dictionary<PartName, Part>();
 
@@ -90,6 +91,18 @@ public class Skeleton : MonoBehaviour
         pivots.Add(Inventory.Slot.LEFT_LEG, leftLegPivot);
         pivots.Add(Inventory.Slot.RIGHT_LEG, rightLegPivot);
         pivots.Add(Inventory.Slot.SWORD, middleBackPivot);
+
+        partByPivot.Add(leftHandPivot, PartName.LOWER_LEFT_ARM);
+        partByPivot.Add(rightHandPivot, PartName.LOWER_RIGHT_ARM);
+        partByPivot.Add(leftShoulderPivot, PartName.BODY);
+        partByPivot.Add(rightShoulderPivot, PartName.BODY);
+        partByPivot.Add(leftArmPivot, PartName.UPPER_LEFT_ARM);
+        partByPivot.Add(rightArmPivot, PartName.UPPER_RIGHT_ARM);
+        partByPivot.Add(leftLegPivot, PartName.UPPER_LEFT_LEG);
+        partByPivot.Add(rightLegPivot, PartName.UPPER_RIGHT_LEG);
+        partByPivot.Add(leftBackPivot, PartName.BODY);
+        partByPivot.Add(middleBackPivot, PartName.BODY);
+        partByPivot.Add(rightBackPivot, PartName.BODY);
 
         // Force apply.
         animator.Play("Armature|Rest");
@@ -280,6 +293,10 @@ public class Skeleton : MonoBehaviour
             if (slot == Inventory.Slot.SWORD) return middleBackPivot;
             return pivots[slot];
         }
+    }
+
+    public Part GetPartBySlot(Inventory.Slot slot) {
+        return GetPart(partByPivot[GetPivot(slot)]);
     }
 
     public void AddColliderToPart(Collider collider, bool isArmor, Part part) {

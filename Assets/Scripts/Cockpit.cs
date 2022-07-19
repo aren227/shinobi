@@ -6,25 +6,23 @@ public class Cockpit : MonoBehaviour
 {
     Mech mech;
 
-    public int durability = 100;
-    int health;
+    Damagable damagable;
 
     UiManager uiManager;
 
     void Awake() {
         mech = GetComponentInParent<Mech>();
 
-        health = durability;
+        damagable = GetComponent<Damagable>();
+        damagable.damageListener.AddListener(Hit);
 
         uiManager = FindObjectOfType<UiManager>();
     }
 
-    public void Hit(int damage) {
-        health = Mathf.Max(health - damage, 0);
+    void Hit(int damage) {
+        if (mech == Mech.Player) uiManager.SetCockpitHealth((float)damagable.health / damagable.maxHealth);
 
-        if (mech == Mech.Player) uiManager.SetCockpitHealth((float) health / durability);
-
-        if (health <= 0) {
+        if (damagable.health <= 0) {
             mech.Kill();
         }
     }

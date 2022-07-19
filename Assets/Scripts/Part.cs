@@ -24,7 +24,7 @@ public class Part : MonoBehaviour
         health = durability;
     }
 
-    public void Hit(Vector3 pos, Vector3 normal, int damage) {
+    public void Hit(int damage) {
         if (disabled) return;
 
         // Can't destroy frame with bullet hit.

@@ -6,27 +6,21 @@ public class Thruster : MonoBehaviour
 {
     Mech mech;
 
+    Damagable damagable;
+
     public List<ParticleSystem> fireParticleSystems;
     public List<ParticleSystem> smokeParticleSystems;
-
-    public int durability = 50;
 
     float initialFireRateOverTime;
     float initialSmokeRateOverTime;
 
-    public int health { get; private set; }
-
     void Awake() {
         mech = GetComponentInParent<Mech>();
 
+        damagable = GetComponent<Damagable>();
+
         initialFireRateOverTime = fireParticleSystems[0].emission.rateOverTimeMultiplier;
         initialSmokeRateOverTime = smokeParticleSystems[0].emission.rateOverTimeMultiplier;
-
-        health = durability;
-    }
-
-    public void Hit(int damage) {
-        health = Mathf.Max(health - damage, 0);
     }
 
     void Update() {
@@ -38,13 +32,17 @@ public class Thruster : MonoBehaviour
 
             foreach (ParticleSystem ps in fireParticleSystems) {
                 ParticleSystem.EmissionModule em = ps.emission;
-                em.rateOverTimeMultiplier = initialFireRateOverTime * globalEmissionRate * (float)health / durability;
+                em.rateOverTimeMultiplier = initialFireRateOverTime * globalEmissionRate * (float)damagable.health / damagable.maxHealth;
             }
 
             foreach (ParticleSystem ps in smokeParticleSystems) {
                 ParticleSystem.EmissionModule em = ps.emission;
-                em.rateOverTimeMultiplier = initialSmokeRateOverTime * globalEmissionRate * (1 - (float)health / durability);
+                em.rateOverTimeMultiplier = initialSmokeRateOverTime * globalEmissionRate * (1 - (float)damagable.health / damagable.maxHealth);
             }
         }
+    }
+
+    public int GetSteminaRequiredToBoost() {
+        return Mathf.RoundToInt(Mathf.Lerp(Mech.maxSteminaRequiredToBoost, Mech.minSteminaRequiredToBoost, (float)damagable.health / damagable.maxHealth));
     }
 }

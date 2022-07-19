@@ -1,10 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Damagable : MonoBehaviour
 {
-    int health = 100;
+    public int maxHealth = 100;
+    public int health { get; private set; }
+
+    public UnityEvent<int> damageListener { get; private set; } = new UnityEvent<int>();
 
     SurfaceRenderer[] surfaceRenderers;
 
@@ -32,10 +36,14 @@ public class Damagable : MonoBehaviour
 
         // holeMeshFilter = holeMeshObject.AddComponent<MeshFilter>();
         // holeMeshFilter.sharedMesh = combinedHoleMesh;
+
+        health = maxHealth;
     }
 
-    public void Hit(Vector3 pos, Vector3 normal, int damage) {
+    public void Hit(int damage) {
         health = Mathf.Max(health - damage, 0);
+
+        damageListener.Invoke(damage);
 
         // // Lazy
         // if (surfaceRenderers == null) {

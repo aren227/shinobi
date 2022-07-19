@@ -5230,6 +5230,7 @@ GameObject:
   - component: {fileID: 6530760967912169612}
   - component: {fileID: 1242436676945771292}
   - component: {fileID: 622495656735940570}
+  - component: {fileID: 2661800566717505517}
   m_Layer: 15
   m_Name: Cockpit
   m_TagString: Untagged
@@ -5290,7 +5291,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d4d7aad2b0c07f46973fd4ffde9e4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  durability: 100
 --- !u!65 &622495656735940570
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5304,6 +5304,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.2, y: 0.2, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2661800566717505517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6530760967912169608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1448f29041264da48a5ea1daa43efd0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 200
 --- !u!1 &6530760968241322027
 GameObject:
   m_ObjectHideFlags: 0
@@ -5361,6 +5374,7 @@ GameObject:
   - component: {fileID: 6530760968484266655}
   - component: {fileID: 2461683776237034067}
   - component: {fileID: 3860375281618203718}
+  - component: {fileID: 1713078499624394406}
   m_Layer: 10
   m_Name: Back Thruster
   m_TagString: Untagged
@@ -5422,7 +5436,6 @@ MonoBehaviour:
   - {fileID: 5477423313811854693}
   - {fileID: 8566657034459212110}
   - {fileID: 8370537484298548385}
-  durability: 50
 --- !u!65 &3860375281618203718
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5436,6 +5449,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.4, y: 0.4, z: 0.4}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1713078499624394406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6530760968484266649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1448f29041264da48a5ea1daa43efd0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 50
 --- !u!1 &6530760968541078061
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,6 +16,8 @@ public class Missile : MonoBehaviour
 
     const float maxAngleDiff = 80;
     const float fov = 90;
+    const float explosionRadius = 1f;
+    const int explosionDamage = 10;
 
     void Awake() {
         capsuleCollider = GetComponent<CapsuleCollider>();
@@ -28,18 +30,29 @@ public class Missile : MonoBehaviour
 
         Destroy(gameObject);
         FindObjectOfType<ParticleManager>().CreateMissileExplosion(transform.position);
+
+        Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+        foreach (Collider collider in colliders) {
+            Mech mech = collider.GetComponentInParent<Mech>();
+            if (mech) {
+                mech.GiveDamage(collider, explosionDamage);
+            }
+        }
     }
 
     void Update() {
         if (target != null) {
-            Vector3 dir = (target.position - transform.position).normalized;
+            Mech mech = target.GetComponentInParent<Mech>();
+            if (mech == null || !mech.isHided) {
+                Vector3 dir = (target.position - transform.position).normalized;
 
-            float maxAngle = maxAngleDiff * Time.deltaTime;
+                float maxAngle = maxAngleDiff * Time.deltaTime;
 
-            float angle = Vector3.Angle(dir, transform.forward);
-            if (angle > 0.01f && angle < fov) {
-                Quaternion q = Quaternion.AngleAxis(-Mathf.Min(maxAngle, Vector3.Angle(dir, transform.forward)), Vector3.Cross(dir, transform.forward));
-                transform.forward = q * transform.forward;
+                float angle = Vector3.Angle(dir, transform.forward);
+                if (angle > 0.01f && angle < fov) {
+                    Quaternion q = Quaternion.AngleAxis(-Mathf.Min(maxAngle, Vector3.Angle(dir, transform.forward)), Vector3.Cross(dir, transform.forward));
+                    transform.forward = q * transform.forward;
+                }
             }
         }
 
@@ -58,7 +71,7 @@ public class Missile : MonoBehaviour
             transform.position + capsuleCollider.center + (capsuleCollider.height/2 - capsuleCollider.radius) * transform.forward,
             capsuleCollider.radius, delta.normalized, out hit, delta.magnitude, ~LayerMask.GetMask("Missile")
         )) {
-            Explode(hit.point);
+            Explode(hit.point + hit.normal * 0.1f);
             return;
         }
 

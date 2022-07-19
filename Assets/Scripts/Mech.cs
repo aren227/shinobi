@@ -30,9 +30,10 @@ public class Mech : MonoBehaviour
     const float hideSteminaConsumRate = 10;
     const float steminaRestoreRate = 5;
 
-    const float minSteminaRequiredToBoost = 10;
-    const float maxSteminaRequiredToBoost = 100;
+    public const float minSteminaRequiredToBoost = 10;
+    public const float maxSteminaRequiredToBoost = 100;
     const float minSteminaRequiredToHide = 3;
+    const float steminaPenaltyWhenHit = 40;
 
     public TargetType targetType { get; private set; } = TargetType.VITAL;
 
@@ -113,12 +114,8 @@ public class Mech : MonoBehaviour
         accumulatedDelta += velocity * Time.deltaTime;
     }
 
-    public int GetSteminaRequiredToBoost() {
-        return Mathf.RoundToInt(Mathf.Lerp(maxSteminaRequiredToBoost, minSteminaRequiredToBoost, (float) skeleton.thruster.health / skeleton.thruster.durability));
-    }
-
     public bool BeginBoost() {
-        int requiredStemina = GetSteminaRequiredToBoost();
+        int requiredStemina = skeleton.thruster.GetSteminaRequiredToBoost();
 
         if (stemina < requiredStemina) return false;
 
@@ -151,7 +148,7 @@ public class Mech : MonoBehaviour
         skeleton.hideEffect.Play();
     }
 
-    public void EndHide() {
+    public void EndHide(bool attacked = false) {
         if (!isHided) return;
 
         isHided = false;
@@ -161,6 +158,10 @@ public class Mech : MonoBehaviour
         }
 
         skeleton.hideEffect.Play();
+
+        if (attacked) {
+            stemina = Mathf.Max(stemina - steminaPenaltyWhenHit, 0);
+        }
     }
 
     public void Aim(Vector3 aimTarget) {
@@ -306,9 +307,7 @@ public class Mech : MonoBehaviour
         Weapon weapon = item.GetComponent<Weapon>();
         if (!weapon) return false;
 
-        Part part = weapon.GetComponentInParent<Part>();
-        if (!part) return false;
-
+        Part part = skeleton.GetPartBySlot(slot);
         if (part.disabled) return false;
 
         return true;
@@ -343,6 +342,26 @@ public class Mech : MonoBehaviour
             for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
                 weapons[i].Shoot(Vector3.zero, targets[i].transform);
             }
+        }
+    }
+
+    public void GiveDamage(Collider collider, int damage) {
+        Part part = skeleton.GetPartByCollider(collider);
+        if (part) {
+            if (isHided) {
+                EndHide(attacked: true);
+            }
+
+            part.Hit(damage);
+        }
+
+        Damagable damagable = collider.GetComponent<Damagable>();
+        if (damagable) {
+            if (isHided) {
+                EndHide(attacked: true);
+            }
+
+            damagable.Hit(damage);
         }
     }
 
