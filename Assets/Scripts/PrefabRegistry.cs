@@ -21,4 +21,5 @@ public class PrefabRegistry : MonoBehaviour
 
     public GameObject bulletHole;
     public Material bulletHoleMat;
+    public Material fresnelMat;
 }

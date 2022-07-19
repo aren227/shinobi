@@ -10,6 +10,8 @@ public class SurfaceRenderer : MonoBehaviour
     MeshFilter meshFilter;
     public List<MeshFilter> holes = new List<MeshFilter>();
 
+    bool disabled = false;
+
     void Awake() {
         if (depthPassMat == null) depthPassMat = new Material(Shader.Find("Unlit/DepthPass"));
         if (depthWriteMat == null) depthWriteMat = new Material(Shader.Find("Unlit/DepthWrite"));
@@ -17,7 +19,13 @@ public class SurfaceRenderer : MonoBehaviour
         meshFilter = GetComponent<MeshFilter>();
     }
 
+    public void SetDisabled(bool disabled) {
+        this.disabled = disabled;
+    }
+
     public void AppendToCommandBuffer(CommandBuffer cb) {
+        if (disabled) return;
+
         if (holes.Count == 0) {
             // Just write front depth.
             cb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);

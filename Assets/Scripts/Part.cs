@@ -18,6 +18,8 @@ public class Part : MonoBehaviour
 
     public bool disabled { get; private set; }
 
+    List<KeyValuePair<MeshRenderer, Material>> originalMaterials = new List<KeyValuePair<MeshRenderer, Material>>();
+
     void Awake() {
         health = durability;
     }
@@ -76,6 +78,42 @@ public class Part : MonoBehaviour
 
         if (partName == PartName.BODY) {
             skeleton.mech.Kill();
+        }
+    }
+
+    public void SetHide(bool hide) {
+        if (hide) {
+            originalMaterials.Clear();
+            foreach (MeshRenderer meshRenderer in frameRoot.GetComponentsInChildren<MeshRenderer>()) {
+                originalMaterials.Add(new KeyValuePair<MeshRenderer, Material>(meshRenderer, meshRenderer.sharedMaterial));
+
+                meshRenderer.sharedMaterial = PrefabRegistry.Instance.fresnelMat;
+            }
+            foreach (MeshRenderer meshRenderer in armorRoot.GetComponentsInChildren<MeshRenderer>()) {
+                originalMaterials.Add(new KeyValuePair<MeshRenderer, Material>(meshRenderer, meshRenderer.sharedMaterial));
+
+                meshRenderer.sharedMaterial = PrefabRegistry.Instance.fresnelMat;
+            }
+
+            foreach (SurfaceRenderer surfaceRenderer in frameRoot.GetComponentsInChildren<SurfaceRenderer>()) {
+                surfaceRenderer.SetDisabled(true);
+            }
+            foreach (SurfaceRenderer surfaceRenderer in armorRoot.GetComponentsInChildren<SurfaceRenderer>()) {
+                surfaceRenderer.SetDisabled(true);
+            }
+        }
+        else {
+            foreach (KeyValuePair<MeshRenderer, Material> p in originalMaterials) {
+                p.Key.sharedMaterial = p.Value;
+            }
+            originalMaterials.Clear();
+
+            foreach (SurfaceRenderer surfaceRenderer in frameRoot.GetComponentsInChildren<SurfaceRenderer>()) {
+                surfaceRenderer.SetDisabled(false);
+            }
+            foreach (SurfaceRenderer surfaceRenderer in armorRoot.GetComponentsInChildren<SurfaceRenderer>()) {
+                surfaceRenderer.SetDisabled(false);
+            }
         }
     }
 

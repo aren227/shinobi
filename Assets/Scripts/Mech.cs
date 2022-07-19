@@ -26,26 +26,31 @@ public class Mech : MonoBehaviour
     public const float maxStemina = 100;
     public float stemina = 0;
 
-    const float steminaConsumRate = 10;
+    const float boostSteminaConsumRate = 10;
+    const float hideSteminaConsumRate = 10;
     const float steminaRestoreRate = 5;
 
     const float minSteminaRequiredToBoost = 10;
     const float maxSteminaRequiredToBoost = 100;
+    const float minSteminaRequiredToHide = 3;
 
-    public TargetType targetType;
+    public TargetType targetType { get; private set; } = TargetType.VITAL;
 
-    public Vector3 aimTarget;
+    public Vector3 aimTarget { get; private set; }
+
+    public List<Target> targets { get; private set; } = new List<Target>();
 
     public MechArmature mechArmature;
 
     public Inventory inventory;
 
     public Skeleton skeleton;
-    public SwordController2 swordController;
+    public SwordController2 swordController { get; private set; }
 
     public GameObject model;
 
     public bool isUsingSword { get; private set; }
+    public bool isHided { get; private set; }
 
     public bool isKilled { get; private set; }
 
@@ -77,11 +82,24 @@ public class Mech : MonoBehaviour
         // }
     }
 
+    void Update() {
+        if (isHided) {
+            stemina = Mathf.Max(stemina - hideSteminaConsumRate * Time.deltaTime, 0);
+            if (stemina <= 0) {
+                EndHide();
+            }
+        }
+
+        // Update targets
+        // @Todo: Update after move to get up-to-date result?
+        targets = GetVisibleTargets();
+    }
+
     public void Move(Vector3 moveDir) {
         if (isKilled) return;
 
         if (boost) {
-            stemina = Mathf.Max(stemina - steminaConsumRate * Time.deltaTime, 0);
+            stemina = Mathf.Max(stemina - boostSteminaConsumRate * Time.deltaTime, 0);
             if (stemina <= 0 && Time.time - boostSince > minimumBoostTime) {
                 EndBoost();
             }
@@ -114,6 +132,35 @@ public class Mech : MonoBehaviour
 
     public void EndBoost() {
         boost = false;
+    }
+
+    public void BeginHide() {
+        if (isHided) return;
+
+        if (stemina < minSteminaRequiredToHide) return;
+
+        isHided = true;
+
+        foreach (Part part in skeleton.GetParts()) {
+            part.SetHide(true);
+        }
+
+        // @Temp: Fixme
+        skeleton.hideEffect.transform.localScale = Vector3.one;
+
+        skeleton.hideEffect.Play();
+    }
+
+    public void EndHide() {
+        if (!isHided) return;
+
+        isHided = false;
+
+        foreach (Part part in skeleton.GetParts()) {
+            part.SetHide(false);
+        }
+
+        skeleton.hideEffect.Play();
     }
 
     public void Aim(Vector3 aimTarget) {
@@ -238,6 +285,65 @@ public class Mech : MonoBehaviour
         isUsingSword = false;
 
         UpdatePivots();
+    }
+
+    public void BeginSwing() {
+        if (isHided) EndHide();
+
+        if (swordController.state == SwordSwingState.IDLE) {
+            swordController.BeginSwing();
+        }
+    }
+
+    public void SwitchHand() {
+        swordController.SwitchHand();
+    }
+
+    public bool CanUseWeapon(Inventory.Slot slot) {
+        Item item = inventory.GetItem(slot);
+        if (!item) return false;
+
+        Weapon weapon = item.GetComponent<Weapon>();
+        if (!weapon) return false;
+
+        Part part = weapon.GetComponentInParent<Part>();
+        if (!part) return false;
+
+        if (part.disabled) return false;
+
+        return true;
+    }
+
+    public void UseWeapon(Inventory.Slot slot) {
+        if (!CanUseWeapon(slot)) return;
+
+        if (isHided) EndHide();
+
+        inventory.GetItem(slot).GetComponent<Weapon>().Shoot(aimTarget, null);
+    }
+
+    public void LaunchMissiles() {
+        // @Todo: Simple algorithm. Need to be refined.
+
+        List<Weapon> weapons = new List<Weapon>();
+        foreach (Inventory.Slot slot in System.Enum.GetValues(typeof(Inventory.Slot))) {
+            if (CanUseWeapon(slot)) {
+                Weapon weapon = inventory.GetItem(slot).GetComponent<Weapon>();
+                if (weapon && weapon.type == WeaponType.MISSLE_WEAPON) {
+                    weapons.Add(weapon);
+                }
+            }
+        }
+
+        if (Mathf.Min(weapons.Count, targets.Count) > 0) {
+            if (isHided) EndHide();
+
+            weapons.Sort((x, y) => x.ammo - y.ammo);
+
+            for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
+                weapons[i].Shoot(Vector3.zero, targets[i].transform);
+            }
+        }
     }
 
     void FixedUpdate() {

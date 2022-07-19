@@ -69,9 +69,19 @@ public class PlayerMechController : MonoBehaviour
 
         mech.yaw = cameraController.cameraArm.eulerAngles.y;
 
-        if (Input.GetKeyDown(KeyCode.Q)) {
+        // if (Input.GetKeyDown(KeyCode.Q)) {
+        //     if (!mech.isUsingSword) mech.BeginSword();
+        //     else mech.EndSword();
+        // }
+
+        if (Input.GetAxis("Mouse ScrollWheel") != 0) {
             if (!mech.isUsingSword) mech.BeginSword();
             else mech.EndSword();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            if (!mech.isHided) mech.BeginHide();
+            else mech.EndHide();
         }
 
         // @Todo: Better ui.
@@ -91,11 +101,11 @@ public class PlayerMechController : MonoBehaviour
         }
 
         if (mech.isUsingSword) {
-            mech.targetType = TargetType.VITAL;
+            // mech.targetType = TargetType.VITAL;
 
-            List<Target> targets;
+            // List<Target> targets;
 
-            targets = mech.GetVisibleTargets(maxCount: 1);
+            // targets = mech.GetVisibleTargets(maxCount: 1);
 
             // if (Input.GetMouseButtonDown(1)) {
             //     if (targets.Count > 0 && Input.GetMouseButtonDown(1)) {
@@ -113,51 +123,27 @@ public class PlayerMechController : MonoBehaviour
             // if (targets.Count > 0) swordController.target = targets[0].GetComponentInParent<Mech>();
             // else swordController.target = null;
 
-            uiManager.SetTargets(targets, cameraController.cam);
+            // uiManager.SetTargets(targets, cameraController.cam);
 
             // Newer version
             if (swordController2.state == SwordSwingState.IDLE && Input.GetMouseButtonDown(0)) {
-                swordController2.BeginSwing();
+                mech.BeginSwing();
             }
             if (Input.GetMouseButtonDown(1)) {
-                swordController2.SwitchHand();
+                mech.SwitchHand();
             }
         }
         else {
-            if (Input.GetKeyDown(KeyCode.Alpha1)) mech.targetType = TargetType.VITAL;
-            if (Input.GetKeyDown(KeyCode.Alpha2)) mech.targetType = TargetType.THERMAL;
-
-            List<Target> targets = mech.GetVisibleTargets();
-
             if (Input.GetMouseButton(0)) {
-                Weapon leftHand = mech.inventory.GetItem(Inventory.Slot.LEFT_HAND)?.GetComponent<Weapon>();
-                Weapon rightHand = mech.inventory.GetItem(Inventory.Slot.RIGHT_HAND)?.GetComponent<Weapon>();
-
-                if (leftHand) leftHand.Shoot(mech.aimTarget);
-                if (rightHand) rightHand.Shoot(mech.aimTarget);
+                mech.UseWeapon(Inventory.Slot.LEFT_HAND);
+                mech.UseWeapon(Inventory.Slot.RIGHT_HAND);
             }
             if (Input.GetMouseButtonDown(1)) {
-                // @Todo: Simple algorithm. Need to be refined.
-
-                List<Weapon> weapons = new List<Weapon>();
-                foreach (Item item in mech.inventory.GetItems()) {
-                    Weapon weapon = item.GetComponent<Weapon>();
-                    if (weapon && weapon.type == WeaponType.MISSLE_WEAPON) {
-                        weapons.Add(weapon);
-                    }
-                }
-
-                weapons.Sort((x, y) => x.ammo - y.ammo);
-
-                for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
-                    weapons[i].Shoot(Vector3.zero, targets[i].transform);
-                }
+                mech.LaunchMissiles();
             }
-
-            // swordController.target = null;
-
-            uiManager.SetTargets(targets, cameraController.cam);
         }
+
+        uiManager.SetTargets(mech.targets, cameraController.cam);
         uiManager.SetStemina(mech.stemina);
         uiManager.SetSpeed(mech.velocity.magnitude);
     }

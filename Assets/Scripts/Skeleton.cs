@@ -46,6 +46,8 @@ public class Skeleton : MonoBehaviour
     public Thruster thruster;
     public Cockpit cockpit;
 
+    public ParticleSystem hideEffect;
+
     Animator animator;
 
     Dictionary<Inventory.Slot, Transform> pivots = new Dictionary<Inventory.Slot, Transform>();
@@ -289,6 +291,10 @@ public class Skeleton : MonoBehaviour
     public Part GetPartByCollider(Collider collider) {
         if (partByCollider.ContainsKey(collider)) return partByCollider[collider];
         return null;
+    }
+
+    public IEnumerable<Part> GetParts() {
+        return parts.Values;
     }
 
     public void AddHole(int bone, Vector3 globalPos) {

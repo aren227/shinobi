@@ -3351,6 +3351,7 @@ MonoBehaviour:
   sliceEffectBox: {fileID: 5098631254282411304, guid: aaecff2c71a6e3e4aa198e2191226631, type: 3}
   bulletHole: {fileID: 1331203230530425542, guid: cda339110b4e6154a901211a2d60cb93, type: 3}
   bulletHoleMat: {fileID: 2100000, guid: 6cb493b763b4e874fb375eb7e600e38a, type: 2}
+  fresnelMat: {fileID: 2100000, guid: 237958aec142af3418e77cfa9d76b4e6, type: 2}
 --- !u!114 &1158616470
 MonoBehaviour:
   m_ObjectHideFlags: 0
