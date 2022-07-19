@@ -52,6 +52,9 @@ public class Bullet : MonoBehaviour
             Thruster thruster = hit.collider.GetComponent<Thruster>();
             if (thruster) thruster.Hit(10);
 
+            Cockpit cockpit = hit.collider.GetComponent<Cockpit>();
+            if (cockpit) cockpit.Hit(10);
+
             return;
         }
 

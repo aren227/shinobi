@@ -31,7 +31,7 @@ public class Skeleton : MonoBehaviour
 
     public Transform headBone;
 
-    public Transform cockpit;
+    // public Transform cockpit;
 
     public Transform leftArmSlicePivot;
     public Transform rightArmSlicePivot;
@@ -44,6 +44,7 @@ public class Skeleton : MonoBehaviour
     public Transform swordSwingPivot;
 
     public Thruster thruster;
+    public Cockpit cockpit;
 
     Animator animator;
 
@@ -297,7 +298,8 @@ public class Skeleton : MonoBehaviour
     public void SetBodySlice(Vector3 dir, float ratio) {
         if (sliceBox == null) {
             sliceBox = Instantiate(PrefabRegistry.Instance.sliceEffectBox);
-            sliceBox.transform.parent = cockpit;
+            // sliceBox.transform.parent = cockpit;
+            sliceBox.transform.parent = GetPart(PartName.BODY).transform;
 
             foreach (List<SurfaceRenderer> surfaceRenderers in surfaceRenderersByBone) {
                 foreach (SurfaceRenderer surfaceRenderer in surfaceRenderers) {

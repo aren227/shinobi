@@ -10,6 +10,8 @@ public class UiManager : MonoBehaviour
 
     public GameObject thermalTargetCursor;
 
+    public Material crackOverlayMat;
+
     Canvas canvas;
 
     List<GameObject> thermalTargetCursors = new List<GameObject>();
@@ -18,6 +20,10 @@ public class UiManager : MonoBehaviour
         canvas = GetComponent<Canvas>();
 
         thermalTargetCursor.SetActive(false);
+    }
+
+    void Start() {
+        SetCockpitHealth(1);
     }
 
     public void SetMaxStemina(float maxStemina) {
@@ -69,6 +75,16 @@ public class UiManager : MonoBehaviour
         // Disable remainders.
         for (int i = targets.Count; i < thermalTargetCursors.Count; i++) {
             thermalTargetCursors[i].SetActive(false);
+        }
+    }
+
+    public void SetCockpitHealth(float healthRate) {
+        if (healthRate >= 1f) {
+            // Hide effects.
+            crackOverlayMat.SetFloat("_Health", 1f);
+        }
+        else {
+            crackOverlayMat.SetFloat("_Health", Mathf.Lerp(0f, 0.5f, healthRate));
         }
     }
 }

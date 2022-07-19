@@ -299,7 +299,7 @@ public class Mech : MonoBehaviour
     }
 
     float DistanceToProportion(Transform sliceTarget) {
-        float dist = Vector3.Distance(skeleton.cockpit.position, sliceTarget.position);
+        float dist = Vector3.Distance(skeleton.GetPart(PartName.BODY).transform.position, sliceTarget.position);
 
         const float minDist = 1;
         const float maxDist = 10;
