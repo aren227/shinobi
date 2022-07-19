@@ -131,8 +131,7 @@ public class PlayerMechController : MonoBehaviour
         }
         else {
             if (Input.GetMouseButton(0)) {
-                mech.UseWeapon(Inventory.Slot.LEFT_HAND);
-                mech.UseWeapon(Inventory.Slot.RIGHT_HAND);
+                mech.ShootBullets();
             }
             if (Input.GetMouseButtonDown(1)) {
                 mech.LaunchMissiles();

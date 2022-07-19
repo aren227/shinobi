@@ -46,8 +46,7 @@ public class Mech : MonoBehaviour
 
     public Vector3 aimTarget { get; private set; }
 
-    // @Todo: Just use Mech instead of Target.
-    public List<Target> targets { get; private set; } = new List<Target>();
+    public List<Mech> targets { get; private set; } = new List<Mech>();
 
     public MechArmature mechArmature;
 
@@ -105,7 +104,7 @@ public class Mech : MonoBehaviour
             targets.Clear();
             Mech meleeTarget = GetMeleeTarget();
             // @Todo: This sucks.
-            if (meleeTarget) targets.Add(meleeTarget.skeleton.cockpit.GetComponent<Target>());
+            if (meleeTarget) targets.Add(meleeTarget);
         }
         else {
             targets = GetVisibleTargets();
@@ -196,12 +195,12 @@ public class Mech : MonoBehaviour
         yaw = -Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90;
     }
 
-    public List<Target> GetVisibleTargets(int maxCount = 256) {
-        List<Target> result = new List<Target>();
+    public List<Mech> GetVisibleTargets(int maxCount = 256) {
+        List<Mech> result = new List<Mech>();
 
-        if (targetType == TargetType.NONE) return result;
+        // if (targetType == TargetType.NONE) return result;
 
-        Target[] targets = FindObjectsOfType<Target>();
+        Mech[] mechs = FindObjectsOfType<Mech>();
 
         // @Todo: This is fair but sucks.
         // Should implement custom aim boundary or something.
@@ -217,19 +216,22 @@ public class Mech : MonoBehaviour
 
         RaycastHit[] hits = new RaycastHit[32];
 
-        foreach (Target target in targets) {
-            if (target.type != targetType) continue;
-            // Ignore targets in myself.
-            if (target.transform.IsChildOf(transform)) continue;
-            // Ignore dead mech.
-            Mech targetMech = target.GetComponentInParent<Mech>();
-            if (targetMech == null || targetMech.isKilled) continue;
+        Vector3 myCockpit = skeleton.cockpit.transform.position;
+        foreach (Mech mech in mechs) {
+            // if (target.type != targetType) continue;
 
-            Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
-            if (Vector3.Dot(target.transform.position - cam.transform.position, cam.transform.forward) > 0
+            // Ignore targets in myself.
+            // if (target.transform.IsChildOf(transform)) continue;
+            if (mech == this) continue;
+            if (mech.isKilled) continue;
+
+            Vector3 cockpit = mech.skeleton.cockpit.transform.position;
+
+            Vector2 viewport = cam.WorldToViewportPoint(cockpit);
+            if (Vector3.Dot(cockpit - cam.transform.position, cam.transform.forward) > 0
                 && 0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
                 const float sphereRadius = 0.2f;
-                Vector3 camToTarget = target.transform.position - cam.transform.position;
+                Vector3 camToTarget = cockpit - cam.transform.position;
 
                 int count = Physics.SphereCastNonAlloc(
                     cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Missile")
@@ -238,45 +240,39 @@ public class Mech : MonoBehaviour
                 float distToTarget = float.PositiveInfinity;
                 float minDist = float.PositiveInfinity;
 
+                bool failed = false;
+
                 for (int i = 0; i < count; i++) {
                     // Ignore myself.
                     if (hits[i].collider.transform.IsChildOf(transform)) continue;
+                    if (hits[i].collider.transform.IsChildOf(mech.transform)) continue;
 
-                    if (hits[i].collider.transform == target.transform || hits[i].collider.transform.IsChildOf(target.transform)) {
-                        distToTarget = Mathf.Min(distToTarget, hits[i].distance);
-                    }
-
-                    // Vital target should always visible.
-                    if (targetType == TargetType.VITAL && hits[i].collider.transform.IsChildOf(target.transform.root)) continue;
-
-                    minDist = Mathf.Min(minDist, hits[i].distance);
+                    failed = true;
                 }
 
-                if (distToTarget <= minDist) {
-                    result.Add(target);
+                if (!failed) {
+                    result.Add(mech);
                 }
             }
         }
 
-        if (maxCount < result.Count) {
-            List<KeyValuePair<Target, float>> distList = new List<KeyValuePair<Target, float>>();
+        List<KeyValuePair<Mech, float>> distList = new List<KeyValuePair<Mech, float>>();
 
-            foreach (Target target in result) {
-                Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
-                distList.Add(new KeyValuePair<Target, float>(target, Vector2.Distance(Vector2.one * 0.5f, viewport)));
-            }
+        foreach (Mech mech in result) {
+            Vector2 viewport = cam.WorldToViewportPoint(mech.skeleton.cockpit.transform.position);
+            distList.Add(new KeyValuePair<Mech, float>(mech, Vector2.Distance(Vector2.one * 0.5f, viewport)));
+        }
 
-            distList.Sort((x, y) => {
-                float f = x.Value - y.Value;
-                if (f == 0) return 0;
-                if (f > 0) return 1;
-                return -1;
-            });
+        distList.Sort((x, y) => {
+            float f = x.Value - y.Value;
+            if (f == 0) return 0;
+            if (f > 0) return 1;
+            return -1;
+        });
 
-            result.Clear();
-            for (int i = 0; i < maxCount; i++) {
-                result.Add(distList[i].Key);
-            }
+        result.Clear();
+        for (int i = 0; i < distList.Count; i++) {
+            result.Add(distList[i].Key);
         }
 
         // Restore camera transform.
@@ -426,6 +422,35 @@ public class Mech : MonoBehaviour
         if (isHided) EndHide();
 
         inventory.GetItem(slot).GetComponent<Weapon>().Shoot(aimTarget, null);
+    }
+
+    public void ShootBullets() {
+        if (isUsingSword) return;
+
+        Weapon left = null, right = null;
+        if (CanUseWeapon(Inventory.Slot.LEFT_HAND)) left = inventory.GetItem(Inventory.Slot.LEFT_HAND)?.GetComponent<Weapon>();
+        if (CanUseWeapon(Inventory.Slot.RIGHT_HAND)) right = inventory.GetItem(Inventory.Slot.RIGHT_HAND)?.GetComponent<Weapon>();
+
+        if (left != null && left.type != WeaponType.BULLET_WEAPON) left = null;
+        if (right != null && right.type != WeaponType.BULLET_WEAPON) right = null;
+
+        int index = 0;
+        if (right != null) {
+            if (index < targets.Count) {
+                if (isHided) EndHide();
+
+                right.Shoot(targets[index].skeleton.cockpit.transform.position);
+                index = Mathf.Min(index+1, targets.Count-1);
+            }
+        }
+        if (left != null) {
+            if (index < targets.Count) {
+                if (isHided) EndHide();
+
+                left.Shoot(targets[index].skeleton.cockpit.transform.position);
+                index = Mathf.Min(index+1, targets.Count-1);
+            }
+        }
     }
 
     public void LaunchMissiles() {

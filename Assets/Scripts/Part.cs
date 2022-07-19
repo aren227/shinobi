@@ -6,67 +6,139 @@ public class Part : MonoBehaviour
 {
     public PartName partName;
 
+    Mech mech;
+
     public Skeleton skeleton;
     public Transform frameRoot;
     public Transform armorRoot;
     public List<Collider> frameColliders = new List<Collider>();
     public List<Collider> armorColliders = new List<Collider>();
 
-    public int durability = 100;
+    public int armorDurability = 200;
+    public int frameDurability = 200;
+
+    bool armorDetached = false;
+    bool frameDetached = false;
 
     public int health { get; private set; }
 
     public bool disabled { get; private set; }
 
+    public bool hided { get; private set; }
+
     List<KeyValuePair<MeshRenderer, Material>> originalMaterials = new List<KeyValuePair<MeshRenderer, Material>>();
 
+    UiManager uiManager;
+
     void Awake() {
-        health = durability;
+        health = armorDurability + frameDurability;
+        uiManager = FindObjectOfType<UiManager>();
+
+        mech = GetComponentInParent<Mech>();
     }
 
     public void Hit(int damage) {
         if (disabled) return;
 
-        // Can't destroy frame with bullet hit.
-        health = Mathf.Max(health - damage, 1);
+        health = Mathf.Max(health - damage, 0);
 
-        if (health < durability/2) {
-            armorRoot.gameObject.SetActive(false);
-            foreach (Collider collider in armorColliders) {
-                collider.enabled = false;
+        if (health <= 0) {
+            if (!frameDetached) {
+                frameDetached = true;
+
+                GameObject newFrameRoot = new GameObject("Frame Debris");
+
+                frameRoot.parent = newFrameRoot.transform;
+
+                foreach (Collider collider in frameColliders) {
+                    collider.gameObject.layer = LayerMask.NameToLayer("Debris");
+                    collider.transform.parent = newFrameRoot.transform;
+                }
+
+                Rigidbody rigidbody = newFrameRoot.AddComponent<Rigidbody>();
+
+                // rigidbody.velocity = Random.insideUnitSphere;
+                // rigidbody.angularVelocity = Random.insideUnitSphere;
+
+                Disable(newFrameRoot);
             }
+        }
+        if (health < frameDurability) {
+            if (!armorDetached) {
+                armorDetached = true;
+
+                GameObject newArmorRoot = new GameObject("Armor Debris");
+
+                armorRoot.parent = newArmorRoot.transform;
+
+                foreach (Collider collider in armorColliders) {
+                    collider.gameObject.layer = LayerMask.NameToLayer("Debris");
+                    collider.transform.parent = newArmorRoot.transform;
+                }
+
+                Rigidbody rigidbody = newArmorRoot.AddComponent<Rigidbody>();
+
+                // rigidbody.velocity = Random.insideUnitSphere;
+                // rigidbody.angularVelocity = Random.insideUnitSphere;
+            }
+        }
+
+        if (mech == Mech.Player && partName == PartName.BODY) {
+            if (health > frameDurability) uiManager.SetCockpitHealth(1);
+            else uiManager.SetCockpitHealth((float)health / frameDurability);
         }
     }
 
-    public void Slice() {
-        // @Todo: Do slice animation.
-        Disable();
-    }
-
-    public void Disable() {
+    public void Disable(GameObject newParent) {
         if (disabled) return;
 
         health = 0;
         disabled = true;
 
+        if (hided) SetHide(false);
+
+        if (newParent) {
+            if (!frameDetached) {
+                frameDetached = true;
+
+                frameRoot.parent = newParent.transform;
+
+                foreach (Collider collider in frameColliders) {
+                    collider.gameObject.layer = LayerMask.NameToLayer("Debris");
+                    collider.transform.parent = newParent.transform;
+                }
+            }
+
+            if (!armorDetached) {
+                armorDetached = true;
+
+                armorRoot.parent = newParent.transform;
+
+                foreach (Collider collider in armorColliders) {
+                    collider.gameObject.layer = LayerMask.NameToLayer("Debris");
+                    collider.transform.parent = newParent.transform;
+                }
+            }
+        }
+
         if (partName == PartName.BODY) {
-            skeleton.GetPart(PartName.HEAD).Disable();
-            skeleton.GetPart(PartName.UPPER_LEFT_ARM).Disable();
-            skeleton.GetPart(PartName.UPPER_RIGHT_ARM).Disable();
-            skeleton.GetPart(PartName.UPPER_LEFT_LEG).Disable();
-            skeleton.GetPart(PartName.UPPER_RIGHT_LEG).Disable();
+            skeleton.GetPart(PartName.HEAD).Disable(newParent);
+            skeleton.GetPart(PartName.UPPER_LEFT_ARM).Disable(newParent);
+            skeleton.GetPart(PartName.UPPER_RIGHT_ARM).Disable(newParent);
+            skeleton.GetPart(PartName.UPPER_LEFT_LEG).Disable(newParent);
+            skeleton.GetPart(PartName.UPPER_RIGHT_LEG).Disable(newParent);
         }
         else if (partName == PartName.UPPER_LEFT_ARM) {
-            skeleton.GetPart(PartName.LOWER_LEFT_ARM).Disable();
+            skeleton.GetPart(PartName.LOWER_LEFT_ARM).Disable(newParent);
         }
         else if (partName == PartName.UPPER_RIGHT_ARM) {
-            skeleton.GetPart(PartName.LOWER_RIGHT_ARM).Disable();
+            skeleton.GetPart(PartName.LOWER_RIGHT_ARM).Disable(newParent);
         }
         else if (partName == PartName.UPPER_LEFT_LEG) {
-            skeleton.GetPart(PartName.LOWER_LEFT_LEG).Disable();
+            skeleton.GetPart(PartName.LOWER_LEFT_LEG).Disable(newParent);
         }
         else if (partName == PartName.UPPER_RIGHT_LEG) {
-            skeleton.GetPart(PartName.LOWER_RIGHT_LEG).Disable();
+            skeleton.GetPart(PartName.LOWER_RIGHT_LEG).Disable(newParent);
         }
 
         foreach (Collider collider in frameColliders) {
@@ -82,6 +154,10 @@ public class Part : MonoBehaviour
     }
 
     public void SetHide(bool hide) {
+        if (disabled) return;
+
+        this.hided = hide;
+
         if (hide) {
             originalMaterials.Clear();
             foreach (MeshRenderer meshRenderer in frameRoot.GetComponentsInChildren<MeshRenderer>()) {

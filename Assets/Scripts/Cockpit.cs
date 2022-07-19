@@ -4,26 +4,26 @@ using UnityEngine;
 
 public class Cockpit : MonoBehaviour
 {
-    Mech mech;
+    // Mech mech;
 
-    Damagable damagable;
+    // Damagable damagable;
 
-    UiManager uiManager;
 
-    void Awake() {
-        mech = GetComponentInParent<Mech>();
 
-        damagable = GetComponent<Damagable>();
-        damagable.damageListener.AddListener(Hit);
+    // void Awake() {
+    //     mech = GetComponentInParent<Mech>();
 
-        uiManager = FindObjectOfType<UiManager>();
-    }
+    //     damagable = GetComponent<Damagable>();
+    //     damagable.damageListener.AddListener(Hit);
 
-    void Hit(int damage) {
-        if (mech == Mech.Player) uiManager.SetCockpitHealth((float)damagable.health / damagable.maxHealth);
+    //     uiManager = FindObjectOfType<UiManager>();
+    // }
 
-        if (damagable.health <= 0) {
-            mech.Kill();
-        }
-    }
+    // void Hit(int damage) {
+    //     if (mech == Mech.Player) uiManager.SetCockpitHealth((float)damagable.health / damagable.maxHealth);
+
+    //     if (damagable.health <= 0) {
+    //         mech.Kill();
+    //     }
+    // }
 }

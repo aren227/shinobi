@@ -69,7 +69,7 @@ public class UiManager : MonoBehaviour
         speedText.text = $"{Mathf.Round(speedMeterPerSec * (3600f / 1000f))} km/h";
     }
 
-    public void SetTargets(List<Target> targets, Camera cam) {
+    public void SetTargets(List<Mech> targets, Camera cam) {
         RectTransform canvasRect = bloomCanvas.GetComponent<RectTransform>();
 
         for (int i = 0; i < targets.Count; i++) {
@@ -96,7 +96,7 @@ public class UiManager : MonoBehaviour
 
             RectTransform rect = thermalTargetCursors[i].GetComponent<RectTransform>();
 
-            Vector2 viewport = cam.WorldToViewportPoint(targets[i].transform.position);
+            Vector2 viewport = cam.WorldToViewportPoint(targets[i].skeleton.cockpit.transform.position);
 
             Vector2 anchored = new Vector2(
                 ((viewport.x*canvasRect.sizeDelta.x)-(canvasRect.sizeDelta.x*0.5f)),
