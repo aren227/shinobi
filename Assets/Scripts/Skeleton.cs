@@ -43,6 +43,8 @@ public class Skeleton : MonoBehaviour
     public Transform swordSwingMirror;
     public Transform swordSwingPivot;
 
+    public Thruster thruster;
+
     Animator animator;
 
     Dictionary<Inventory.Slot, Transform> pivots = new Dictionary<Inventory.Slot, Transform>();
@@ -91,6 +93,8 @@ public class Skeleton : MonoBehaviour
         animator.Update(0);
 
         AttachToBone();
+
+        thruster = GetComponentInChildren<Thruster>();
 
         // @Hardcoded
         animator.Play("Move Blend Tree");

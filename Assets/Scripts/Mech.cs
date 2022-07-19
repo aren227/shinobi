@@ -28,7 +28,9 @@ public class Mech : MonoBehaviour
 
     const float steminaConsumRate = 10;
     const float steminaRestoreRate = 5;
-    const float steminaRequiredToBoost = 10;
+
+    const float minSteminaRequiredToBoost = 10;
+    const float maxSteminaRequiredToBoost = 100;
 
     public TargetType targetType;
 
@@ -93,10 +95,16 @@ public class Mech : MonoBehaviour
         accumulatedDelta += velocity * Time.deltaTime;
     }
 
-    public bool BeginBoost() {
-        if (stemina < steminaRequiredToBoost) return false;
+    public int GetSteminaRequiredToBoost() {
+        return Mathf.RoundToInt(Mathf.Lerp(maxSteminaRequiredToBoost, minSteminaRequiredToBoost, (float) skeleton.thruster.health / skeleton.thruster.durability));
+    }
 
-        stemina -= steminaRequiredToBoost;
+    public bool BeginBoost() {
+        int requiredStemina = GetSteminaRequiredToBoost();
+
+        if (stemina < requiredStemina) return false;
+
+        stemina -= requiredStemina;
 
         boost = true;
         boostSince = Time.time;
@@ -156,21 +164,24 @@ public class Mech : MonoBehaviour
                     cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Missile")
                 );
 
-                bool success = true;
+                float distToTarget = float.PositiveInfinity;
+                float minDist = float.PositiveInfinity;
+
                 for (int i = 0; i < count; i++) {
                     // Ignore myself.
                     if (hits[i].collider.transform.IsChildOf(transform)) continue;
-                    // Ignore target collider.
-                    if (hits[i].collider.transform.IsChildOf(target.transform)) continue;
+
+                    if (hits[i].collider.transform == target.transform || hits[i].collider.transform.IsChildOf(target.transform)) {
+                        distToTarget = Mathf.Min(distToTarget, hits[i].distance);
+                    }
 
                     // Vital target should always visible.
                     if (targetType == TargetType.VITAL && hits[i].collider.transform.IsChildOf(target.transform.root)) continue;
 
-                    success = false;
-                    break;
+                    minDist = Mathf.Min(minDist, hits[i].distance);
                 }
 
-                if (success) {
+                if (distToTarget <= minDist) {
                     result.Add(target);
                 }
             }

@@ -32,6 +32,8 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject);
             FindObjectOfType<ParticleManager>().CreateBulletImpact(hit.point, hit.normal);
 
+            // @Todo: Generalize to damagable.
+
             Damagable damagable = hit.collider.GetComponent<Damagable>();
 
             if (damagable) {
@@ -46,6 +48,9 @@ public class Bullet : MonoBehaviour
                     part.Hit(hit.point, hit.normal, 10);
                 }
             }
+
+            Thruster thruster = hit.collider.GetComponent<Thruster>();
+            if (thruster) thruster.Hit(10);
 
             return;
         }

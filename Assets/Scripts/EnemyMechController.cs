@@ -29,7 +29,7 @@ public class EnemyMechController : MonoBehaviour
 
     void Update() {
         // mech.Move((targetPos - mech.transform.position).normalized);
-        mech.Aim(Mech.Player.transform.position);
+        // mech.Aim(Mech.Player.transform.position);
 
         if (Vector3.Distance(mech.transform.position, targetPos) < 3) {
             targetPos = Random.insideUnitSphere * 100;

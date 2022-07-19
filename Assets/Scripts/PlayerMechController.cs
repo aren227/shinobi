@@ -7,13 +7,13 @@ public class PlayerMechController : MonoBehaviour
     Mech mech;
 
     CameraController cameraController;
-    SwordController swordController;
+    // SwordController swordController;
     SwordController2 swordController2;
     UiManager uiManager;
 
     void Awake() {
         cameraController = FindObjectOfType<CameraController>();
-        swordController = FindObjectOfType<SwordController>();
+        // swordController = FindObjectOfType<SwordController>();
         uiManager = FindObjectOfType<UiManager>();
 
         mech = GetComponent<Mech>();
@@ -110,8 +110,8 @@ public class PlayerMechController : MonoBehaviour
             //     cameraController.locked = null;
             // }
 
-            if (targets.Count > 0) swordController.target = targets[0].GetComponentInParent<Mech>();
-            else swordController.target = null;
+            // if (targets.Count > 0) swordController.target = targets[0].GetComponentInParent<Mech>();
+            // else swordController.target = null;
 
             uiManager.SetTargets(targets, cameraController.cam);
 
@@ -154,7 +154,7 @@ public class PlayerMechController : MonoBehaviour
                 }
             }
 
-            swordController.target = null;
+            // swordController.target = null;
 
             uiManager.SetTargets(targets, cameraController.cam);
         }
