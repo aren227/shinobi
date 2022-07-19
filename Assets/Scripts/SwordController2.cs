@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class SwordController2 : MonoBehaviour
 {
     Mech mech;
+    Mech target;
 
     Vector3 swingPivot => mech.skeleton.swordSwingPivot.position;
 
     Vector3 swingNormal => mech.skeleton.swordSwingPivot.rotation * Vector3.up;
 
     public bool isRightHanded { get; private set; } = true;
+
+    Vector3 targetAttackPos;
 
 
     public AnimationCurve swingAngleVelocityCurve;
@@ -22,15 +26,16 @@ public class SwordController2 : MonoBehaviour
     float beginDepth = 1f;
     float endDepth = 4f;
 
-    float _beginAngle = 80f;
+    float _beginAngle = 90f;
     float beginAngle {
         get {
             if (isRightHanded) return _beginAngle;
             return _beginAngle * -1;
         }
     }
-    
-    float maxAngle = 80f;
+
+    float deathAngle = 75;
+    float maxAngle = 120f;
 
     float swordSwingT = 0;
 
@@ -43,33 +48,41 @@ public class SwordController2 : MonoBehaviour
 
     Transform swordTransform;
 
-    Mech targetMech;
-    Part targetPart;
+    MotionDriver motionDriver;
 
     void Awake() {
         mech = GetComponent<Mech>();
     }
 
-    public void BeginSwing() {
+    public void BeginAttack(Mech target) {
         if (!mech.isUsingSword) return;
 
         swordTransform = mech.inventory.GetItem(Inventory.Slot.SWORD).transform;
 
-        state = SwordSwingState.SWING;
+        state = SwordSwingState.PREPARE;
         angle = beginAngle;
-        
+
         angleVel = 0;
 
-        targetMech = null;
-        targetPart = null;
+        this.target = target;
+
+        targetAttackPos = mech.GetMeleeAttackPos(target);
+
+        mech.disableMovement = true;
+        target.disableMovement = true;
+
+        motionDriver = new MotionDriver(mech, target);
     }
 
-    public void EndSwing() {
+    public void EndAttack() {
         swordTransform.localPosition = Vector3.zero;
         swordTransform.localRotation = Quaternion.identity;
         swordTransform = null;
 
         state = SwordSwingState.IDLE;
+
+        mech.disableMovement = false;
+        target.disableMovement = false;
     }
 
     public void SwitchHand() {
@@ -86,124 +99,106 @@ public class SwordController2 : MonoBehaviour
     }
 
     void Update() {
-        if (!swordTransform) return;
+        if (state == SwordSwingState.IDLE) return;
 
-        float targetAngleVel = 0;
-        float smoothTime = 0.15f;
-        if (state == SwordSwingState.SWING) {
-            if (Mathf.Abs(angle - beginAngle) >= maxAngle) targetAngleVel = 0;
-            else targetAngleVel = -700f;
+        motionDriver.Update();
 
-            smoothTime = 0.15f;
-        }
-        else if (state == SwordSwingState.BLOCKED) {
-            smoothTime = 0.07f;
-        }
-        else if (state == SwordSwingState.HIT) {
-            if (Input.GetMouseButton(0)) {
-                smoothTime = 3f;
-                targetAngleVel = -700f;
-            }
-            else {
-                smoothTime = 0.05f;
-            }
-        }
-
-        if (!isRightHanded) targetAngleVel *= -1;
-
-        angleVel = Mathf.SmoothDamp(angleVel, targetAngleVel, ref angleAcc, smoothTime);
-
-        angle += angleVel * Time.deltaTime;
-
-        rot = Quaternion.AngleAxis(angle, swingNormal) * mech.transform.rotation;
-
-        if (state == SwordSwingState.SWING) {
-            // If we already destroyed the part, prevent to do it one more time.
-            if (targetPart == null) {
-                RaycastHit[] hits = Physics.CapsuleCastAll(
-                    swingPivot + rot * Vector3.forward * beginDepth,
-                    swingPivot + rot * Vector3.forward * endDepth,
-                    0.1f,
-                    rot * Vector3.left,
-                    0.4f,
-                    LayerMask.GetMask("Frame", "Armor")
-                );
-
-                float minDist = float.PositiveInfinity;
-                RaycastHit hit = new RaycastHit();
-
-                for (int i = 0; i < hits.Length; i++) {
-                    // Ignore self
-                    if (hits[i].collider.GetComponentInParent<Mech>() == mech) continue;
-
-                    if (hits[i].distance < minDist) {
-                        minDist = hits[i].distance;
-                        hit = hits[i];
-                    }
-                }
-
-                if (minDist != float.PositiveInfinity) {
-                    if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Frame")) {
-                        targetMech = hit.collider.GetComponentInParent<Mech>();
-                        targetPart = targetMech.skeleton.GetPartByCollider(hit.collider);
-
-                        if (targetPart) {
-                            Debug.Log("Frame hit.");
-
-                            state = SwordSwingState.HIT;
-
-                            // Reduce velocity
-                            angleVel = 0;
-                            angleAcc = 0;
-                        }
-                        else {
-                            Debug.Log("Part not found!");
-                        }
-
-                    }
-                    else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Armor")) {
-                        Debug.Log("Armor hit. Blocked.");
-
-                        state = SwordSwingState.BLOCKED;
-
-                        // Reflect
-                        angleVel *= -1;
-                    }
-                }
-            }
-        }
-        else if (state == SwordSwingState.HIT) {
-            RaycastHit[] hits = Physics.CapsuleCastAll(
-                swingPivot + rot * Vector3.forward * beginDepth,
-                swingPivot + rot * Vector3.forward * endDepth,
-                0.1f,
-                rot * Vector3.left,
-                0.4f,
-                LayerMask.GetMask("Frame")
-            );
-
-            bool stopHit = true;
-            foreach (RaycastHit hit in hits) {
-                if (targetPart.frameColliders.IndexOf(hit.collider) != -1) {
-                    stopHit = false;
-                    break;
-                }
-            }
-
-            if (stopHit) {
-                Debug.Log("Hit end.");
-
-                targetPart.Slice();
-
+        if (state == SwordSwingState.PREPARE) {
+            if (motionDriver.approached) {
                 state = SwordSwingState.SWING;
             }
         }
+        else {
+            float targetAngleVel = 0;
+            float smoothTime = 0.15f;
+            if (state == SwordSwingState.SWING) {
+                if (Mathf.Abs(angle - beginAngle) >= maxAngle) targetAngleVel = 0;
+                else targetAngleVel = -700f;
 
-        swordTransform.position = swingPivot + rot * Vector3.forward * beginDepth;
-        swordTransform.rotation = rot;
+                smoothTime = 0.05f;
+            }
+            else if (state == SwordSwingState.BLOCKED) {
+                smoothTime = 0.07f;
+            }
+            else if (state == SwordSwingState.HIT) {
+                if (Input.GetMouseButton(0)) {
+                    smoothTime = 2f;
+                    targetAngleVel = -700f;
+                }
+                else {
+                    smoothTime = 0.05f;
+                }
+            }
 
-        if (state != SwordSwingState.HIT && targetAngleVel == 0 && Mathf.Abs(angleVel) < 5f) {
-            EndSwing();
+            if (!isRightHanded) targetAngleVel *= -1;
+
+            angleVel = Mathf.SmoothDamp(angleVel, targetAngleVel, ref angleAcc, smoothTime);
+
+            angle += angleVel * Time.deltaTime;
+
+            rot = Quaternion.AngleAxis(angle, swingNormal) * mech.transform.rotation;
+
+            if (state == SwordSwingState.SWING) {
+                Collider[] colliders = Physics.OverlapCapsule(
+                    swingPivot + rot * Vector3.forward * beginDepth,
+                    swingPivot + rot * Vector3.forward * endDepth,
+                    0.2f,
+                    LayerMask.GetMask("Frame", "Armor")
+                );
+
+                bool targetHit = false;
+
+                foreach (Collider collider in colliders) {
+                    if (collider.GetComponentInParent<Mech>() == target) {
+                        targetHit = true;
+                        break;
+                    }
+                }
+
+                if (targetHit) {
+                    Debug.Log("Begin Hit");
+
+                    state = SwordSwingState.HIT;
+
+                    // Reduce velocity
+                    angleVel = 0;
+                    angleAcc = 0;
+                }
+            }
+            else if (state == SwordSwingState.HIT) {
+                Collider[] colliders = Physics.OverlapCapsule(
+                    swingPivot + rot * Vector3.forward * beginDepth,
+                    swingPivot + rot * Vector3.forward * endDepth,
+                    0.2f,
+                    LayerMask.GetMask("Frame", "Armor")
+                );
+
+                bool targetHit = false;
+
+                foreach (Collider collider in colliders) {
+                    if (collider.GetComponentInParent<Mech>() == target) {
+                        targetHit = true;
+                        break;
+                    }
+                }
+
+                if (!targetHit) {
+                    Debug.Log("End Hit");
+
+                    state = SwordSwingState.SWING;
+                }
+            }
+
+            if (Mathf.Abs(beginAngle - angle) > deathAngle) {
+                target.Kill();
+            }
+
+            swordTransform.position = swingPivot + rot * Vector3.forward * beginDepth;
+            swordTransform.rotation = rot;
+
+            if (state != SwordSwingState.HIT && targetAngleVel == 0 && Mathf.Abs(angleVel) < 5f) {
+                EndAttack();
+            }
         }
     }
 }

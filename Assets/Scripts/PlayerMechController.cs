@@ -123,7 +123,7 @@ public class PlayerMechController : MonoBehaviour
 
             // Newer version
             if (swordController2.state == SwordSwingState.IDLE && Input.GetMouseButtonDown(0)) {
-                mech.BeginSwing();
+                mech.BeginMeleeAttack();
             }
             if (Input.GetMouseButtonDown(1)) {
                 mech.SwitchHand();

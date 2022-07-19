@@ -6,15 +6,19 @@ public class Mech : MonoBehaviour
 {
     public static Mech Player;
 
-    Rigidbody rigid;
+    public Rigidbody rigid;
 
     public float yaw = 0;
 
     CapsuleParams kinematicCapsule;
 
+    const float rigidbodyCastPad = 0.1f;
+
     VelocitySolver velocitySolver;
 
     public Vector3 velocity;
+
+    public bool disableMovement = false;
 
     Vector3 accumulatedDelta;
 
@@ -35,10 +39,14 @@ public class Mech : MonoBehaviour
     const float minSteminaRequiredToHide = 3;
     const float steminaPenaltyWhenHit = 40;
 
+    const float maxMeleeAttackRange = 7;
+    const float meleeAttackDistance = 2.5f;
+
     public TargetType targetType { get; private set; } = TargetType.VITAL;
 
     public Vector3 aimTarget { get; private set; }
 
+    // @Todo: Just use Mech instead of Target.
     public List<Target> targets { get; private set; } = new List<Target>();
 
     public MechArmature mechArmature;
@@ -93,11 +101,19 @@ public class Mech : MonoBehaviour
 
         // Update targets
         // @Todo: Update after move to get up-to-date result?
-        targets = GetVisibleTargets();
+        if (isUsingSword) {
+            targets.Clear();
+            Mech meleeTarget = GetMeleeTarget();
+            // @Todo: This sucks.
+            if (meleeTarget) targets.Add(meleeTarget.skeleton.cockpit.GetComponent<Target>());
+        }
+        else {
+            targets = GetVisibleTargets();
+        }
     }
 
     public void Move(Vector3 moveDir) {
-        if (isKilled) return;
+        if (isKilled || disableMovement) return;
 
         if (boost) {
             stemina = Mathf.Max(stemina - boostSteminaConsumRate * Time.deltaTime, 0);
@@ -115,6 +131,8 @@ public class Mech : MonoBehaviour
     }
 
     public bool BeginBoost() {
+        if (disableMovement) return false;
+
         int requiredStemina = skeleton.thruster.GetSteminaRequiredToBoost();
 
         if (stemina < requiredStemina) return false;
@@ -132,7 +150,7 @@ public class Mech : MonoBehaviour
     }
 
     public void BeginHide() {
-        if (isHided) return;
+        if (isHided || disableMovement) return;
 
         if (stemina < minSteminaRequiredToHide) return;
 
@@ -165,6 +183,8 @@ public class Mech : MonoBehaviour
     }
 
     public void Aim(Vector3 aimTarget) {
+        if (swordController.state != SwordSwingState.IDLE) return;
+
         this.aimTarget = aimTarget;
 
         skeleton.leftGunPivot.forward = (aimTarget - skeleton.leftGunPivot.position).normalized;
@@ -201,6 +221,9 @@ public class Mech : MonoBehaviour
             if (target.type != targetType) continue;
             // Ignore targets in myself.
             if (target.transform.IsChildOf(transform)) continue;
+            // Ignore dead mech.
+            Mech targetMech = target.GetComponentInParent<Mech>();
+            if (targetMech == null || targetMech.isKilled) continue;
 
             Vector2 viewport = cam.WorldToViewportPoint(target.transform.position);
             if (Vector3.Dot(target.transform.position - cam.transform.position, cam.transform.forward) > 0
@@ -265,6 +288,73 @@ public class Mech : MonoBehaviour
         return result;
     }
 
+    public Vector3 GetMeleeAttackPos(Mech victim) {
+        Vector3 dir = (transform.position - victim.transform.position).normalized;
+        Vector3 targetPos = victim.transform.position + new Vector3(dir.x, 0, dir.z).normalized * meleeAttackDistance;
+        return targetPos;
+    }
+
+    public Mech GetMeleeTarget() {
+        Mech[] mechs = FindObjectsOfType<Mech>();
+
+        // @Todo: This is fair but sucks.
+        // Should implement custom aim boundary or something.
+        Camera cam = Camera.main;
+
+        Vector3 prevPos = cam.transform.localPosition;
+        Quaternion prevRot = cam.transform.localRotation;
+
+        if (this != Mech.Player) {
+            cam.transform.position = skeleton.headBone.position;
+            cam.transform.rotation = skeleton.headBone.rotation;
+        }
+
+        List<Mech> candidates = new List<Mech>();
+
+        RaycastHit[] hits = new RaycastHit[32];
+        Vector3 myCockpit = skeleton.cockpit.transform.position;
+
+        foreach (Mech mech in mechs) {
+            if (mech == this) continue;
+            if (mech.isKilled) continue;
+
+            Vector3 cockpit = mech.skeleton.cockpit.transform.position;
+
+            Vector2 viewport = cam.WorldToViewportPoint(cockpit);
+            if (Vector3.Dot(cockpit - myCockpit, cam.transform.forward) > 0
+                && Vector3.Distance(cockpit, myCockpit) < maxMeleeAttackRange
+                && 0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
+                // Can I move to it?
+                Vector3 targetPos = GetMeleeAttackPos(mech);
+                Vector3 delta = (targetPos - rigid.position);
+
+                if (!Physics.CapsuleCast(
+                    rigid.position + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
+                    rigid.position + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
+                    kinematicCapsule.radius, delta.normalized, delta.magnitude + rigidbodyCastPad, LayerMask.GetMask("Kinematic"))
+                ) {
+                    candidates.Add(mech);
+                }
+            }
+        }
+
+        if (candidates.Count == 0) return null;
+        if (candidates.Count == 1) return candidates[0];
+
+        Mech bestTarget = null;
+        float minDist = float.PositiveInfinity;
+        foreach (Mech mech in candidates) {
+            Vector2 viewport = cam.WorldToViewportPoint(mech.skeleton.cockpit.transform.position);
+            float dist = Vector2.Distance(Vector2.one * 0.5f, viewport);
+            if (dist < minDist) {
+                minDist = dist;
+                bestTarget = mech;
+            }
+        }
+
+        return bestTarget;
+    }
+
     public void UpdatePivots() {
         // @Todo: Does not consider animation.
         foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
@@ -273,6 +363,8 @@ public class Mech : MonoBehaviour
     }
 
     public void BeginSword() {
+        if (disableMovement) return;
+
         Item sword = inventory.GetItem(Inventory.Slot.SWORD);
 
         if (!sword) return;
@@ -288,15 +380,30 @@ public class Mech : MonoBehaviour
         UpdatePivots();
     }
 
-    public void BeginSwing() {
+    public void BeginMeleeAttack() {
+        if (disableMovement) return;
+
+        // @Todo: Make a dedicated variable for storing melee target.
+        if (targets.Count == 0) return;
+
         if (isHided) EndHide();
 
-        if (swordController.state == SwordSwingState.IDLE) {
-            swordController.BeginSwing();
-        }
+        Mech target = targets[0].GetComponentInParent<Mech>();
+
+        swordController.BeginAttack(target);
     }
 
+    // public void BeginSwing() {
+    //     if (isHided) EndHide();
+
+    //     if (swordController.state == SwordSwingState.IDLE) {
+    //         swordController.BeginSwing();
+    //     }
+    // }
+
     public void SwitchHand() {
+        if (disableMovement) return;
+
         swordController.SwitchHand();
     }
 
@@ -366,7 +473,7 @@ public class Mech : MonoBehaviour
     }
 
     void FixedUpdate() {
-        if (isKilled) return;
+        if (isKilled || disableMovement) return;
 
         Vector3 delta = accumulatedDelta;
 
