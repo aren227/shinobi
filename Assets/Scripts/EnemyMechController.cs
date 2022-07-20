@@ -28,7 +28,7 @@ public class EnemyMechController : MonoBehaviour
     }
 
     void Update() {
-        mech.Move((targetPos - mech.transform.position).normalized);
+        // mech.Move((targetPos - mech.transform.position).normalized);
 
         if (!Mech.Player.isHided) mech.Aim(Mech.Player.transform.position);
 

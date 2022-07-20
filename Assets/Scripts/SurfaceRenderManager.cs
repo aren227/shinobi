@@ -19,7 +19,7 @@ public class SurfaceRenderManager : MonoBehaviour
 
         commandBuffer.Clear();
         foreach (SurfaceRenderer surfaceRenderer in surfaceRenderers) {
-            surfaceRenderer.AppendToCommandBuffer(commandBuffer);
+            surfaceRenderer.AppendToCommandBuffer2(commandBuffer);
         }
     }
 }

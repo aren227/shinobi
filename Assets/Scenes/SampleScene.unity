@@ -1134,6 +1134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holes: []
+  cubeMeshFilter: {fileID: 0}
 --- !u!114 &323852867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4019,7 +4020,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1291786826}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 2
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
@@ -12513,6 +12514,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4014103693937500916, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.003
+      objectReference: {fileID: 0}
+    - target: {fileID: 4014103693937500916, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 4014103693937500916, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9999642
+      objectReference: {fileID: 0}
+    - target: {fileID: 4014103693937500916, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.008464695
+      objectReference: {fileID: 0}
+    - target: {fileID: 4014103693937500916, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -0.97
+      objectReference: {fileID: 0}
     - target: {fileID: 7580416314343576954, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
       propertyPath: m_Name
       value: Mech

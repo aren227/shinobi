@@ -8,9 +8,11 @@ public class SwordController2 : MonoBehaviour
     Mech mech;
     Mech target;
 
+    Quaternion swingPivotRotation => mech.skeleton.swordSwingPivot.rotation;
+
     Vector3 swingPivot => mech.skeleton.swordSwingPivot.position;
 
-    Vector3 swingNormal => mech.skeleton.swordSwingPivot.rotation * Vector3.up;
+    Vector3 swingNormal => swingPivotRotation * Vector3.up;
 
     public bool isRightHanded { get; private set; } = true;
 
@@ -50,6 +52,8 @@ public class SwordController2 : MonoBehaviour
 
     MotionDriver motionDriver;
 
+    GameObject sliceCube;
+
     void Awake() {
         mech = GetComponent<Mech>();
     }
@@ -72,6 +76,14 @@ public class SwordController2 : MonoBehaviour
         target.disableMovement = true;
 
         motionDriver = new MotionDriver(mech, target);
+
+        sliceCube = Instantiate(PrefabRegistry.Instance.sliceEffectBox);
+        sliceCube.transform.parent = target.transform;
+        sliceCube.transform.localScale = Vector3.zero;
+
+        target.skeleton.SetHoleCube(sliceCube.GetComponent<MeshFilter>());
+
+        // swingPivotRotation = mech.skeleton.swordSwingPivot.rotation;
     }
 
     public void EndAttack() {
@@ -134,7 +146,7 @@ public class SwordController2 : MonoBehaviour
 
             angle += angleVel * Time.deltaTime;
 
-            rot = Quaternion.AngleAxis(angle, swingNormal) * mech.transform.rotation;
+            rot = swingPivotRotation * Quaternion.AngleAxis(angle, Vector3.up);
 
             if (state == SwordSwingState.SWING) {
                 Collider[] colliders = Physics.OverlapCapsule(
@@ -193,6 +205,18 @@ public class SwordController2 : MonoBehaviour
 
             swordTransform.position = swingPivot + rot * Vector3.forward * beginDepth;
             swordTransform.rotation = rot;
+
+            Vector3 rotForward = rot * Vector3.forward;
+            Vector3 rotRight = rot * Vector3.right;
+
+            if (isRightHanded) {
+                sliceCube.transform.position = swingPivot + rotForward * 10 + rotRight * 10;
+            }
+            else {
+                sliceCube.transform.position = swingPivot + rotForward * 10 - rotRight * 10;
+            }
+            sliceCube.transform.rotation = rot;
+            sliceCube.transform.localScale = new Vector3(20, 0.2f, 20);
 
             if (state != SwordSwingState.HIT && targetAngleVel == 0 && Mathf.Abs(angleVel) < 5f) {
                 EndAttack();

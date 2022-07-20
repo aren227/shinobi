@@ -195,6 +195,15 @@ public class Part : MonoBehaviour
         }
     }
 
+    public void SetHoleCube(MeshFilter cubeMeshFilter) {
+        foreach (SurfaceRenderer surfaceRenderer in frameRoot.GetComponentsInChildren<SurfaceRenderer>()) {
+            surfaceRenderer.cubeMeshFilter = cubeMeshFilter;
+        }
+        foreach (SurfaceRenderer surfaceRenderer in armorRoot.GetComponentsInChildren<SurfaceRenderer>()) {
+            surfaceRenderer.cubeMeshFilter = cubeMeshFilter;
+        }
+    }
+
     void Update() {
 
     }

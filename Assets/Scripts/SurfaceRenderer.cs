@@ -6,15 +6,19 @@ using UnityEngine.Rendering;
 public class SurfaceRenderer : MonoBehaviour
 {
     static Material depthPassMat, depthWriteMat;
+    static Material depthWrite2Mat;
 
     MeshFilter meshFilter;
     public List<MeshFilter> holes = new List<MeshFilter>();
+
+    public MeshFilter cubeMeshFilter;
 
     bool disabled = false;
 
     void Awake() {
         if (depthPassMat == null) depthPassMat = new Material(Shader.Find("Unlit/DepthPass"));
         if (depthWriteMat == null) depthWriteMat = new Material(Shader.Find("Unlit/DepthWrite"));
+        if (depthWrite2Mat == null) depthWrite2Mat = new Material(Shader.Find("Unlit/DepthWrite2"));
 
         meshFilter = GetComponent<MeshFilter>();
     }
@@ -69,5 +73,25 @@ public class SurfaceRenderer : MonoBehaviour
                 cb.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, depthPassMat, 0, 2);
             }
         }
+    }
+
+    // Do nothing with holes, but only one cube.
+    public void AppendToCommandBuffer2(CommandBuffer cb) {
+        Matrix4x4 matrix;
+        if (cubeMeshFilter) {
+            matrix = cubeMeshFilter.transform.worldToLocalMatrix * transform.localToWorldMatrix;
+        }
+        // Place a cube far away.
+        else {
+            matrix = Matrix4x4.TRS(transform.position + new Vector3(100, 100, 100), Quaternion.identity, Vector3.one);
+        }
+
+        cb.SetGlobalMatrix(Shader.PropertyToID("_ObjectToCube"), matrix);
+
+        cb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+        cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthWrite2Mat, 0, 0);
+        cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthWrite2Mat, 0, 1);
+
+        if (cubeMeshFilter) cb.DrawMesh(cubeMeshFilter.sharedMesh, cubeMeshFilter.transform.localToWorldMatrix, depthWrite2Mat, 0, 2);
     }
 }

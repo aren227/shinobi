@@ -116,6 +116,12 @@ public class Skeleton : MonoBehaviour
         animator.Play("Move Blend Tree");
     }
 
+    void Start() {
+        GameObject cloned = Instantiate(PrefabRegistry.Instance.sliceEffectBox);
+        cloned.transform.parent = cockpit.transform;
+        cloned.transform.localPosition = Vector3.zero;
+    }
+
     void Update() {
         Vector3 localVelocity = Quaternion.Inverse(mech.transform.rotation) * mech.velocity;
         Vector2 motion = new Vector2(localVelocity.x, localVelocity.z) / 10f;
@@ -349,6 +355,12 @@ public class Skeleton : MonoBehaviour
         sliceBox.transform.localScale = new Vector3(Vector3.Distance(from, to) + thickness, thickness, depth);
         sliceBox.transform.localPosition = (from + to) / 2;
         sliceBox.transform.localRotation = Quaternion.FromToRotation(Vector3.right, dir);
+    }
+
+    public void SetHoleCube(MeshFilter cubeMeshFilter) {
+        foreach (Part part in parts.Values) {
+            part.SetHoleCube(cubeMeshFilter);
+        }
     }
 
     public Part GetPart(PartName partName) {
