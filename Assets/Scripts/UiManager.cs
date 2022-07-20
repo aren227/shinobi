@@ -7,6 +7,7 @@ public class UiManager : MonoBehaviour
 {
     public RawImage steminaRawImage;
     public Text speedText;
+    public Image crosshairImage;
 
     public GameObject thermalTargetCursor;
 
@@ -69,7 +70,18 @@ public class UiManager : MonoBehaviour
         speedText.text = $"{Mathf.Round(speedMeterPerSec * (3600f / 1000f))} km/h";
     }
 
-    public void SetTargets(List<Mech> targets, Camera cam) {
+    public void SetCrosshairPos(Vector2 viewport) {
+        RectTransform canvasRect = bloomCanvas.GetComponent<RectTransform>();
+
+        Vector2 anchored = new Vector2(
+            ((viewport.x*canvasRect.sizeDelta.x)-(canvasRect.sizeDelta.x*0.5f)),
+            ((viewport.y*canvasRect.sizeDelta.y)-(canvasRect.sizeDelta.y*0.5f))
+        );
+
+        crosshairImage.GetComponent<RectTransform>().anchoredPosition = anchored;
+    }
+
+    public void SetTargets(List<Transform> targets, Camera cam) {
         RectTransform canvasRect = bloomCanvas.GetComponent<RectTransform>();
 
         for (int i = 0; i < targets.Count; i++) {
@@ -96,7 +108,7 @@ public class UiManager : MonoBehaviour
 
             RectTransform rect = thermalTargetCursors[i].GetComponent<RectTransform>();
 
-            Vector2 viewport = cam.WorldToViewportPoint(targets[i].skeleton.cockpit.transform.position);
+            Vector2 viewport = cam.WorldToViewportPoint(targets[i].position);
 
             Vector2 anchored = new Vector2(
                 ((viewport.x*canvasRect.sizeDelta.x)-(canvasRect.sizeDelta.x*0.5f)),

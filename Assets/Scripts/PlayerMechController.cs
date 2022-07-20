@@ -11,6 +11,10 @@ public class PlayerMechController : MonoBehaviour
     SwordController2 swordController2;
     UiManager uiManager;
 
+    Vector2 cursorPos;
+
+    List<Transform> markers = new List<Transform>();
+
     void Awake() {
         cameraController = FindObjectOfType<CameraController>();
         // swordController = FindObjectOfType<SwordController>();
@@ -65,6 +69,16 @@ public class PlayerMechController : MonoBehaviour
 
         mech.yaw = cameraController.cameraArm.eulerAngles.y;
 
+        if (mech.isBulletTime) {
+            const float mouseSensitivity = 10f;
+            cursorPos += new Vector2(Input.GetAxis("Mouse X") / Screen.width * mouseSensitivity, Input.GetAxis("Mouse Y") / Screen.height * mouseSensitivity);
+            cursorPos.x = Mathf.Clamp01(cursorPos.x);
+            cursorPos.y = Mathf.Clamp01(cursorPos.y);
+        }
+        else {
+            cursorPos = Vector2.one * 0.5f;
+        }
+
         // if (Input.GetKeyDown(KeyCode.Q)) {
         //     if (!mech.isUsingSword) mech.BeginSword();
         //     else mech.EndSword();
@@ -75,13 +89,28 @@ public class PlayerMechController : MonoBehaviour
             else mech.EndSword();
         }
 
+        if (Input.GetKeyDown(KeyCode.E)) {
+            if (!mech.isBulletTime) {
+                mech.BeginBulletTime();
+                markers.Clear();
+            }
+            else {
+                mech.EndBulletTime();
+
+                List<Weapon> weapons = mech.GetMissileWeapons();
+                for (int i = 0; i < Mathf.Min(weapons.Count, markers.Count); i++) {
+                    weapons[i].Shoot(Vector3.zero, markers[i]);
+                }
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Q)) {
             if (!mech.isHided) mech.BeginHide();
             else mech.EndHide();
         }
 
         // @Todo: Better ui.
-        if (Input.GetKeyDown(KeyCode.E)) {
+        if (Input.GetKeyDown(KeyCode.R)) {
             Item[] items = FindObjectsOfType<Item>();
             Item selected = null;
             float minDist = 3;
@@ -129,7 +158,7 @@ public class PlayerMechController : MonoBehaviour
                 mech.SwitchHand();
             }
         }
-        else {
+        else if (!mech.isBulletTime) {
             if (Input.GetMouseButton(0)) {
                 mech.ShootBullets();
             }
@@ -137,10 +166,42 @@ public class PlayerMechController : MonoBehaviour
                 mech.LaunchMissiles();
             }
         }
+        else {
+            if (Input.GetMouseButtonDown(0)) {
+                List<Weapon> weapons = mech.GetMissileWeapons();
+                if (markers.Count < weapons.Count) {
+                    // Place a marker.
+                    Ray ray = cameraController.cam.ViewportPointToRay(cursorPos);
+                    RaycastHit hit;
+                    if (Physics.Raycast(ray, out hit, float.PositiveInfinity, LayerMask.GetMask("Armor", "Frame", "Thruster", "Weapon"))) {
+                        Mech targetMech = hit.collider.GetComponentInParent<Mech>();
+                        if (targetMech != mech) {
+                            GameObject marker = new GameObject("Marker");
+                            marker.transform.parent = hit.collider.transform;
+                            marker.transform.position = hit.point;
 
-        uiManager.SetTargets(mech.targets, cameraController.cam);
+                            markers.Add(marker.transform);
+                        }
+                    }
+                }
+                else {
+                    // Fail
+                }
+            }
+        }
+
+        if (mech.isBulletTime) {
+            uiManager.SetTargets(markers, cameraController.cam);
+        }
+        else {
+            List<Transform> markers = new List<Transform>();
+            foreach (Mech mech in mech.targets) markers.Add(mech.skeleton.cockpit.transform);
+            uiManager.SetTargets(markers, cameraController.cam);
+        }
+
         uiManager.SetStemina(Mech.maxStemina, mech.stemina, mech.skeleton.thruster.GetSteminaRequiredToBoost());
         uiManager.SetSpeed(mech.velocity.magnitude);
+        uiManager.SetCrosshairPos(cursorPos);
     }
 
     public void TryToEquip(Item item) {

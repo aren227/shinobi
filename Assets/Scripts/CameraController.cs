@@ -46,22 +46,26 @@ public class CameraController : MonoBehaviour
             cameraArm.localPosition = new Vector3(3.5f, 2f, 0);
         }
 
-        if (locked) {
-            Vector3 fromTo = locked.position - cameraArm.position;
+        // Do not update yaw, pitch in bullet time.
+        if (!mech.isBulletTime) {
+            if (locked) {
+                Vector3 fromTo = locked.position - cameraArm.position;
 
-            yaw = -Mathf.Atan2(fromTo.z, fromTo.x) * Mathf.Rad2Deg + 90;
+                yaw = -Mathf.Atan2(fromTo.z, fromTo.x) * Mathf.Rad2Deg + 90;
 
-            transform.localEulerAngles = new Vector3(0, yaw, 0);
+                transform.localEulerAngles = new Vector3(0, yaw, 0);
 
-            fromTo = locked.position - cameraTarget.position;
+                fromTo = locked.position - cameraTarget.position;
 
-            Vector3 proj = new Vector3(fromTo.x, 0, fromTo.z);
-            pitch = -Mathf.Atan2(fromTo.y, proj.magnitude) * Mathf.Rad2Deg;
+                Vector3 proj = new Vector3(fromTo.x, 0, fromTo.z);
+                pitch = -Mathf.Atan2(fromTo.y, proj.magnitude) * Mathf.Rad2Deg;
+            }
+            else {
+                yaw = (yaw + mouseDelta.x) % 360;
+                pitch = Mathf.Clamp(pitch - mouseDelta.y, -89, 89);
+            }
         }
-        else {
-            yaw = (yaw + mouseDelta.x) % 360;
-            pitch = Mathf.Clamp(pitch - mouseDelta.y, -89, 89);
-        }
+
 
         transform.localEulerAngles = new Vector3(0, yaw, 0);
         cameraArm.localEulerAngles = new Vector3(pitch, 0, 0);

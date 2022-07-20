@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Mech : MonoBehaviour
 {
@@ -38,6 +39,8 @@ public class Mech : MonoBehaviour
     public const float maxSteminaRequiredToBoost = 100;
     const float minSteminaRequiredToHide = 3;
     const float steminaPenaltyWhenHit = 40;
+    const float minSteminaRequiredToBulletTime = 3;
+
 
     const float maxMeleeAttackRange = 7;
     const float meleeAttackDistance = 2.5f;
@@ -59,6 +62,7 @@ public class Mech : MonoBehaviour
 
     public bool isUsingSword { get; private set; }
     public bool isHided { get; private set; }
+    public bool isBulletTime { get; private set; }
 
     public bool isKilled { get; private set; }
 
@@ -179,6 +183,27 @@ public class Mech : MonoBehaviour
         if (attacked) {
             stemina = Mathf.Max(stemina - steminaPenaltyWhenHit, 0);
         }
+    }
+
+    public void BeginBulletTime() {
+        if (isBulletTime || disableMovement) return;
+
+        if (stemina < minSteminaRequiredToBulletTime) return;
+
+        isBulletTime = true;
+
+        DOTween.Kill("timeScale");
+        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0.02f, 0.1f).SetId("timeScale").SetEase(Ease.OutCubic).SetUpdate(true);
+
+    }
+
+    public void EndBulletTime() {
+        if (!isBulletTime) return;
+
+        isBulletTime = false;
+
+        DOTween.Kill("timeScale");
+        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 1, 0.1f).SetId("timeScale").SetEase(Ease.OutCubic).SetUpdate(true);
     }
 
     public void Aim(Vector3 aimTarget) {
@@ -416,12 +441,12 @@ public class Mech : MonoBehaviour
         return true;
     }
 
-    public void UseWeapon(Inventory.Slot slot) {
+    public void UseWeapon(Inventory.Slot slot, Transform target = null) {
         if (!CanUseWeapon(slot)) return;
 
         if (isHided) EndHide();
 
-        inventory.GetItem(slot).GetComponent<Weapon>().Shoot(aimTarget, null);
+        inventory.GetItem(slot).GetComponent<Weapon>().Shoot(aimTarget, target);
     }
 
     public void ShootBullets() {
@@ -433,6 +458,8 @@ public class Mech : MonoBehaviour
 
         if (left != null && left.type != WeaponType.BULLET_WEAPON) left = null;
         if (right != null && right.type != WeaponType.BULLET_WEAPON) right = null;
+
+        // @Todo: If targets is empty, just shoot center.
 
         int index = 0;
         if (right != null) {
@@ -453,9 +480,7 @@ public class Mech : MonoBehaviour
         }
     }
 
-    public void LaunchMissiles() {
-        // @Todo: Simple algorithm. Need to be refined.
-
+    public List<Weapon> GetMissileWeapons() {
         List<Weapon> weapons = new List<Weapon>();
         foreach (Inventory.Slot slot in System.Enum.GetValues(typeof(Inventory.Slot))) {
             if (CanUseWeapon(slot)) {
@@ -465,6 +490,13 @@ public class Mech : MonoBehaviour
                 }
             }
         }
+        return weapons;
+    }
+
+    public void LaunchMissiles() {
+        // @Todo: Simple algorithm. Need to be refined.
+
+        List<Weapon> weapons = GetMissileWeapons();
 
         if (Mathf.Min(weapons.Count, targets.Count) > 0) {
             if (isHided) EndHide();

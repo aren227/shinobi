@@ -1219,7 +1219,7 @@ Transform:
   m_GameObject: {fileID: 323852865}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -4.66, y: 2.9759896, z: 12.93}
-  m_LocalScale: {x: 5, y: 5, z: 0.5}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3261,7 +3261,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2074074649348376780, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: e3950270d7a66a045806e6b7f63444e3, type: 3}
 --- !u!1 &1016386733
 GameObject:
@@ -3631,6 +3632,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   steminaRawImage: {fileID: 270603063}
   speedText: {fileID: 868732230}
+  crosshairImage: {fileID: 196695039}
   thermalTargetCursor: {fileID: 1729069466}
   crackOverlayMat: {fileID: 2100000, guid: 2cb6e46e15b7dd049b679b440bd6b2a0, type: 2}
   strippedUiMat: {fileID: 2100000, guid: 69c4243747ef65e40a8360ed1c95ab68, type: 2}

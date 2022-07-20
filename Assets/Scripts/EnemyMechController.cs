@@ -40,7 +40,7 @@ public class EnemyMechController : MonoBehaviour
             mech.LaunchMissiles();
 
             lastShoot = Time.time;
-            delay = Random.Range(0f, 10f);
+            delay = Random.Range(0f, 2f);
         }
     }
 }
