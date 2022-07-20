@@ -435,6 +435,8 @@ public class Mech : MonoBehaviour
         Weapon weapon = item.GetComponent<Weapon>();
         if (!weapon) return false;
 
+        if (weapon.ammo <= 0) return false;
+
         Part part = skeleton.GetPartBySlot(slot);
         if (part.disabled) return false;
 
@@ -526,6 +528,15 @@ public class Mech : MonoBehaviour
             }
 
             damagable.Hit(damage);
+        }
+
+        Weapon weapon = collider.GetComponent<Weapon>();
+        if (weapon) {
+            if (isHided) {
+                EndHide(attacked: true);
+            }
+
+            weapon.Hit(damage);
         }
     }
 

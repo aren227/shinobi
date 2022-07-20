@@ -8,6 +8,8 @@ public class Weapon : MonoBehaviour
     public int ammo;
     public float delay = 0.1f;
 
+    const float ammoLossPerDamage = 0.2f;
+
     public Transform point;
 
     float lastShootTime;
@@ -50,6 +52,11 @@ public class Weapon : MonoBehaviour
         if (ammo > 0) ammo--;
 
         return true;
+    }
+
+    public void Hit(int damage) {
+        int ammoLoss = Mathf.RoundToInt(damage * ammoLossPerDamage);
+        ammo = Mathf.Max(ammo - ammoLoss, 0);
     }
 }
 
