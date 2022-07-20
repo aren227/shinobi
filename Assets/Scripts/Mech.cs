@@ -654,6 +654,9 @@ public class Mech : MonoBehaviour
             item.transform.localPosition = Vector3.zero;
             item.transform.localRotation = Quaternion.identity;
 
+            Weapon weapon = item.GetComponent<Weapon>();
+            if (weapon) inventory.BalanceAmmo(weapon.type);
+
             return true;
         }
         return false;

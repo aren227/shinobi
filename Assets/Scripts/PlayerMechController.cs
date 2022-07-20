@@ -200,6 +200,21 @@ public class PlayerMechController : MonoBehaviour
         uiManager.SetSpeed(mech.velocity.magnitude);
         uiManager.SetCrosshairPos(cursorPos);
 
+        uiManager.SetShowAmmo(!mech.isUsingSword);
+        if (!mech.isUsingSword) {
+            List<Weapon> bulletWeapons = mech.inventory.GetWeapons(WeaponType.BULLET_WEAPON);
+            List<Weapon> missileWeapons = mech.inventory.GetWeapons(WeaponType.MISSLE_WEAPON);
+
+            int bullet = 0, missile = 0;
+            foreach (Weapon weapon in bulletWeapons) bullet += weapon.ammo;
+            foreach (Weapon weapon in missileWeapons) missile += weapon.ammo;
+
+            uiManager.SetBulletAmmo(bullet);
+            uiManager.SetBulletWeaponCount(bulletWeapons.Count);
+            uiManager.SetMissileAmmo(missile);
+            uiManager.SetMissileWeaponCount(missileWeapons.Count);
+        }
+
         for (int i = 0; i < 10; i++) {
             if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
                 Part part = mech.skeleton.GetPart((PartName)i);

@@ -139,6 +139,13 @@ public class UiManager : MonoBehaviour
         }
     }
 
+    public void SetShowAmmo(bool show) {
+        bulletAmmoText.gameObject.SetActive(show);
+        bulletWeaponCountText.gameObject.SetActive(show);
+        missileAmmoText.gameObject.SetActive(show);
+        missileWeaponCountText.gameObject.SetActive(show);
+    }
+
     public void SetBulletAmmo(int ammo) {
         bulletAmmoText.text = ammo.ToString();
     }

@@ -46,12 +46,10 @@ public class Inventory
     }
 
     void BalanceAmmo(List<Weapon> weapons) {
-        int totalAmmo = 0;
-        foreach (Weapon weapon in weapons) {
-            totalAmmo += weapon.ammo;
-        }
+        if (weapons.Count == 0) return;
 
-        if (totalAmmo <= 0) return;
+        int totalAmmo = 0;
+        foreach (Weapon weapon in weapons) totalAmmo += weapon.ammo;
 
         for (int i = 0; i < weapons.Count; i++) {
             weapons[i].ammo = totalAmmo / weapons.Count;
@@ -79,7 +77,12 @@ public class Inventory
     }
 
     public void BalanceAmmo(WeaponType weaponType) {
-        BalanceAmmo(GetWeapons(weaponType));
+        if (weaponType == WeaponType.BULLET_WEAPON) {
+            BalanceAmmo(GetWeapons(weaponType));
+        }
+        if (weaponType == WeaponType.MISSLE_WEAPON) {
+            BalanceAmmo(GetWeapons(weaponType));
+        }
     }
 
     public enum Slot {
