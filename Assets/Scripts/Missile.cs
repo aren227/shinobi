@@ -5,6 +5,7 @@ using UnityEngine;
 public class Missile : MonoBehaviour
 {
     const float speed = 50f;
+    public TimedCurve speedCurve;
 
     const float lifetime = 10;
 
@@ -72,7 +73,7 @@ public class Missile : MonoBehaviour
             return;
         }
 
-        Vector3 velocity = transform.forward * speed;
+        Vector3 velocity = transform.forward * speedCurve.Evaluate(Time.time - spawnTimestamp) * speed;
 
         Vector3 delta = velocity * Time.deltaTime;
 
