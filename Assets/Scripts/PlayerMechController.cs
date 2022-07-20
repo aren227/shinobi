@@ -122,7 +122,7 @@ public class PlayerMechController : MonoBehaviour
                 }
             }
 
-            if (selected != null) TryToEquip(selected);
+            if (selected != null) mech.TryToEquip(selected);
         }
 
         if (mech.isUsingSword) {
@@ -153,9 +153,6 @@ public class PlayerMechController : MonoBehaviour
             // Newer version
             if (swordController2.state == SwordSwingState.IDLE && Input.GetMouseButtonDown(0)) {
                 mech.BeginMeleeAttack();
-            }
-            if (Input.GetMouseButtonDown(1)) {
-                mech.SwitchHand();
             }
         }
         else if (!mech.isBulletTime) {
@@ -202,25 +199,13 @@ public class PlayerMechController : MonoBehaviour
         uiManager.SetStemina(Mech.maxStemina, mech.stemina, mech.skeleton.thruster.GetSteminaRequiredToBoost());
         uiManager.SetSpeed(mech.velocity.magnitude);
         uiManager.SetCrosshairPos(cursorPos);
-    }
 
-    public void TryToEquip(Item item) {
-        Inventory inventory = mech.inventory;
-        if (item.equipAt == EquipAt.HANDHELD) {
-            if (!mech.Equip(item, Inventory.Slot.LEFT_HAND)) {
-                if (!mech.Equip(item, Inventory.Slot.RIGHT_HAND)) {
-                    FindObjectOfType<InventoryCanvas2>().Open(item);
-                }
+        for (int i = 0; i < 10; i++) {
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
+                Part part = mech.skeleton.GetPart((PartName)i);
+                part.Hit(1000);
+                Debug.Log("Hit " + (PartName)i);
             }
-        }
-        else if (item.equipAt == EquipAt.AUXILIARY) {
-            FindObjectOfType<InventoryCanvas2>().Open(item);
-        }
-        else if (item.equipAt == EquipAt.SWORD) {
-            if (inventory.GetItem(Inventory.Slot.SWORD) != null) {
-                mech.Unequip(Inventory.Slot.SWORD);
-            }
-            mech.Equip(item, Inventory.Slot.SWORD);
         }
     }
 }

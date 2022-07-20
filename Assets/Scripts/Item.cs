@@ -6,6 +6,8 @@ public class Item : MonoBehaviour
 {
     public Mech owner { get; private set; }
 
+    public PartName equippedPartName;
+
     public GameObject model;
 
     public string displayName;
@@ -14,10 +16,11 @@ public class Item : MonoBehaviour
 
     public bool isEquipped => owner != null;
 
-    public void Equip(Mech owner) {
+    public void Equip(Mech owner, PartName part) {
         if (this.owner != null) return;
 
         this.owner = owner;
+        this.equippedPartName = part;
     }
 
     public void Unequip() {

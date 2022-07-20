@@ -65,6 +65,8 @@ Shader "Unlit/GlowUi"
             fixed4 SampleSpriteTexture (float2 uv)
 			{
 				fixed4 color = tex2D (_MainTex, uv);
+                // This makes ui texts happy.
+                color = color.aaaa;
 #if ETC1_EXTERNAL_ALPHA
 				// get the color from an external texture (usecase: Alpha support for ETC1 on android)
 				color.a = tex2D (_AlphaTex, uv).r;

@@ -280,19 +280,26 @@ public class Skeleton : MonoBehaviour
     }
 
     public Transform GetPivot(Inventory.Slot slot) {
-        if (mech.isUsingSword) {
-            if (slot == Inventory.Slot.LEFT_HAND) return leftBackPivot;
-            if (slot == Inventory.Slot.RIGHT_HAND) return rightBackPivot;
-            if (slot == Inventory.Slot.SWORD) {
+        Part lowerLeft = GetPart(PartName.LOWER_LEFT_ARM);
+        Part lowerRight = GetPart(PartName.LOWER_RIGHT_ARM);
+
+        if (slot == Inventory.Slot.SWORD) {
+            if (mech.isUsingSword) {
                 if (mech.swordController.isRightHanded) return rightHandPivot;
-                return leftHandPivot;
+                else return leftHandPivot;
             }
-            return pivots[slot];
+            return middleBackPivot;
         }
-        else {
-            if (slot == Inventory.Slot.SWORD) return middleBackPivot;
-            return pivots[slot];
+        if (slot == Inventory.Slot.LEFT_HAND) {
+            if (mech.isUsingSword || lowerLeft.disabled) return leftBackPivot;
+            else return leftHandPivot;
         }
+        if (slot == Inventory.Slot.RIGHT_HAND) {
+            if (mech.isUsingSword || lowerRight.disabled) return rightBackPivot;
+            else return rightHandPivot;
+        }
+
+        return pivots[slot];
     }
 
     public Part GetPartBySlot(Inventory.Slot slot) {

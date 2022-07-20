@@ -14,6 +14,11 @@ public class UiManager : MonoBehaviour
     public Material crackOverlayMat;
     public Material strippedUiMat;
 
+    public Text bulletAmmoText;
+    public Text bulletWeaponCountText;
+    public Text missileAmmoText;
+    public Text missileWeaponCountText;
+
     public Camera bloomCanvasCamera;
     public RenderTexture bloomCanvasRenderTexture { get; private set; } = null;
     public Canvas bloomCanvas;
@@ -132,5 +137,21 @@ public class UiManager : MonoBehaviour
         else {
             crackOverlayMat.SetFloat("_Health", Mathf.Lerp(0f, 1f, healthRate));
         }
+    }
+
+    public void SetBulletAmmo(int ammo) {
+        bulletAmmoText.text = ammo.ToString();
+    }
+
+    public void SetBulletWeaponCount(int count) {
+        bulletWeaponCountText.text = count.ToString();
+    }
+
+    public void SetMissileAmmo(int ammo) {
+        missileAmmoText.text = ammo.ToString();
+    }
+
+    public void SetMissileWeaponCount(int count) {
+        missileWeaponCountText.text = count.ToString();
     }
 }

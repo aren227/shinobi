@@ -85,10 +85,8 @@ public class SwordController2 : MonoBehaviour
         target.disableMovement = false;
     }
 
-    public void SwitchHand() {
-        if (state != SwordSwingState.IDLE) return;
-
-        isRightHanded = !isRightHanded;
+    public void SetRightHand(bool rightHand) {
+        isRightHanded = rightHand;
 
         Vector3 scale = mech.skeleton.swordSwingMirror.localScale;
         scale.x *= -1;

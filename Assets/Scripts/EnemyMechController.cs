@@ -37,7 +37,7 @@ public class EnemyMechController : MonoBehaviour
         }
 
         if (Time.time - lastShoot > delay) {
-            mech.LaunchMissiles();
+            // mech.LaunchMissiles();
 
             lastShoot = Time.time;
             delay = Random.Range(0f, 2f);

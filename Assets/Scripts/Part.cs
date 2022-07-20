@@ -61,6 +61,8 @@ public class Part : MonoBehaviour
                 // rigidbody.angularVelocity = Random.insideUnitSphere;
 
                 Disable(newFrameRoot);
+
+                mech.UpdateSkeleton();
             }
         }
         if (health < frameDurability) {

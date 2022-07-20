@@ -380,6 +380,8 @@ public class Mech : MonoBehaviour
         // @Todo: Does not consider animation.
         foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
             p.Value.transform.SetParent(skeleton.GetPivot(p.Key), false);
+
+            p.Value.equippedPartName = skeleton.GetPartBySlot(p.Key).partName;
         }
     }
 
@@ -390,13 +392,42 @@ public class Mech : MonoBehaviour
 
         if (!sword) return;
 
+        Part right = skeleton.GetPart(PartName.LOWER_RIGHT_ARM);
+        Part left = skeleton.GetPart(PartName.LOWER_LEFT_ARM);
+
+        if (right.disabled && left.disabled) return;
+
         isUsingSword = true;
+
+        if (right.disabled) swordController.SetRightHand(false);
+        else swordController.SetRightHand(true);
 
         UpdatePivots();
     }
 
     public void EndSword() {
         isUsingSword = false;
+
+        Part right = skeleton.GetPart(PartName.LOWER_RIGHT_ARM);
+        Part left = skeleton.GetPart(PartName.LOWER_LEFT_ARM);
+
+        // Switch hand if possible.
+        if (right.disabled && !left.disabled
+            && inventory.GetItem(Inventory.Slot.RIGHT_HAND) != null
+            && inventory.GetItem(Inventory.Slot.LEFT_HAND) == null
+        ) {
+            Item item = inventory.GetItem(Inventory.Slot.RIGHT_HAND);
+            Unequip(Inventory.Slot.RIGHT_HAND);
+            Equip(item, Inventory.Slot.LEFT_HAND);
+        }
+        if (left.disabled && !right.disabled
+            && inventory.GetItem(Inventory.Slot.LEFT_HAND) != null
+            && inventory.GetItem(Inventory.Slot.RIGHT_HAND) == null
+        ) {
+            Item item = inventory.GetItem(Inventory.Slot.LEFT_HAND);
+            Unequip(Inventory.Slot.LEFT_HAND);
+            Equip(item, Inventory.Slot.RIGHT_HAND);
+        }
 
         UpdatePivots();
     }
@@ -422,12 +453,6 @@ public class Mech : MonoBehaviour
     //     }
     // }
 
-    public void SwitchHand() {
-        if (disableMovement) return;
-
-        swordController.SwitchHand();
-    }
-
     public bool CanUseWeapon(Inventory.Slot slot) {
         Item item = inventory.GetItem(slot);
         if (!item) return false;
@@ -439,6 +464,9 @@ public class Mech : MonoBehaviour
 
         Part part = skeleton.GetPartBySlot(slot);
         if (part.disabled) return false;
+
+        if (slot == Inventory.Slot.LEFT_HAND && skeleton.GetPart(PartName.LOWER_LEFT_ARM).disabled) return false;
+        if (slot == Inventory.Slot.RIGHT_HAND && skeleton.GetPart(PartName.LOWER_RIGHT_ARM).disabled) return false;
 
         return true;
     }
@@ -572,10 +600,56 @@ public class Mech : MonoBehaviour
         // }
     }
 
-    public bool Equip(Item item, Inventory.Slot slot) {
-        if (inventory.SetItem(item, slot)) {
-            Transform pivot = skeleton.GetPivot(slot);
+    public bool TryToEquip(Item item) {
+        if (item.equipAt == EquipAt.HANDHELD) {
+            Part left = skeleton.GetPart(PartName.LOWER_LEFT_ARM);
+            Part right = skeleton.GetPart(PartName.LOWER_RIGHT_ARM);
 
+            if (!right.disabled && inventory.GetItem(Inventory.Slot.RIGHT_HAND) == null) {
+                Equip(item, Inventory.Slot.RIGHT_HAND);
+                return true;
+            }
+            if (!left.disabled && inventory.GetItem(Inventory.Slot.LEFT_HAND) == null) {
+                Equip(item, Inventory.Slot.LEFT_HAND);
+                return true;
+            }
+
+            return false;
+        }
+        else if (item.equipAt == EquipAt.AUXILIARY) {
+            Inventory.Slot[] slots = new Inventory.Slot[] {
+                Inventory.Slot.LEFT_SHOULDER, Inventory.Slot.RIGHT_SHOULDER,
+                Inventory.Slot.LEFT_ARM, Inventory.Slot.RIGHT_ARM,
+                Inventory.Slot.LEFT_LEG, Inventory.Slot.RIGHT_LEG,
+            };
+
+            foreach (Inventory.Slot slot in slots) {
+                Part part = skeleton.GetPartBySlot(slot);
+                if (part.disabled || inventory.GetItem(slot) != null) continue;
+
+                Equip(item, slot);
+
+                return true;
+            }
+
+            return false;
+        }
+        else if (item.equipAt == EquipAt.SWORD) {
+            if (inventory.GetItem(Inventory.Slot.SWORD) != null) {
+                Unequip(Inventory.Slot.SWORD);
+            }
+            Equip(item, Inventory.Slot.SWORD);
+
+            return true;
+        }
+        return false;
+    }
+
+    public bool Equip(Item item, Inventory.Slot slot) {
+        Transform pivot = skeleton.GetPivot(slot);
+        Part part = skeleton.GetPartBySlot(slot);
+
+        if (inventory.SetItem(item, slot, part)) {
             item.transform.parent = pivot;
             item.transform.localPosition = Vector3.zero;
             item.transform.localRotation = Quaternion.identity;
@@ -588,14 +662,34 @@ public class Mech : MonoBehaviour
     public bool Unequip(Inventory.Slot slot) {
         Item item = inventory.GetItem(slot);
         if (item != null) {
-            inventory.SetItem(null, slot);
+            inventory.SetItem(null, slot, null);
 
             item.transform.parent = null;
-            item.transform.localRotation = Quaternion.identity;
 
             return true;
         }
         return false;
+    }
+
+    public void UpdateSkeleton() {
+        Part lowerLeft = skeleton.GetPart(PartName.LOWER_LEFT_ARM);
+        Part lowerRight = skeleton.GetPart(PartName.LOWER_RIGHT_ARM);
+
+        // Drop items first.
+        foreach (Inventory.Slot slot in System.Enum.GetValues(typeof(Inventory.Slot))) {
+            Item item = inventory.GetItem(slot);
+            if (item == null) continue;
+
+            Part part = skeleton.GetPart(item.equippedPartName);
+            if (part.disabled) {
+                Unequip(slot);
+            }
+        }
+
+        if (isUsingSword) {
+            if (lowerRight.disabled && swordController.isRightHanded) EndSword();
+            else if (lowerLeft.disabled && !swordController.isRightHanded) EndSword();
+        }
     }
 
     float DistanceToProportion(Transform sliceTarget) {

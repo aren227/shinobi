@@ -17,7 +17,7 @@ public class Inventory
         return null;
     }
 
-    public bool SetItem(Item item, Slot slot) {
+    public bool SetItem(Item item, Slot slot, Part part) {
         // Remove
         if (item == null) {
             if (items.ContainsKey(slot)) {
@@ -36,13 +36,50 @@ public class Inventory
 
         items[slot] = item;
 
-        item.Equip(owner);
+        item.Equip(owner, part.partName);
 
         return true;
     }
 
     public List<Item> GetItems() {
         return new List<Item>(items.Values);
+    }
+
+    void BalanceAmmo(List<Weapon> weapons) {
+        int totalAmmo = 0;
+        foreach (Weapon weapon in weapons) {
+            totalAmmo += weapon.ammo;
+        }
+
+        if (totalAmmo <= 0) return;
+
+        for (int i = 0; i < weapons.Count; i++) {
+            weapons[i].ammo = totalAmmo / weapons.Count;
+        }
+
+        totalAmmo -= totalAmmo / weapons.Count;
+
+        for (int i = 0; i < weapons.Count; i++) {
+            if (totalAmmo > 0) {
+                weapons[i].ammo += 1;
+                totalAmmo--;
+            }
+        }
+    }
+
+    public List<Weapon> GetWeapons(WeaponType weaponType) {
+        List<Weapon> res = new List<Weapon>();
+        foreach (Item item in items.Values) {
+            Weapon weapon = item.GetComponent<Weapon>();
+            if (weapon && weapon.type == weaponType) {
+                res.Add(weapon);
+            }
+        }
+        return res;
+    }
+
+    public void BalanceAmmo(WeaponType weaponType) {
+        BalanceAmmo(GetWeapons(weaponType));
     }
 
     public enum Slot {
