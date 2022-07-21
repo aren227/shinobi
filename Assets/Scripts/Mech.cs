@@ -123,6 +123,14 @@ public class Mech : MonoBehaviour
                 targetedMissiles.RemoveAt(i);
             }
         }
+
+        // Lose control after sword animation is finished.
+        if (isKilled) {
+            if (!disableMovement && rigid.isKinematic) {
+                rigid.isKinematic = false;
+                rigid.useGravity = true;
+            }
+        }
     }
 
     public void Move(Vector3 moveDir) {
@@ -390,6 +398,8 @@ public class Mech : MonoBehaviour
         // @Todo: Does not consider animation.
         foreach (KeyValuePair<Inventory.Slot, Item> p in inventory.items) {
             p.Value.transform.SetParent(skeleton.GetPivot(p.Key), false);
+            p.Value.transform.localPosition = Vector3.zero;
+            p.Value.transform.localRotation = Quaternion.identity;
 
             p.Value.equippedPartName = skeleton.GetPartBySlot(p.Key).partName;
         }
@@ -511,6 +521,9 @@ public class Mech : MonoBehaviour
         }
 
         if (isHided) EndHide();
+
+        if (left) skeleton.EnableHandIk(false, false, 3);
+        if (right) skeleton.EnableHandIk(true, false, 3);
 
         if (targets.Count == 0) {
             left?.Shoot(aimTarget);
@@ -777,13 +790,12 @@ public class Mech : MonoBehaviour
         if (isKilled) return;
 
         isKilled = true;
-        rigid.isKinematic = false;
-        rigid.useGravity = true;
 
         Debug.Log("Mech killed.");
 
         if (this != Mech.Player) {
-            UiManager.Instance.ShowSystemMessage("ENEMY DESTROYED");
+            // @Todo: Display later if using sword.
+            // UiManager.Instance.ShowSystemMessage("ENEMY DESTROYED");
         }
     }
 }

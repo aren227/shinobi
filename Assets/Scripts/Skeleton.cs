@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class Skeleton : MonoBehaviour
 {
@@ -46,6 +47,16 @@ public class Skeleton : MonoBehaviour
     public Thruster thruster;
     public Cockpit cockpit;
 
+    public Transform leftHandIkTarget;
+    public Transform rightHandIkTarget;
+    public Transform leftHandIkHint;
+    public Transform leftHandIkSwingHint;
+    public Transform rightHandIkHint;
+    public Transform rightHandIkSwingHint;
+
+    public TwoBoneIKConstraint leftHandIk;
+    public TwoBoneIKConstraint rightHandIk;
+
     public ParticleSystem hideEffect;
 
     Animator animator;
@@ -60,6 +71,9 @@ public class Skeleton : MonoBehaviour
     Dictionary<PartName, Part> parts = new Dictionary<PartName, Part>();
 
     GameObject sliceBox;
+
+    // If these drop to zero, then disable ik.
+    float leftHandIkTime, rightHandIkTime;
 
     string[] boneNames = new string[] {
         "Bone", "Head", "UArm.L", "LArm.L", "UArm.R", "LArm.R",
@@ -131,7 +145,87 @@ public class Skeleton : MonoBehaviour
         animator.SetFloat("X", motion.x);
         animator.SetFloat("Y", motion.y);
 
+        if (leftHandIkTime <= 0 && leftHandIk.enabled) {
+            leftHandIk.weight = 0;
+            leftHandIk.enabled = false;
+
+            Item item = mech.skeleton.leftHandPivot.GetComponentInChildren<Item>();
+            if (item) {
+                item.transform.localPosition = Vector3.zero;
+                item.transform.localRotation = Quaternion.identity;
+            }
+        }
+        if (rightHandIkTime <= 0 && rightHandIk.enabled) {
+            rightHandIk.weight = 0;
+            rightHandIk.enabled = false;
+
+            Item item = mech.skeleton.rightHandPivot.GetComponentInChildren<Item>();
+            if (item) {
+                item.transform.localPosition = Vector3.zero;
+                item.transform.localRotation = Quaternion.identity;
+            }
+        }
+
+        if (leftHandIk.weight > 0) {
+            Item item = mech.skeleton.leftHandPivot.GetComponentInChildren<Item>();
+            if (item) {
+                Weapon weapon = item.GetComponent<Weapon>();
+                if (weapon) {
+                    Vector3 dir = (mech.aimTarget - weapon.transform.position).normalized;
+                    weapon.transform.position = mech.skeleton.leftGunPivot.position + dir * 0.3f;
+                    weapon.transform.forward = dir;
+                }
+
+                leftHandIkTarget.position = item.transform.position;
+                leftHandIkTarget.rotation = item.transform.rotation;
+            }
+        }
+        if (rightHandIk.weight > 0) {
+            Item item = mech.skeleton.rightHandPivot.GetComponentInChildren<Item>();
+            if (item) {
+                Weapon weapon = item.GetComponent<Weapon>();
+                if (weapon) {
+                    Vector3 dir = (mech.aimTarget - weapon.transform.position).normalized;
+                    weapon.transform.position = mech.skeleton.rightGunPivot.position + dir * 0.3f;
+                    weapon.transform.forward = dir;
+                }
+
+                rightHandIkTarget.position = item.transform.position;
+                rightHandIkTarget.rotation = item.transform.rotation;
+            }
+        }
+
+        leftHandIkTime = Mathf.Max(leftHandIkTime - Time.deltaTime, 0);
+        rightHandIkTime = Mathf.Max(rightHandIkTime - Time.deltaTime, 0);
+
         // SetBodySlice(new Vector3(1, 1, 0).normalized, Mathf.InverseLerp(-1, 1, Mathf.Sin(Time.time)));
+    }
+
+    public void EnableHandIk(bool isRight, bool isSwing, float time) {
+        if (isRight) {
+            rightHandIk.enabled = true;
+            rightHandIk.weight = 1;
+            rightHandIkTime = time;
+
+            if (isSwing) {
+                rightHandIk.data.hint = rightHandIkSwingHint;
+            }
+            else {
+                rightHandIk.data.hint = rightHandIkHint;
+            }
+        }
+        else {
+            leftHandIk.enabled = true;
+            leftHandIk.weight = 1;
+            leftHandIkTime = time;
+
+            if (isSwing) {
+                leftHandIk.data.hint = leftHandIkSwingHint;
+            }
+            else {
+                leftHandIk.data.hint = leftHandIkHint;
+            }
+        }
     }
 
     void FindRecursive(Transform current, Transform[] array, string[] names) {

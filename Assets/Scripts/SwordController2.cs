@@ -95,6 +95,8 @@ public class SwordController2 : MonoBehaviour
 
         mech.disableMovement = false;
         target.disableMovement = false;
+
+        mech.skeleton.EnableHandIk(isRightHanded, false, 0);
     }
 
     public void SetRightHand(bool rightHand) {
@@ -109,7 +111,11 @@ public class SwordController2 : MonoBehaviour
     }
 
     void Update() {
-        if (state == SwordSwingState.IDLE) return;
+        if (state == SwordSwingState.IDLE) {
+            return;
+        }
+
+        mech.skeleton.EnableHandIk(isRightHanded, true, 1);
 
         motionDriver.Update();
 
