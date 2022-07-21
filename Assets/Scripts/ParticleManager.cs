@@ -19,6 +19,7 @@ public class ParticleManager : MonoBehaviour
     public GameObject bulletImpact;
     public GameObject bulletTrail;
     public GameObject missileExplosion;
+    public GameObject hugeExplosion;
 
     // @Todo: Implement pooling.
 

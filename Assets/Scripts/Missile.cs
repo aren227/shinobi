@@ -53,6 +53,9 @@ public class Missile : MonoBehaviour
             if (mech) {
                 mech.GiveDamage(owner, collider, explosionDamage);
             }
+
+            Spaceship spaceship = collider.GetComponent<Spaceship>();
+            if (spaceship) spaceship.Hit(explosionDamage);
         }
     }
 

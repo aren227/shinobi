@@ -224,8 +224,6 @@ public class Skeleton : MonoBehaviour
                 leftHandIk.data.hint = leftHandIkHint;
             }
         }
-
-        Debug.Log("Enable ik " + isRight);
     }
 
     public void DisableHandIk(bool isRight) {

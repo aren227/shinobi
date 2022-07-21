@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     public GameState state { get; private set; }
 
     const int defenseTime = 60 * 5;
-    const int enemySpawnCountPerWave = 5;
+    const int enemySpawnCountPerWave = 2;
     const int enemySpawnDelay = 1;
     const int waveDelay = 30;
 
@@ -32,12 +32,17 @@ public class GameManager : MonoBehaviour
 
     Level level;
 
+    Spaceship spaceship;
+
+    Coroutine fightStateCoroutine;
+
     void Awake() {
         level = FindObjectOfType<Level>();
+        spaceship = FindObjectOfType<Spaceship>();
     }
 
     void Start() {
-        BeginState(GameState.FIGHT);
+        BeginState(GameState.PREPARE);
     }
 
     public void BeginState(GameState state) {
@@ -45,14 +50,35 @@ public class GameManager : MonoBehaviour
         this.state = state;
 
         if (state == GameState.PREPARE) {
-            // @Todo
+            StartCoroutine(Prepare());
         }
         if (state == GameState.FIGHT) {
-            StartCoroutine(SpawnScheduler());
+            fightStateCoroutine = StartCoroutine(SpawnScheduler());
+        }
+        if (state == GameState.FAILED) {
+            StopCoroutine(fightStateCoroutine);
+
+            StartCoroutine(Explosion());
         }
         if (state == GameState.LEAVE) {
-            // @Todo
+            StartCoroutine(Leave());
         }
+    }
+
+    IEnumerator Prepare() {
+        spaceship.Arrive();
+
+        yield return new WaitForSeconds(15);
+
+        BeginState(GameState.FIGHT);
+    }
+
+    IEnumerator Leave() {
+        spaceship.Depart();
+
+        yield return new WaitForSeconds(15);
+
+        Debug.Log("Game done");
     }
 
     IEnumerator SpawnScheduler() {
@@ -68,6 +94,12 @@ public class GameManager : MonoBehaviour
         }
 
         BeginState(GameState.LEAVE);
+    }
+
+    IEnumerator Explosion() {
+        spaceship.Explode();
+
+        yield return null;
     }
 }
 

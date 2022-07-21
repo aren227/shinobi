@@ -53,6 +53,9 @@ public class Bullet : MonoBehaviour
             Mech mech = hit.collider.GetComponentInParent<Mech>();
             if (mech) mech.GiveDamage(owner, hit.collider, damage);
 
+            Spaceship spaceship = hit.collider.GetComponent<Spaceship>();
+            if (spaceship) spaceship.Hit(damage);
+
             return;
         }
 
