@@ -241,12 +241,17 @@ public class PlayerMechController : MonoBehaviour
             uiManager.SetMissileWeaponCount(missileWeapons.Count);
         }
 
-        for (int i = 0; i < 10; i++) {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
-                Part part = mech.skeleton.GetPart((PartName)i);
-                part.Hit(1000);
-                Debug.Log("Hit " + (PartName)i);
-            }
+        Part body = mech.skeleton.GetPart(PartName.BODY);
+        if (body && body.IsCritical()) {
+            uiManager.ShowSystemMessage("CRITICAL DAMAGE");
         }
+
+        // for (int i = 0; i < 10; i++) {
+        //     if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
+        //         Part part = mech.skeleton.GetPart((PartName)i);
+        //         part.Hit(1000);
+        //         Debug.Log("Hit " + (PartName)i);
+        //     }
+        // }
     }
 }

@@ -5,6 +5,17 @@ using UnityEngine.UI;
 
 public class UiManager : MonoBehaviour
 {
+    public static UiManager Instance {
+        get {
+            if (_instance == null) {
+                _instance = FindObjectOfType<UiManager>();
+            }
+            return _instance;
+        }
+    }
+
+    static UiManager _instance;
+
     public RawImage steminaRawImage;
     public Text speedText;
     public Image crosshairImage;
@@ -18,6 +29,11 @@ public class UiManager : MonoBehaviour
     public Text bulletWeaponCountText;
     public Text missileAmmoText;
     public Text missileWeaponCountText;
+
+    public Text systemMessageText;
+
+    const float defaultSystemMessageTime = 3;
+    float systemMessageRemainingTime;
 
     public Camera bloomCanvasCamera;
     public RenderTexture bloomCanvasRenderTexture { get; private set; } = null;
@@ -61,6 +77,11 @@ public class UiManager : MonoBehaviour
 
         RectTransform steminaRect = steminaRawImage.GetComponent<RectTransform>();
         strippedUiMat.SetVector("_Size", new Vector4(steminaRect.sizeDelta.x, steminaRect.sizeDelta.y, 1, 1));
+
+        if (systemMessageRemainingTime <= 0) {
+            systemMessageText.text = "";
+        }
+        systemMessageRemainingTime = Mathf.Max(systemMessageRemainingTime - Time.deltaTime, 0);
     }
 
     public void SetStemina(float maxStemina, float stemina, float requiredToBoost) {
@@ -160,5 +181,10 @@ public class UiManager : MonoBehaviour
 
     public void SetMissileWeaponCount(int count) {
         missileWeaponCountText.text = count.ToString();
+    }
+
+    public void ShowSystemMessage(string text, float time = defaultSystemMessageTime) {
+        systemMessageText.text = text;
+        systemMessageRemainingTime = time;
     }
 }

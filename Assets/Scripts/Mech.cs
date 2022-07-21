@@ -400,7 +400,11 @@ public class Mech : MonoBehaviour
 
         Item sword = inventory.GetItem(Inventory.Slot.SWORD);
 
-        if (!sword) return;
+        if (!sword) {
+            if (this == Mech.Player) {
+                UiManager.Instance.ShowSystemMessage("NO SWORD");
+            }
+        }
 
         Part right = skeleton.GetPart(PartName.LOWER_RIGHT_ARM);
         Part left = skeleton.GetPart(PartName.LOWER_LEFT_ARM);
@@ -499,6 +503,15 @@ public class Mech : MonoBehaviour
         if (left != null && left.type != WeaponType.BULLET_WEAPON) left = null;
         if (right != null && right.type != WeaponType.BULLET_WEAPON) right = null;
 
+        if (left == null && right == null) {
+            if (this == Mech.Player) {
+                UiManager.Instance.ShowSystemMessage("NO AMMO");
+            }
+            return;
+        }
+
+        if (isHided) EndHide();
+
         if (targets.Count == 0) {
             left?.Shoot(aimTarget);
             right?.Shoot(aimTarget);
@@ -508,16 +521,12 @@ public class Mech : MonoBehaviour
         int index = 0;
         if (right != null) {
             if (index < targets.Count) {
-                if (isHided) EndHide();
-
                 right.Shoot(targets[index].position);
                 index = Mathf.Min(index+1, targets.Count-1);
             }
         }
         if (left != null) {
             if (index < targets.Count) {
-                if (isHided) EndHide();
-
                 left.Shoot(targets[index].position);
                 index = Mathf.Min(index+1, targets.Count-1);
             }
@@ -540,7 +549,13 @@ public class Mech : MonoBehaviour
     public void LaunchMissiles(List<Transform> targets) {
         List<Weapon> weapons = GetMissileWeapons();
 
-        if (weapons.Count == 0) return;
+        // Empty weapons are not included.
+        if (weapons.Count == 0) {
+            if (this == Mech.Player) {
+                UiManager.Instance.ShowSystemMessage("NO AMMO");
+            }
+            return;
+        }
 
         if (isHided) EndHide();
 
@@ -761,6 +776,10 @@ public class Mech : MonoBehaviour
         rigid.isKinematic = false;
 
         Debug.Log("Mech killed.");
+
+        if (this != Mech.Player) {
+            UiManager.Instance.ShowSystemMessage("ENEMY DESTROYED");
+        }
     }
 }
 

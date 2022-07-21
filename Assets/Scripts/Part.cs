@@ -91,6 +91,11 @@ public class Part : MonoBehaviour
         }
     }
 
+    public bool IsCritical() {
+        // @Todo: Arbitrary threshold.
+        return health < (frameDurability / 2);
+    }
+
     public void Disable(GameObject newParent) {
         if (disabled) return;
 
