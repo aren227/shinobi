@@ -14,6 +14,8 @@ public class Thruster : MonoBehaviour
     float initialFireRateOverTime;
     float initialSmokeRateOverTime;
 
+    Collider collider;
+
     void Awake() {
         mech = GetComponentInParent<Mech>();
 
@@ -21,6 +23,8 @@ public class Thruster : MonoBehaviour
 
         initialFireRateOverTime = fireParticleSystems[0].emission.rateOverTimeMultiplier;
         initialSmokeRateOverTime = smokeParticleSystems[0].emission.rateOverTimeMultiplier;
+
+        collider = GetComponent<Collider>();
     }
 
     void Update() {
@@ -39,6 +43,10 @@ public class Thruster : MonoBehaviour
                 ParticleSystem.EmissionModule em = ps.emission;
                 em.rateOverTimeMultiplier = initialSmokeRateOverTime * globalEmissionRate * (1 - (float)damagable.health / damagable.maxHealth);
             }
+        }
+
+        if (damagable.health <= 0) {
+            collider.enabled = false;
         }
     }
 
