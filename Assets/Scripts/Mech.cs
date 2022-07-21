@@ -13,7 +13,7 @@ public class Mech : MonoBehaviour
 
     const float rigidbodyCastPad = 0.1f;
 
-    VelocitySolver velocitySolver;
+    List<VelocitySolver> velocitySolvers = new List<VelocitySolver>();
 
     public Vector3 velocity;
 
@@ -43,7 +43,7 @@ public class Mech : MonoBehaviour
 
 
     const float maxMeleeAttackRange = 7;
-    const float meleeAttackDistance = 2.5f;
+    public const float meleeAttackDistance = 2.5f;
 
     public TargetType targetType { get; private set; } = TargetType.VITAL;
 
@@ -66,12 +66,16 @@ public class Mech : MonoBehaviour
 
     public bool isKilled { get; private set; }
 
+    public Vector3 velocityVel;
+
+    public bool manualMovement = false;
+
     void Awake() {
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
         swordController = GetComponent<SwordController2>();
 
-        velocitySolver = GetComponent<AccelerationBasedVelocitySolver>();
+        AddVelocitySolver(GetComponent<AccelerationBasedVelocitySolver>());
 
         CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
         kinematicCapsule = new CapsuleParams() { center = capsuleCollider.center, radius = capsuleCollider.radius, height = capsuleCollider.height };
@@ -130,7 +134,7 @@ public class Mech : MonoBehaviour
     }
 
     public void Move(Vector3 moveDir) {
-        if (isKilled || disableMovement) return;
+        if (manualMovement) return;
 
         if (boost) {
             stemina = Mathf.Max(stemina - boostSteminaConsumRate * Time.deltaTime, 0);
@@ -142,9 +146,20 @@ public class Mech : MonoBehaviour
             stemina = Mathf.Min(stemina + steminaRestoreRate * Time.deltaTime, maxStemina);
         }
 
-        velocity = velocitySolver.UpdateSolver(moveDir, boost);
+        float smoothTime;
+        Vector3 targetVelocity = velocitySolvers[velocitySolvers.Count-1].UpdateSolver(this, moveDir, boost, out smoothTime);
+
+        velocity = Vector3.SmoothDamp(velocity, targetVelocity, ref velocityVel, smoothTime);
 
         accumulatedDelta += velocity * Time.deltaTime;
+    }
+
+    public void AddVelocitySolver(VelocitySolver velocitySolver) {
+        velocitySolvers.Add(velocitySolver);
+    }
+
+    public void RemoveVelocitySolver(VelocitySolver velocitySolver) {
+        velocitySolvers.Remove(velocitySolver);
     }
 
     public bool BeginBoost() {
@@ -398,8 +413,6 @@ public class Mech : MonoBehaviour
     }
 
     public void BeginSword() {
-        if (disableMovement) return;
-
         Item sword = inventory.GetItem(Inventory.Slot.SWORD);
 
         if (!sword) {
@@ -413,6 +426,9 @@ public class Mech : MonoBehaviour
 
         if (right.disabled && left.disabled) return;
 
+        skeleton.DisableHandIk(false);
+        skeleton.DisableHandIk(true);
+
         isUsingSword = true;
 
         if (right.disabled) swordController.SetRightHand(false);
@@ -422,7 +438,12 @@ public class Mech : MonoBehaviour
     }
 
     public void EndSword() {
+        if (swordController.state != SwordSwingState.IDLE) return;
+
         isUsingSword = false;
+
+        skeleton.DisableHandIk(false);
+        skeleton.DisableHandIk(true);
 
         Part right = skeleton.GetPart(PartName.LOWER_RIGHT_ARM);
         Part left = skeleton.GetPart(PartName.LOWER_LEFT_ARM);
@@ -449,7 +470,7 @@ public class Mech : MonoBehaviour
     }
 
     public void BeginMeleeAttack() {
-        if (disableMovement) return;
+        if (swordController.state != SwordSwingState.IDLE) return;
 
         // @Todo: Make a dedicated variable for storing melee target.
         if (targets.Count == 0) return;
@@ -618,7 +639,7 @@ public class Mech : MonoBehaviour
     }
 
     void FixedUpdate() {
-        if (isKilled || disableMovement) return;
+        if (manualMovement || isKilled) return;
 
         Vector3 delta = accumulatedDelta;
 

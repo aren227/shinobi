@@ -131,6 +131,8 @@ public class EnemyMechController : MonoBehaviour
     }
 
     void Update() {
+        if (mech.isKilled) return;
+
         List<Transform> currentTargets = null;
 
         if (state == State.ATTACK) {

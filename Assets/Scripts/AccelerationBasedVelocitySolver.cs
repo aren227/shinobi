@@ -7,18 +7,15 @@ public class AccelerationBasedVelocitySolver : MonoBehaviour, VelocitySolver
     const float walkSpeed = 10;
     const float boostSpeed = 30;
 
-    Vector3 velocity;
-    Vector3 velocityVel;
-
     bool prevBoost = false;
 
     public TimedCurve boostAccelerationCurve;
     public TimedCurve boostAccelerationSmoothTimeCurve;
     float boostT;
 
-    public Vector3 UpdateSolver(Vector3 input, bool boost) {
+    public Vector3 UpdateSolver(Mech mech, Vector3 input, bool boost, out float smoothTime) {
         float speed = walkSpeed;
-        float smoothTime = 0.5f;
+        smoothTime = 0.5f;
 
         if (!prevBoost && boost) {
             boostT = 0;
@@ -33,7 +30,8 @@ public class AccelerationBasedVelocitySolver : MonoBehaviour, VelocitySolver
         prevBoost = boost;
 
         Vector3 velocityTarget = input * speed;
-        velocity = Vector3.SmoothDamp(velocity, velocityTarget, ref velocityVel, smoothTime);
+
+        return velocityTarget;
 
         // if (input.sqrMagnitude > 0) {
         //     velocity += input * 5f * Time.deltaTime;
@@ -54,7 +52,5 @@ public class AccelerationBasedVelocitySolver : MonoBehaviour, VelocitySolver
         // else {
         //     if (velocity.magnitude > walkSpeed) velocity = velocity.normalized * walkSpeed;
         // }
-
-        return velocity;
     }
 }

@@ -50,7 +50,8 @@ public class SwordController2 : MonoBehaviour
 
     Transform swordTransform;
 
-    MotionDriver motionDriver;
+    // MotionDriver motionDriver;
+    SwordVelocitySolver swordVelocitySolver;
 
     GameObject sliceCube;
 
@@ -75,7 +76,11 @@ public class SwordController2 : MonoBehaviour
         mech.disableMovement = true;
         target.disableMovement = true;
 
-        motionDriver = new MotionDriver(mech, target);
+        // motionDriver = new MotionDriver(mech, target);
+
+        swordVelocitySolver = new SwordVelocitySolver(mech, target);
+
+        swordVelocitySolver.Begin();
 
         sliceCube = Instantiate(PrefabRegistry.Instance.sliceEffectBox);
         sliceCube.transform.parent = target.transform;
@@ -96,7 +101,9 @@ public class SwordController2 : MonoBehaviour
         mech.disableMovement = false;
         target.disableMovement = false;
 
-        mech.skeleton.EnableHandIk(isRightHanded, false, 0);
+        mech.skeleton.DisableHandIk(isRightHanded);
+
+        swordVelocitySolver.Finish();
     }
 
     public void SetRightHand(bool rightHand) {
@@ -115,12 +122,12 @@ public class SwordController2 : MonoBehaviour
             return;
         }
 
-        mech.skeleton.EnableHandIk(isRightHanded, true, 1);
+        mech.skeleton.EnableHandIk(isRightHanded, true, 0.1f);
 
-        motionDriver.Update();
+        swordVelocitySolver.Update();
 
         if (state == SwordSwingState.PREPARE) {
-            if (motionDriver.approached) {
+            if (swordVelocitySolver.approached) {
                 state = SwordSwingState.SWING;
             }
         }

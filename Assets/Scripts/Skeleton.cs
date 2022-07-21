@@ -146,8 +146,7 @@ public class Skeleton : MonoBehaviour
         animator.SetFloat("Y", motion.y);
 
         if (leftHandIkTime <= 0 && leftHandIk.enabled) {
-            leftHandIk.weight = 0;
-            leftHandIk.enabled = false;
+            DisableHandIk(false);
 
             Item item = mech.skeleton.leftHandPivot.GetComponentInChildren<Item>();
             if (item) {
@@ -156,8 +155,7 @@ public class Skeleton : MonoBehaviour
             }
         }
         if (rightHandIkTime <= 0 && rightHandIk.enabled) {
-            rightHandIk.weight = 0;
-            rightHandIk.enabled = false;
+            DisableHandIk(true);
 
             Item item = mech.skeleton.rightHandPivot.GetComponentInChildren<Item>();
             if (item) {
@@ -225,6 +223,21 @@ public class Skeleton : MonoBehaviour
             else {
                 leftHandIk.data.hint = leftHandIkHint;
             }
+        }
+
+        Debug.Log("Enable ik " + isRight);
+    }
+
+    public void DisableHandIk(bool isRight) {
+        if (isRight) {
+            rightHandIk.weight = 0;
+            rightHandIk.enabled = false;
+            rightHandIkTime = 0;
+        }
+        else {
+            leftHandIk.weight = 0;
+            leftHandIk.enabled = false;
+            leftHandIkTime = 0;
         }
     }
 

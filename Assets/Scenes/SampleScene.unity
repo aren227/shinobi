@@ -4689,6 +4689,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 920264100}
+  meches: []
   objective: {fileID: 1204007103}
   stateBeginTime: 0
 --- !u!1 &1204007098
