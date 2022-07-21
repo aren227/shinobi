@@ -22,6 +22,8 @@ public class Missile : MonoBehaviour
 
     public Mech owner;
 
+    RaycastHit[] hits = new RaycastHit[64];
+
     void Awake() {
         capsuleCollider = GetComponent<CapsuleCollider>();
 
@@ -79,13 +81,25 @@ public class Missile : MonoBehaviour
 
         Vector3 delta = velocity * Time.deltaTime;
 
-        RaycastHit hit;
-        if (Physics.CapsuleCast(
+        int count = Physics.CapsuleCastNonAlloc(
             transform.position + capsuleCollider.center - (capsuleCollider.height/2 + capsuleCollider.radius) * transform.forward,
             transform.position + capsuleCollider.center + (capsuleCollider.height/2 - capsuleCollider.radius) * transform.forward,
-            capsuleCollider.radius, delta.normalized, out hit, delta.magnitude, ~LayerMask.GetMask("Missile")
-        )) {
-            Explode(hit.point + hit.normal * 0.1f);
+            capsuleCollider.radius, delta.normalized, hits, delta.magnitude, ~LayerMask.GetMask("Projectile")
+        );
+
+        int minIndex = -1;
+        for (int i = 0; i < count; i++) {
+            Mech mech = hits[i].collider.transform.root.GetComponent<Mech>();
+            if (mech == owner) continue;
+
+            if (minIndex == -1 || hits[minIndex].distance > hits[i].distance) {
+                minIndex = i;
+            }
+        }
+
+        // Hit
+        if (minIndex != -1) {
+            Explode(hits[minIndex].point + hits[minIndex].normal * 0.1f);
             return;
         }
 

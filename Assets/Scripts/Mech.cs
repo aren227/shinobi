@@ -269,7 +269,7 @@ public class Mech : MonoBehaviour
                 Vector3 camToTarget = cockpit - cam.transform.position;
 
                 int count = Physics.SphereCastNonAlloc(
-                    cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Missile")
+                    cam.transform.position, sphereRadius, camToTarget.normalized, hits, camToTarget.magnitude, ~LayerMask.GetMask("Projectile")
                 );
 
                 float distToTarget = float.PositiveInfinity;
