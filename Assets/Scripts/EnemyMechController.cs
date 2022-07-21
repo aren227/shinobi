@@ -85,7 +85,7 @@ public class EnemyMechController : MonoBehaviour
 
     void Awake() {
         mech = GetComponent<Mech>();
-        level = FindObjectOfType<Level>();
+        level = Level.Instance;
 
         player = GameManager.Instance.player;
 
@@ -244,7 +244,7 @@ public class EnemyMechController : MonoBehaviour
         }
 
         if (currentTargets != null && Time.time - lastShoot > delay) {
-            // mech.LaunchMissiles(currentTargets);
+            mech.LaunchMissiles(currentTargets);
 
             lastShoot = Time.time;
             delay = Random.Range(missileLaunchMinDelay, missileLaunchMaxDelay);

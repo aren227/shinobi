@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
+    public static Level Instance {
+        get {
+            if (_instance == null) {
+                _instance = FindObjectOfType<Level>();
+            }
+            return _instance;
+        }
+    }
+
+    static Level _instance;
+
     public const int xSize = 300, ySize = 100, zSize = 300;
     public const int gridSize = 20;
 

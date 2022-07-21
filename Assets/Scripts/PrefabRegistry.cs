@@ -16,6 +16,7 @@ public class PrefabRegistry : MonoBehaviour
     static PrefabRegistry _instance;
 
     public GameObject bulletWeapon;
+    public GameObject bullet;
     public GameObject missileWeapon;
     public GameObject missile;
     public GameObject sword;

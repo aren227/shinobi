@@ -21,6 +21,8 @@ public class SurfaceRenderer : MonoBehaviour
         if (depthWrite2Mat == null) depthWrite2Mat = new Material(Shader.Find("Unlit/DepthWrite2"));
 
         meshFilter = GetComponent<MeshFilter>();
+
+        SurfaceRenderManager.surfaceRenderers.Add(this);
     }
 
     public void SetDisabled(bool disabled) {
@@ -77,6 +79,8 @@ public class SurfaceRenderer : MonoBehaviour
 
     // Do nothing with holes, but only one cube.
     public void AppendToCommandBuffer2(CommandBuffer cb) {
+        if (disabled) return;
+
         Matrix4x4 matrix;
         if (cubeMeshFilter) {
             matrix = cubeMeshFilter.transform.worldToLocalMatrix * transform.localToWorldMatrix;

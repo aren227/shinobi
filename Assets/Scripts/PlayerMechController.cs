@@ -241,6 +241,12 @@ public class PlayerMechController : MonoBehaviour
             uiManager.SetMissileWeaponCount(missileWeapons.Count);
         }
 
+        Part part = mech.skeleton.GetPart(PartName.BODY);
+        {
+            if (part.health > part.frameDurability) uiManager.SetCockpitHealth(1);
+            else uiManager.SetCockpitHealth((float)part.health / part.frameDurability);
+        }
+
         // Part body = mech.skeleton.GetPart(PartName.BODY);
         // if (body && body.IsCritical()) {
         //     uiManager.ShowSystemMessage("CRITICAL DAMAGE");

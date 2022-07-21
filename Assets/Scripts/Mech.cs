@@ -82,6 +82,8 @@ public class Mech : MonoBehaviour
         inventory = new Inventory(this);
 
         Aim(transform.position + transform.forward * 10);
+
+        GameManager.Instance.meches.Add(this);
     }
 
     void Start() {
@@ -237,8 +239,6 @@ public class Mech : MonoBehaviour
 
         // if (targetType == TargetType.NONE) return result;
 
-        Mech[] mechs = FindObjectsOfType<Mech>();
-
         // @Todo: This is fair but sucks.
         // Should implement custom aim boundary or something.
         Camera cam = Camera.main;
@@ -254,7 +254,7 @@ public class Mech : MonoBehaviour
         RaycastHit[] hits = new RaycastHit[32];
 
         Vector3 myCockpit = skeleton.cockpit.transform.position;
-        foreach (Mech mech in mechs) {
+        foreach (Mech mech in GameManager.Instance.meches) {
             // if (target.type != targetType) continue;
 
             // Ignore targets in myself.
@@ -328,8 +328,6 @@ public class Mech : MonoBehaviour
     }
 
     public Mech GetMeleeTarget() {
-        Mech[] mechs = FindObjectsOfType<Mech>();
-
         // @Todo: This is fair but sucks.
         // Should implement custom aim boundary or something.
         Camera cam = Camera.main;
@@ -347,7 +345,7 @@ public class Mech : MonoBehaviour
         RaycastHit[] hits = new RaycastHit[32];
         Vector3 myCockpit = skeleton.cockpit.transform.position;
 
-        foreach (Mech mech in mechs) {
+        foreach (Mech mech in GameManager.Instance.meches) {
             if (mech == this) continue;
             if (mech.isKilled) continue;
 

@@ -34,7 +34,7 @@ public class Missile : MonoBehaviour
         transform.position = at;
 
         Destroy(gameObject);
-        FindObjectOfType<ParticleManager>().CreateMissileExplosion(transform.position);
+        ParticleManager.Instance.CreateMissileExplosion(transform.position);
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (Collider collider in colliders) {

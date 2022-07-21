@@ -25,7 +25,7 @@ public class Weapon : MonoBehaviour
         if (ammo <= 0 || Time.time - lastShootTime < delay) return false;
 
         if (type == WeaponType.BULLET_WEAPON) {
-            GameObject obj = GameObject.Instantiate(GameObject.FindObjectOfType<ParticleManager>().bullet);
+            GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.bullet);
 
             const float pushForward = 4f;
 

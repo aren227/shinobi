@@ -48,7 +48,7 @@ public class Bullet : MonoBehaviour
             RaycastHit hit = hits[minIndex];
 
             Destroy(gameObject);
-            FindObjectOfType<ParticleManager>().CreateBulletImpact(hit.point, hit.normal);
+            ParticleManager.Instance.CreateBulletImpact(hit.point, hit.normal);
 
             Mech mech = hit.collider.GetComponentInParent<Mech>();
             if (mech) mech.GiveDamage(owner, hit.collider, damage);

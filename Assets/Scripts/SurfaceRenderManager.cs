@@ -5,6 +5,8 @@ using UnityEngine.Rendering;
 
 public class SurfaceRenderManager : MonoBehaviour
 {
+    public static List<SurfaceRenderer> surfaceRenderers = new List<SurfaceRenderer>();
+
     CommandBuffer commandBuffer;
 
     void Awake() {
@@ -15,11 +17,12 @@ public class SurfaceRenderManager : MonoBehaviour
     }
 
     void LateUpdate() {
-        SurfaceRenderer[] surfaceRenderers = FindObjectsOfType<SurfaceRenderer>();
-
         commandBuffer.Clear();
-        foreach (SurfaceRenderer surfaceRenderer in surfaceRenderers) {
-            surfaceRenderer.AppendToCommandBuffer2(commandBuffer);
+        for (int i = 0; i < surfaceRenderers.Count; i++) {
+            if (!surfaceRenderers[i]) surfaceRenderers.RemoveAt(i);
+            else {
+                surfaceRenderers[i].AppendToCommandBuffer2(commandBuffer);
+            }
         }
     }
 }

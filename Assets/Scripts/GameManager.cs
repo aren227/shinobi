@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
 
     public Mech player;
 
+    public List<Mech> meches = new List<Mech>();
+
     public Objective objective;
 
     public GameState state { get; private set; }

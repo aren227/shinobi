@@ -28,11 +28,8 @@ public class Part : MonoBehaviour
 
     List<KeyValuePair<MeshRenderer, Material>> originalMaterials = new List<KeyValuePair<MeshRenderer, Material>>();
 
-    UiManager uiManager;
-
     void Awake() {
         health = armorDurability + frameDurability;
-        uiManager = FindObjectOfType<UiManager>();
 
         mech = GetComponentInParent<Mech>();
     }
@@ -85,11 +82,6 @@ public class Part : MonoBehaviour
                 // rigidbody.velocity = Random.insideUnitSphere;
                 // rigidbody.angularVelocity = Random.insideUnitSphere;
             }
-        }
-
-        if (mech == GameManager.Instance.player && partName == PartName.BODY) {
-            if (health > frameDurability) uiManager.SetCockpitHealth(1);
-            else uiManager.SetCockpitHealth((float)health / frameDurability);
         }
     }
 

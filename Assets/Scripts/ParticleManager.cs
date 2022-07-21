@@ -5,10 +5,19 @@ using DG.Tweening;
 
 public class ParticleManager : MonoBehaviour
 {
+    public static ParticleManager Instance {
+        get {
+            if (_instance == null) {
+                _instance = FindObjectOfType<ParticleManager>();
+            }
+            return _instance;
+        }
+    }
+
+    static ParticleManager _instance;
+
     public GameObject bulletImpact;
     public GameObject bulletTrail;
-    public GameObject bullet;
-    public GameObject missile;
     public GameObject missileExplosion;
 
     // @Todo: Implement pooling.

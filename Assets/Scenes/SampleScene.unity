@@ -4615,8 +4615,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletImpact: {fileID: 2334157463578550723, guid: 7b1261f425641624092c336cdd2eb49c, type: 3}
   bulletTrail: {fileID: 5973639173060335137, guid: 7b85905a206683743a6326e2c3d43dae, type: 3}
-  bullet: {fileID: 2898223315759607742, guid: e96fe323b86fc6749bf1f6d60f21af50, type: 3}
-  missile: {fileID: 1499870885610183319, guid: f3d277d32c2b52d469f935c8b009c91f, type: 3}
   missileExplosion: {fileID: 7779496557467764567, guid: 85ed95fd136ae9e48940130bcb43690e, type: 3}
 --- !u!114 &1158616469
 MonoBehaviour:
@@ -4631,6 +4629,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletWeapon: {fileID: 9168277654305634644, guid: a425e064592cfde429ad6ab1d74a8d4f, type: 3}
+  bullet: {fileID: 2898223315759607742, guid: e96fe323b86fc6749bf1f6d60f21af50, type: 3}
   missileWeapon: {fileID: 3393682417074988866, guid: 7f5a0c71f73e4df429e425f570393117, type: 3}
   missile: {fileID: 1499870885610183319, guid: f3d277d32c2b52d469f935c8b009c91f, type: 3}
   sword: {fileID: 8487593477226408998, guid: beda92533d70267409b8a50bf6a2faa2, type: 3}

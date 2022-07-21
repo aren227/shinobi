@@ -12,14 +12,8 @@ public class BulletWeapon : MonoBehaviour
 
     Mech owner;
 
-    ParticleManager particleManager;
-
     public void SetOwner(Mech mech) {
         owner = mech;
-    }
-
-    void Awake() {
-        particleManager = FindObjectOfType<ParticleManager>();
     }
 
     void Update() {
