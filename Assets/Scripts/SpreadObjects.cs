@@ -24,7 +24,7 @@ public class SpreadObjects : MonoBehaviour
     }
 
     void Start() {
-        Vector3 currCenter = Mech.Player.transform.position;
+        Vector3 currCenter = GameManager.Instance.player.transform.position;
 
         int x, y, z;
         x = Mathf.FloorToInt(currCenter.x / UNIT);
@@ -81,7 +81,7 @@ public class SpreadObjects : MonoBehaviour
     }
 
     void Update() {
-        Vector3 currCenter = Mech.Player.transform.position;
+        Vector3 currCenter = GameManager.Instance.player.transform.position;
 
         for (int i = spawned.Count-1; i >= 0; i--) {
             if (Vector3.Distance(spawned[i].transform.position, currCenter) > VIEW_RADIUS) {

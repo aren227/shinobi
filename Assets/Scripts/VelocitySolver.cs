@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface VelocitySolver
 {
-    Vector3 Update(Vector3 input, bool boost);
+    Vector3 UpdateSolver(Vector3 input, bool boost);
 }

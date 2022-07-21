@@ -17,7 +17,7 @@ public class DampBasedVelocitySolver : VelocitySolver
 
     bool prevBoost = false;
 
-    public Vector3 Update(Vector3 input, bool boost) {
+    public Vector3 UpdateSolver(Vector3 input, bool boost) {
         Vector3 velocity1 = input * walkSpeed;
         Vector3 velocity2 = input * boostSpeed;
 

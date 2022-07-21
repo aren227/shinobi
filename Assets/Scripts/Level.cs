@@ -16,6 +16,11 @@ public class Level : MonoBehaviour
     List<Vector2Int> objectiveGrids = new List<Vector2Int>();
     List<Vector2Int> objectiveAdjacentGrids = new List<Vector2Int>();
 
+    EnemySpawnPoint[] enemySpawnPoints;
+
+    public MechStatus normalEnemyStatus;
+    public MechStatus playerStatus;
+
     void Awake() {
         valid = new bool[width, height];
 
@@ -61,6 +66,24 @@ public class Level : MonoBehaviour
 
         Debug.Log("Available grid count: " + availGrids.Count);
         Debug.Log("Objective adjacent grid count: " + objectiveAdjacentGrids.Count);
+
+        enemySpawnPoints = FindObjectsOfType<EnemySpawnPoint>();
+    }
+
+    void Start() {
+        playerStatus.Initialize(GameManager.Instance.player);
+    }
+
+    public Mech SpawnEnemy() {
+        EnemySpawnPoint spawnPoint = enemySpawnPoints[Random.Range(0, enemySpawnPoints.Length)];
+
+        GameObject cloned = Instantiate(PrefabRegistry.Instance.mech, spawnPoint.transform.position, Quaternion.identity);
+
+        Mech mech = cloned.GetComponent<Mech>();
+
+        normalEnemyStatus.Initialize(mech);
+
+        return mech;
     }
 
     public Vector2Int GetGridAt(Vector3 pos) {
@@ -132,14 +155,5 @@ public class Level : MonoBehaviour
 
     public Vector2Int GetRandomObjectiveGrid() {
         return objectiveAdjacentGrids[Random.Range(0, objectiveAdjacentGrids.Count)];
-    }
-
-    public void SpawnEnemy() {
-        // @Todo
-    }
-
-    public Vector3 GetObjectivePosition() {
-        // @Todo
-        return Random.onUnitSphere * 10;
     }
 }

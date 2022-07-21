@@ -21,6 +21,8 @@ public class PrefabRegistry : MonoBehaviour
     public GameObject sword;
     public GameObject sliceEffectBox;
 
+    public GameObject mech;
+
     public GameObject bulletHole;
     public Material bulletHoleMat;
     public Material fresnelMat;

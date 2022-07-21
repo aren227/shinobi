@@ -663,6 +663,7 @@ GameObject:
   - component: {fileID: 7580416314343576959}
   - component: {fileID: 3629586524374499110}
   - component: {fileID: 4267320952509503351}
+  - component: {fileID: 549487282}
   m_Layer: 6
   m_Name: Mech
   m_TagString: Untagged
@@ -706,15 +707,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8aa404af1b05ba4dbc9460dbc3945bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rigid: {fileID: 0}
   yaw: 0
   velocity: {x: 0, y: 0, z: 0}
   disableMovement: 0
-  boost: 0
   hitByPlayerFlag: 0
   stemina: 0
-  mechArmature: {fileID: 0}
-  skeleton: {fileID: 0}
   model: {fileID: 4637163599762317133}
 --- !u!54 &7580416314343576957
 Rigidbody:
@@ -790,10 +787,10 @@ MonoBehaviour:
   cockpit: {fileID: 384247379830860810}
   leftHandIkTarget: {fileID: 4367539092750242955}
   rightHandIkTarget: {fileID: 6737850035121916386}
-  leftHandIkHint: {fileID: 0}
-  leftHandIkSwingHint: {fileID: 0}
-  rightHandIkHint: {fileID: 0}
-  rightHandIkSwingHint: {fileID: 0}
+  leftHandIkHint: {fileID: 4647242911812304837}
+  leftHandIkSwingHint: {fileID: 3750427976007984799}
+  rightHandIkHint: {fileID: 6133111177593838818}
+  rightHandIkSwingHint: {fileID: 8690277932441693464}
   leftHandIk: {fileID: 3943858157185377741}
   rightHandIk: {fileID: 7925533126764827832}
   hideEffect: {fileID: 3025107067819090718}
@@ -910,6 +907,18 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &549487282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7580416314343576954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a59f96646ea39c41b44e9b9c873a703, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8828524127369518508
 GameObject:
   m_ObjectHideFlags: 0
@@ -1010,18 +1019,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7580416314343576955}
     m_Modifications:
-    - target: {fileID: 2412136606399204582, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 2412136606399204582, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.94
-      objectReference: {fileID: 0}
-    - target: {fileID: 2412136606399204582, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.14
-      objectReference: {fileID: 0}
     - target: {fileID: 6530760968580074920, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -1069,18 +1066,6 @@ PrefabInstance:
     - target: {fileID: 6530760968580074923, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
       propertyPath: m_Name
       value: Pivots
-      objectReference: {fileID: 0}
-    - target: {fileID: 7448253295902419329, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 7448253295902419329, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.9399999
-      objectReference: {fileID: 0}
-    - target: {fileID: 7448253295902419329, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.14000511
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
@@ -1583,6 +1568,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!1 &3190212740542124712 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6980020859927343284, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1608,6 +1594,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!4 &4010850990028177819 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -346058288965737593, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1638,6 +1625,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!1 &4464801068245057741 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8173402765783032529, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1663,6 +1651,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!1 &4637163599762317133 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1767,6 +1756,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!1 &6506143978619022782 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -7579103995338469470, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1792,6 +1782,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!4 &6971885233666174172 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3196138216412401344, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1822,6 +1813,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!4 &7490437654271978179 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3127902996767049951, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1857,6 +1849,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!4 &8194714335302515646 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4405245208929278370, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1887,6 +1880,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!1 &8739975151510708748 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -5345408337117708272, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -1912,6 +1906,7 @@ MonoBehaviour:
   armorColliders: []
   armorDurability: 200
   frameDurability: 200
+  health: 0
 --- !u!4 &9034879599765336229 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3601117497238409913, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}

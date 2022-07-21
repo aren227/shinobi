@@ -20,7 +20,7 @@ public class Part : MonoBehaviour
     bool armorDetached = false;
     bool frameDetached = false;
 
-    public int health { get; private set; }
+    public int health;
 
     public bool disabled { get; private set; }
 
@@ -87,7 +87,7 @@ public class Part : MonoBehaviour
             }
         }
 
-        if (mech == Mech.Player && partName == PartName.BODY) {
+        if (mech == GameManager.Instance.player && partName == PartName.BODY) {
             if (health > frameDurability) uiManager.SetCockpitHealth(1);
             else uiManager.SetCockpitHealth((float)health / frameDurability);
         }

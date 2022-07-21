@@ -6,7 +6,7 @@ using UnityEngine.Events;
 public class Damagable : MonoBehaviour
 {
     public int maxHealth = 100;
-    public int health { get; private set; }
+    public int health;
 
     public UnityEvent<int> damageListener { get; private set; } = new UnityEvent<int>();
 

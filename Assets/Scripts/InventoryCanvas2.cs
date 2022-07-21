@@ -40,15 +40,15 @@ public class InventoryCanvas2 : MonoBehaviour
             }
 
             if (Input.GetKeyDown(KeyCode.X)) {
-                if (Mech.Player.inventory.GetItem(cursor) != null) {
-                    Mech.Player.Unequip(cursor);
+                if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
+                    GameManager.Instance.player.Unequip(cursor);
                 }
             }
             if (picked != null && Input.GetKeyDown(KeyCode.Space)) {
-                if (Mech.Player.inventory.GetItem(cursor) != null) {
-                    Mech.Player.Unequip(cursor);
+                if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
+                    GameManager.Instance.player.Unequip(cursor);
                 }
-                Mech.Player.Equip(picked, cursor);
+                GameManager.Instance.player.Equip(picked, cursor);
                 picked = null;
 
                 if (closeAfterSelect) {
@@ -62,7 +62,7 @@ public class InventoryCanvas2 : MonoBehaviour
 
             // @Todo: Refactor
             {
-                GameObject playerModel = Mech.Player.model;
+                GameObject playerModel = GameManager.Instance.player.model;
 
                 Vector3 prevPos = playerModel.transform.localPosition;
                 Quaternion prevRot = playerModel.transform.localRotation;
@@ -105,8 +105,8 @@ public class InventoryCanvas2 : MonoBehaviour
                 itemModel.transform.localRotation = prevRot;
                 itemModel.transform.localScale = prevScale;
             }
-            if (Mech.Player.inventory.GetItem(cursor) != null) {
-                Item item = Mech.Player.inventory.GetItem(cursor);
+            if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
+                Item item = GameManager.Instance.player.inventory.GetItem(cursor);
 
                 GameObject itemModel = item.model;
 
@@ -154,7 +154,7 @@ public class InventoryCanvas2 : MonoBehaviour
 
         closeAfterSelect = (picked != null);
 
-        Mech mech = Mech.Player;
+        Mech mech = GameManager.Instance.player;
 
         selectableSlots.Clear();
 
@@ -201,7 +201,7 @@ public class InventoryCanvas2 : MonoBehaviour
         }
         cursor = next;
 
-        Inventory inventory = Mech.Player.inventory;
+        Inventory inventory = GameManager.Instance.player.inventory;
 
         right.SetItem(inventory.GetItem(next));
     }

@@ -6,7 +6,7 @@ public class Thruster : MonoBehaviour
 {
     Mech mech;
 
-    Damagable damagable;
+    public Damagable damagable;
 
     public List<ParticleSystem> fireParticleSystems;
     public List<ParticleSystem> smokeParticleSystems;

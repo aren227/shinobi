@@ -87,7 +87,7 @@ public class EnemyMechController : MonoBehaviour
         mech = GetComponent<Mech>();
         level = FindObjectOfType<Level>();
 
-        player = Mech.Player;
+        player = GameManager.Instance.player;
 
         playerTargetList.Add(player.skeleton.cockpit.transform);
         objectiveTargetList.Add(GameManager.Instance.objective.transform);

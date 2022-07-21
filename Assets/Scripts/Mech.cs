@@ -5,9 +5,7 @@ using DG.Tweening;
 
 public class Mech : MonoBehaviour
 {
-    public static Mech Player;
-
-    public Rigidbody rigid;
+    public Rigidbody rigid { get; private set; }
 
     public float yaw = 0;
 
@@ -23,7 +21,7 @@ public class Mech : MonoBehaviour
 
     Vector3 accumulatedDelta;
 
-    public bool boost = false;
+    public bool boost { get; private set; } = false;
     float boostSince;
 
     public bool hitByPlayerFlag = false;
@@ -37,8 +35,8 @@ public class Mech : MonoBehaviour
     const float hideSteminaConsumRate = 10;
     const float steminaRestoreRate = 5;
 
-    public const float minSteminaRequiredToBoost = 10;
-    public const float maxSteminaRequiredToBoost = 100;
+    public const float minSteminaRequiredToBoost = 5;
+    public const float maxSteminaRequiredToBoost = 50;
     const float minSteminaRequiredToHide = 3;
     const float steminaPenaltyWhenHit = 40;
     const float minSteminaRequiredToBulletTime = 3;
@@ -55,11 +53,9 @@ public class Mech : MonoBehaviour
 
     public List<Missile> targetedMissiles {get; private set; } = new List<Missile>();
 
-    public MechArmature mechArmature;
+    public Inventory inventory { get; private set; }
 
-    public Inventory inventory;
-
-    public Skeleton skeleton;
+    public Skeleton skeleton { get; private set; }
     public SwordController2 swordController { get; private set; }
 
     public GameObject model;
@@ -84,8 +80,6 @@ public class Mech : MonoBehaviour
         stemina = maxStemina;
 
         inventory = new Inventory(this);
-
-        if (GetComponent<PlayerMechController>()) Player = this;
 
         Aim(transform.position + transform.forward * 10);
     }
@@ -146,7 +140,7 @@ public class Mech : MonoBehaviour
             stemina = Mathf.Min(stemina + steminaRestoreRate * Time.deltaTime, maxStemina);
         }
 
-        velocity = velocitySolver.Update(moveDir, boost);
+        velocity = velocitySolver.UpdateSolver(moveDir, boost);
 
         accumulatedDelta += velocity * Time.deltaTime;
     }
@@ -252,7 +246,7 @@ public class Mech : MonoBehaviour
         Vector3 prevPos = cam.transform.localPosition;
         Quaternion prevRot = cam.transform.localRotation;
 
-        if (this != Mech.Player) {
+        if (this != GameManager.Instance.player) {
             cam.transform.position = skeleton.headBone.position;
             cam.transform.rotation = skeleton.headBone.rotation;
         }
@@ -319,7 +313,7 @@ public class Mech : MonoBehaviour
         }
 
         // Restore camera transform.
-        if (this != Mech.Player) {
+        if (this != GameManager.Instance.player) {
             cam.transform.localPosition = prevPos;
             cam.transform.localRotation = prevRot;
         }
@@ -343,7 +337,7 @@ public class Mech : MonoBehaviour
         Vector3 prevPos = cam.transform.localPosition;
         Quaternion prevRot = cam.transform.localRotation;
 
-        if (this != Mech.Player) {
+        if (this != GameManager.Instance.player) {
             cam.transform.position = skeleton.headBone.position;
             cam.transform.rotation = skeleton.headBone.rotation;
         }
@@ -411,7 +405,7 @@ public class Mech : MonoBehaviour
         Item sword = inventory.GetItem(Inventory.Slot.SWORD);
 
         if (!sword) {
-            if (this == Mech.Player) {
+            if (this == GameManager.Instance.player) {
                 UiManager.Instance.ShowSystemMessage("NO SWORD");
             }
         }
@@ -514,7 +508,7 @@ public class Mech : MonoBehaviour
         if (right != null && right.type != WeaponType.BULLET_WEAPON) right = null;
 
         if (left == null && right == null) {
-            if (this == Mech.Player) {
+            if (this == GameManager.Instance.player) {
                 UiManager.Instance.ShowSystemMessage("NO AMMO");
             }
             return;
@@ -564,7 +558,7 @@ public class Mech : MonoBehaviour
 
         // Empty weapons are not included.
         if (weapons.Count == 0) {
-            if (this == Mech.Player) {
+            if (this == GameManager.Instance.player) {
                 UiManager.Instance.ShowSystemMessage("NO AMMO");
             }
             return;
@@ -595,7 +589,7 @@ public class Mech : MonoBehaviour
     }
 
     public void GiveDamage(Mech by, Collider collider, int damage) {
-        if (by == Mech.Player) hitByPlayerFlag = true;
+        if (by == GameManager.Instance.player) hitByPlayerFlag = true;
 
         Part part = skeleton.GetPartByCollider(collider);
         if (part) {
@@ -793,7 +787,7 @@ public class Mech : MonoBehaviour
 
         Debug.Log("Mech killed.");
 
-        if (this != Mech.Player) {
+        if (this != GameManager.Instance.player) {
             // @Todo: Display later if using sword.
             // UiManager.Instance.ShowSystemMessage("ENEMY DESTROYED");
         }

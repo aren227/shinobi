@@ -107,7 +107,7 @@ public class InventoryCanvas : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.E) && !open) {
-            Open(null, Mech.Player.inventory);
+            Open(null, GameManager.Instance.player.inventory);
         }
         else if ((Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Escape)) && open) {
             Close();

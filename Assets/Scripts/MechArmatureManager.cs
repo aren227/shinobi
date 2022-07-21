@@ -36,7 +36,7 @@ public class MechArmatureManager : MonoBehaviour
         right.gameObject.SetActive(false);
 
         mech = GetComponent<Mech>();
-        mechArmature = mech.mechArmature;
+        // mechArmature = mech.mechArmature;
     }
 
     void Update() {

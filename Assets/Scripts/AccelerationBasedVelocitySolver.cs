@@ -16,7 +16,7 @@ public class AccelerationBasedVelocitySolver : MonoBehaviour, VelocitySolver
     public TimedCurve boostAccelerationSmoothTimeCurve;
     float boostT;
 
-    public Vector3 Update(Vector3 input, bool boost) {
+    public Vector3 UpdateSolver(Vector3 input, bool boost) {
         float speed = walkSpeed;
         float smoothTime = 0.5f;
 

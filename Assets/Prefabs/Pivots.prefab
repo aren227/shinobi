@@ -4851,7 +4851,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3450259123668487856}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.355, y: 1.992, z: 0}
+  m_LocalPosition: {x: 0.65, y: 1.9399999, z: 0.14000511}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4896,7 +4896,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5337948749770525110}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.35, y: 1.992, z: 0}
+  m_LocalPosition: {x: -0.65, y: 1.94, z: 0.14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5367,6 +5367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4b6d1a3f6439b4d99141931430da29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damagable: {fileID: 0}
   fireParticleSystems:
   - {fileID: 131183416952633652}
   - {fileID: 178329040853888507}
@@ -5403,6 +5404,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 50
+  health: 0
 --- !u!1 &6530760968541078061
 GameObject:
   m_ObjectHideFlags: 0
