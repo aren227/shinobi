@@ -6,7 +6,7 @@ public class CameraController : MonoBehaviour
 {
     public Camera cam;
 
-    float pitch = 0, yaw = 0, roll = 0;
+    public float pitch = 0, yaw = 0, roll = 0;
 
     float rollVel;
 
@@ -20,31 +20,35 @@ public class CameraController : MonoBehaviour
 
     public Transform locked;
 
+    Vector3 offset;
+
+    const float shootXOffset = 4f;
+
     void Awake() {
         cam = Camera.main;
         prevMouse = Input.mousePosition;
 
         Cursor.lockState = CursorLockMode.Locked;
+
+        // shootOffset = cam.transform.localPosition;
+        // swordOffset = new Vector3(0, shootOffset.y, shootOffset.z);
+
+        offset = new Vector3(0, 3.5f, -7f);
+
+        cam.transform.parent = cameraTarget;
+        cam.transform.localPosition = Vector3.zero;
+        cam.transform.localRotation = Quaternion.identity;
     }
 
     void Update() {
         Mech mech = Mech.Player;
 
-        const float velocityResponsiveness = 1 / 30f;
+        const float velocityResponsiveness = 1 / 40f;
 
-        transform.position = mech.transform.position - mech.velocity * velocityResponsiveness;
-        // transform.position = Vector3.SmoothDamp(transform.position, mech.transform.position, ref posVel, 0.03f);
+        Vector3 origin = mech.transform.position - mech.velocity * velocityResponsiveness;
 
         Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
         mouseDelta *= mouseSensitivity;
-
-        if (mech.isUsingSword) {
-            cameraArm.localPosition = new Vector3(0, 3f, 0);
-        }
-        else {
-            // @Hardcoded
-            cameraArm.localPosition = new Vector3(3.5f, 2f, 0);
-        }
 
         // Do not update yaw, pitch in bullet time.
         if (!mech.isBulletTime) {
@@ -62,19 +66,44 @@ public class CameraController : MonoBehaviour
             }
             else {
                 yaw = (yaw + mouseDelta.x) % 360;
-                pitch = Mathf.Clamp(pitch - mouseDelta.y, -89, 89);
+                pitch = Mathf.Clamp(pitch - mouseDelta.y, -60, 60);
             }
         }
 
+        Quaternion yawRot = Quaternion.AngleAxis(yaw, Vector3.up);
+        Quaternion pitchRot = Quaternion.AngleAxis(pitch, yawRot * Vector3.right);
 
-        transform.localEulerAngles = new Vector3(0, yaw, 0);
-        cameraArm.localEulerAngles = new Vector3(pitch, 0, 0);
+        Quaternion rot = pitchRot * yawRot;
 
-        // Vector3 targetLocalPos = cameraTarget.localPosition;
-        // targetLocalPos.z = Mathf.LerpUnclamped(-6, -8, mech.boost ? 1 : 0);
-        // cameraTarget.localPosition = targetLocalPos;
+        float xShift = 0;
+        if (!mech.isUsingSword) xShift = shootXOffset;
 
-        Vector3 cameraSpaceSpeed = cameraTarget.rotation * mech.velocity;
+        Vector3 rotatedOffset = origin;
+
+        Vector3 vec = yawRot * Vector3.right * xShift;
+
+        const float camSphereRadius = 0.5f;
+
+        RaycastHit hit;
+        float dist = vec.magnitude;
+        if (Physics.SphereCast(rotatedOffset, camSphereRadius, vec.normalized, out hit, vec.magnitude, LayerMask.GetMask("Ground", "Objective"))) {
+            dist = Mathf.Max(hit.distance, 0);
+        }
+
+        rotatedOffset += vec.normalized * dist;
+
+        vec = rot * offset;
+        dist = vec.magnitude;
+        if (Physics.SphereCast(rotatedOffset, camSphereRadius, vec.normalized, out hit, vec.magnitude, LayerMask.GetMask("Ground", "Objective"))) {
+            dist = Mathf.Max(hit.distance, 0);
+        }
+
+        rotatedOffset += vec.normalized * dist;
+
+        cameraTarget.position = rotatedOffset;
+        cameraTarget.rotation = rot;
+
+        Vector3 cameraSpaceSpeed = rot * mech.velocity;
 
         const float rollSensitivity = 0.1f;
         const float maxRoll = 2.5f;
@@ -85,10 +114,7 @@ public class CameraController : MonoBehaviour
         float targetRoll = tanh * maxRoll;
         roll = Mathf.SmoothDamp(roll, targetRoll, ref rollVel, 0.1f);
 
-        cameraTarget.localEulerAngles = new Vector3(0, 0, roll);
-
-        cam.transform.position = cameraTarget.position;
-        cam.transform.rotation = cameraTarget.rotation;
+        cam.transform.localEulerAngles = new Vector3(0, 0, roll);
 
         prevMouse = Input.mousePosition;
     }

@@ -14,7 +14,7 @@ TagManager:
   - UI
   - Mech
   - Kinematic
-  - Missile
+  - Projectile
   - Weapon
   - Thruster
   - Pivot

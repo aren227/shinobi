@@ -95,7 +95,7 @@ public class PlayerMechController : MonoBehaviour
 
         mech.Aim(aimTarget);
 
-        mech.yaw = cameraController.cameraArm.eulerAngles.y;
+        mech.yaw = cameraController.yaw;
 
         if (mech.isBulletTime) {
             const float mouseSensitivity = 10f;
