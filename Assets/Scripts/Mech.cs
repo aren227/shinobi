@@ -703,6 +703,8 @@ public class Mech : MonoBehaviour
             Weapon weapon = item.GetComponent<Weapon>();
             if (weapon) inventory.BalanceAmmo(weapon.type);
 
+            item.GetComponent<Rigidbody>().isKinematic = true;
+
             return true;
         }
         return false;
@@ -714,6 +716,8 @@ public class Mech : MonoBehaviour
             inventory.SetItem(null, slot, null);
 
             item.transform.parent = null;
+
+            item.GetComponent<Rigidbody>().isKinematic = false;
 
             return true;
         }
@@ -774,6 +778,7 @@ public class Mech : MonoBehaviour
 
         isKilled = true;
         rigid.isKinematic = false;
+        rigid.useGravity = true;
 
         Debug.Log("Mech killed.");
 

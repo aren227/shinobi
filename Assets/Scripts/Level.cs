@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    public const int xSize = 300, ySize = 300, zSize = 300;
+    public const int xSize = 300, ySize = 100, zSize = 300;
     public const int gridSize = 20;
 
     const int width = xSize/gridSize;

@@ -56,6 +56,7 @@ public class Part : MonoBehaviour
                 }
 
                 Rigidbody rigidbody = newFrameRoot.AddComponent<Rigidbody>();
+                rigidbody.useGravity = true;
 
                 // rigidbody.velocity = Random.insideUnitSphere;
                 // rigidbody.angularVelocity = Random.insideUnitSphere;
@@ -79,6 +80,7 @@ public class Part : MonoBehaviour
                 }
 
                 Rigidbody rigidbody = newArmorRoot.AddComponent<Rigidbody>();
+                rigidbody.useGravity = true;
 
                 // rigidbody.velocity = Random.insideUnitSphere;
                 // rigidbody.angularVelocity = Random.insideUnitSphere;
