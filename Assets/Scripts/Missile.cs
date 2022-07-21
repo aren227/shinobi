@@ -15,6 +15,8 @@ public class Missile : MonoBehaviour
 
     public Transform target;
 
+    public float randomValue;
+
     const float maxAngleDiff = 80;
     const float fov = 90;
     const float explosionRadius = 1f;
@@ -28,6 +30,8 @@ public class Missile : MonoBehaviour
         capsuleCollider = GetComponent<CapsuleCollider>();
 
         spawnTimestamp = Time.time;
+
+        randomValue = Random.Range(0f, 1f);
     }
 
     void Explode(Vector3 at) {

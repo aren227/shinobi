@@ -33,7 +33,8 @@ public class Mech : MonoBehaviour
 
     const float boostSteminaConsumRate = 10;
     const float hideSteminaConsumRate = 10;
-    const float steminaRestoreRate = 5;
+    const float bulletTimeSteminaConsumeRate = 10;
+    const float steminaRestoreRate = 10;
 
     public const float minSteminaRequiredToBoost = 5;
     public const float maxSteminaRequiredToBoost = 50;
@@ -131,6 +132,17 @@ public class Mech : MonoBehaviour
                 rigid.useGravity = true;
             }
         }
+
+        if (isBulletTime) {
+            stemina = Mathf.Max(stemina - bulletTimeSteminaConsumeRate * Time.unscaledDeltaTime, 0);
+            if (stemina <= 0) {
+                EndBulletTime();
+            }
+        }
+
+        if (!boost && !isHided && !isBulletTime) {
+            stemina = Mathf.Min(stemina + steminaRestoreRate * Time.deltaTime, maxStemina);
+        }
     }
 
     public void Move(Vector3 moveDir) {
@@ -141,9 +153,6 @@ public class Mech : MonoBehaviour
             if (stemina <= 0 && Time.time - boostSince > minimumBoostTime) {
                 EndBoost();
             }
-        }
-        else {
-            stemina = Mathf.Min(stemina + steminaRestoreRate * Time.deltaTime, maxStemina);
         }
 
         float smoothTime;

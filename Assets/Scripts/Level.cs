@@ -16,12 +16,14 @@ public class Level : MonoBehaviour
     static Level _instance;
 
     public const int xSize = 300, ySize = 100, zSize = 300;
-    public const int gridSize = 20;
+    public const int gridSize = 10;
 
     const int width = xSize/gridSize;
     const int height = zSize/gridSize;
 
     bool[,] valid; // true if walkable.
+
+    int enemyCount = 0;
 
     List<Vector2Int> availGrids = new List<Vector2Int>();
     List<Vector2Int> objectiveGrids = new List<Vector2Int>();
@@ -31,6 +33,8 @@ public class Level : MonoBehaviour
 
     public MechStatus normalEnemyStatus;
     public MechStatus playerStatus;
+
+    int[,,,] distTable;
 
     void Awake() {
         valid = new bool[width, height];
@@ -78,6 +82,34 @@ public class Level : MonoBehaviour
         Debug.Log("Available grid count: " + availGrids.Count);
         Debug.Log("Objective adjacent grid count: " + objectiveAdjacentGrids.Count);
 
+        distTable = new int[width, height, width, height];
+        Queue<KeyValuePair<Vector2Int, int>> queue = new Queue<KeyValuePair<Vector2Int, int>>();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (!valid[i, j]) continue;
+
+                for (int k = 0; k < width; k++) {
+                    for (int l = 0; l < height; l++) {
+                        distTable[i, j, k, l] = int.MaxValue;
+                    }
+                }
+
+                queue.Clear();
+                queue.Enqueue(new KeyValuePair<Vector2Int, int>(new Vector2Int(i, j), 0));
+                while (queue.Count > 0) {
+                    KeyValuePair<Vector2Int, int> front = queue.Dequeue();
+                    if (!IsValidGrid(front.Key)) continue;
+                    if (distTable[i, j, front.Key.x, front.Key.y] <= front.Value) continue;
+                    distTable[i, j, front.Key.x, front.Key.y] = front.Value;
+
+                    queue.Enqueue(new KeyValuePair<Vector2Int, int>(new Vector2Int(front.Key.x+1, front.Key.y), front.Value+1));
+                    queue.Enqueue(new KeyValuePair<Vector2Int, int>(new Vector2Int(front.Key.x-1, front.Key.y), front.Value+1));
+                    queue.Enqueue(new KeyValuePair<Vector2Int, int>(new Vector2Int(front.Key.x, front.Key.y+1), front.Value+1));
+                    queue.Enqueue(new KeyValuePair<Vector2Int, int>(new Vector2Int(front.Key.x, front.Key.y-1), front.Value+1));
+                }
+            }
+        }
+
         enemySpawnPoints = FindObjectsOfType<EnemySpawnPoint>();
     }
 
@@ -93,6 +125,10 @@ public class Level : MonoBehaviour
         Mech mech = cloned.GetComponent<Mech>();
 
         normalEnemyStatus.Initialize(mech);
+
+        // if (enemyCount % 3 == 0) mech.GetComponent<EnemyMechController>().onlyShootSpaceship = true;
+
+        enemyCount++;
 
         return mech;
     }
@@ -110,41 +146,41 @@ public class Level : MonoBehaviour
         return valid[gridPos.x, gridPos.y];
     }
 
-    public int TaxiDist(Vector2Int a, Vector2Int b) {
-        return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+    public int GetGridDist(Vector2Int a, Vector2Int b) {
+        return distTable[a.x, a.y, b.x, b.y];
     }
 
     public Vector2Int GetNextGrid(Vector2Int curr, Vector2Int dest) {
         if (curr == dest) return dest;
 
-        int min = int.MaxValue;
+        int min = GetGridDist(curr, dest);
         Vector2Int next = curr;
 
         {
             Vector2Int cand = curr + new Vector2Int(-1, 0);
-            if (IsValidGrid(cand) && TaxiDist(cand, dest) < min) {
-                min = TaxiDist(cand, dest);
+            if (IsValidGrid(cand) && GetGridDist(cand, dest) < min) {
+                min = GetGridDist(cand, dest);
                 next = cand;
             }
         }
         {
             Vector2Int cand = curr + new Vector2Int(1, 0);
-            if (IsValidGrid(cand) && TaxiDist(cand, dest) < min) {
-                min = TaxiDist(cand, dest);
+            if (IsValidGrid(cand) && GetGridDist(cand, dest) < min) {
+                min = GetGridDist(cand, dest);
                 next = cand;
             }
         }
         {
             Vector2Int cand = curr + new Vector2Int(0, -1);
-            if (IsValidGrid(cand) && TaxiDist(cand, dest) < min) {
-                min = TaxiDist(cand, dest);
+            if (IsValidGrid(cand) && GetGridDist(cand, dest) < min) {
+                min = GetGridDist(cand, dest);
                 next = cand;
             }
         }
         {
             Vector2Int cand = curr + new Vector2Int(0, 1);
-            if (IsValidGrid(cand) && TaxiDist(cand, dest) < min) {
-                min = TaxiDist(cand, dest);
+            if (IsValidGrid(cand) && GetGridDist(cand, dest) < min) {
+                min = GetGridDist(cand, dest);
                 next = cand;
             }
         }
@@ -158,9 +194,17 @@ public class Level : MonoBehaviour
 
     public Vector3 GetRandomPosInGrid(Vector2Int gridPos) {
         return new Vector3(
-            (gridPos.x * Random.Range(0f, 0.999f)) * gridSize,
+            (gridPos.x + Random.Range(0f, 0.999f)) * gridSize,
             Random.Range(50f, ySize - 50f),
-            (gridPos.y * Random.Range(0f, 0.999f)) * gridSize
+            (gridPos.y + Random.Range(0f, 0.999f)) * gridSize
+        );
+    }
+
+    public Vector3 GetCenterPosInGrid(Vector2Int gridPos) {
+        return new Vector3(
+            (gridPos.x + 0.5f) * gridSize,
+            Random.Range(50f, ySize - 50f),
+            (gridPos.y + 0.5f) * gridSize
         );
     }
 

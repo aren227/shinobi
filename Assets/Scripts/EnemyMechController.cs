@@ -16,13 +16,13 @@ public class EnemyMechController : MonoBehaviour
 
     Mech player;
 
-    const float fovWhenAttack = 60;
-    const float fovWhenNotAttack = 30;
+    const float fovWhenAttack = 80;
+    const float fovWhenNotAttack = 80;
 
     const float missileLaunchMinDelay = 1f;
     const float missileLaunchMaxDelay = 3f;
 
-    State state = State.OBJECTIVE;
+    public State state = State.OBJECTIVE;
 
     Vector3 targetPos;
 
@@ -34,13 +34,13 @@ public class EnemyMechController : MonoBehaviour
 
     float stateDelay = 0;
 
-    const float shootObjectiveAfter = 7;
+    const float shootObjectiveAfter = 3;
 
     const float missileNoticeDistance = 10;
     // @Todo: Currently we evaluate prob per frame. Not good.
-    const float missileAvoidProb = 0.2f;
+    const float missileAvoidProb = 0.33f;
 
-    const float minReactionTime = 0.3f;
+    const float minReactionTime = 0.5f;
     const float maxReactionTime = 1.5f;
     float nextReactionTime;
 
@@ -54,13 +54,21 @@ public class EnemyMechController : MonoBehaviour
     float lastShoot;
     float delay;
 
+    public bool onlyShootSpaceship;
+
     // List with only one element.
     List<Transform> playerTargetList = new List<Transform>();
     List<Transform> objectiveTargetList = new List<Transform>();
 
     Vector3 timeOffset;
 
-    const float perlinNoiseSpeed = 0.2f;
+    const float attackPerlinNoiseSpeed = 0.2f;
+    const float objectivePerlinNoiseSpeed = 0.05f;
+
+    float perlinNoiseTime = 0;
+
+    Vector2Int nextGrid = new Vector2Int(-1000, -1000);
+    Vector3 nextGridTargetPos;
 
     void SetRandomOffset() {
         // Vector3 sphere = Random.onUnitSphere;
@@ -69,14 +77,17 @@ public class EnemyMechController : MonoBehaviour
 
         // @Todo: Is this really 0.5 centered noise?
         Vector3 sphere = new Vector3(
-            Mathf.PerlinNoise(Time.time * perlinNoiseSpeed + timeOffset.x, 0f) - 0.5f,
-            Mathf.PerlinNoise(Time.time * perlinNoiseSpeed + timeOffset.y, 0f) - 0.5f,
-            Mathf.PerlinNoise(Time.time * perlinNoiseSpeed + timeOffset.z, 0f) - 0.5f
+            Mathf.PerlinNoise(perlinNoiseTime + timeOffset.x, 0f) - 0.5f,
+            Mathf.PerlinNoise(perlinNoiseTime + timeOffset.y, 0f) - 0.5f,
+            Mathf.PerlinNoise(perlinNoiseTime + timeOffset.z, 0f) - 0.5f
         ).normalized;
 
         sphere.y *= 0.2f;
 
         playerOffset = sphere.normalized;
+
+        if (state == State.OBJECTIVE) perlinNoiseTime += Time.deltaTime * objectivePerlinNoiseSpeed;
+        else perlinNoiseTime += Time.deltaTime * attackPerlinNoiseSpeed;
     }
 
     void SetReactionTime() {
@@ -111,9 +122,24 @@ public class EnemyMechController : MonoBehaviour
         }) {
             GameObject missileWeapon = Instantiate(PrefabRegistry.Instance.missileWeapon);
 
-            missileWeapon.GetComponent<Weapon>().ammo = 300;
+            missileWeapon.GetComponent<Weapon>().ammo = 200;
 
             mech.Equip(missileWeapon.GetComponent<Item>(), slot);
+        }
+
+        if (Random.Range(0f, 1f) < 0.2f) {
+            GameObject bulletWeapon = Instantiate(PrefabRegistry.Instance.bulletWeapon);
+
+            bulletWeapon.GetComponent<Weapon>().ammo = 1000;
+
+            mech.Equip(bulletWeapon.GetComponent<Item>(), Inventory.Slot.RIGHT_HAND);
+        }
+        if (Random.Range(0f, 1f) < 0.2f * 0.2f) {
+            GameObject bulletWeapon = Instantiate(PrefabRegistry.Instance.bulletWeapon);
+
+            bulletWeapon.GetComponent<Weapon>().ammo = 1000;
+
+            mech.Equip(bulletWeapon.GetComponent<Item>(), Inventory.Slot.LEFT_HAND);
         }
 
         // Set initial state.
@@ -127,6 +153,7 @@ public class EnemyMechController : MonoBehaviour
         // @Todo: Raycast hit with level.
         return
             !player.isHided
+            && Vector3.Distance(mech.transform.position, player.transform.position) < 100
             && Vector3.Angle(mech.skeleton.headBone.forward, player.transform.position - mech.transform.position) <= (state == State.ATTACK ? fovWhenAttack : fovWhenNotAttack);
     }
 
@@ -140,16 +167,23 @@ public class EnemyMechController : MonoBehaviour
 
             if (!CanSeePlayer()) {
                 if (stateDelay > 1) {
-                    state = State.SEARCH;
+                    // state = State.SEARCH;
+
+                    // stateDelay = 0;
+                    // searchAttempt = 1;
+                    // searchMaxTime = Random.Range(5f, 15f);
+
+                    state = State.OBJECTIVE;
 
                     stateDelay = 0;
-                    searchAttempt = Random.Range(1, 4);
-                    searchMaxTime = Random.Range(10f, 30f);
+
+                    targetPos = level.GetRandomPosInGrid(level.GetRandomObjectiveGrid());
                 }
             }
             else {
                 stateDelay = 0;
             }
+            stateDelay = 0;
 
             currentTargets = playerTargetList;
         }
@@ -168,26 +202,32 @@ public class EnemyMechController : MonoBehaviour
                     targetPos = level.GetRandomPosInGrid(level.GetRandomValidGrid());
 
                     stateDelay = 0;
-                    searchMaxTime = Random.Range(10f, 30f);
+                    searchMaxTime = Random.Range(5f, 15f);
                 }
             }
         }
         else if (state == State.OBJECTIVE) {
+            targetPos = GameManager.Instance.objective.transform.position + playerOffset * 30;
+
             if (stateDelay > shootObjectiveAfter) {
                 currentTargets = objectiveTargetList;
             }
         }
 
         float minTargetedMissileDist = float.PositiveInfinity;
+        Missile minDistMissile = null;
         foreach (Missile missile in mech.targetedMissiles) {
-            minTargetedMissileDist = Mathf.Min(minTargetedMissileDist, Vector3.Distance(missile.transform.position, missile.target.transform.position));
+            float dist = Vector3.Distance(missile.transform.position, missile.target.transform.position);
+            if (minTargetedMissileDist > dist) {
+                minTargetedMissileDist = dist;
+                minDistMissile = missile;
+            }
         }
 
         if (
-            state == State.ATTACK
-            && (
+            (
                 Vector3.Distance(targetPos, mech.transform.position) > boostMinDist
-                || (minTargetedMissileDist < missileNoticeDistance && Random.Range(0f, 1f) < missileAvoidProb)
+                || (minDistMissile != null && minTargetedMissileDist < missileNoticeDistance && minDistMissile.randomValue < missileAvoidProb)
             )
          ) {
                 if (!mech.boost) mech.BeginBoost();
@@ -209,6 +249,7 @@ public class EnemyMechController : MonoBehaviour
 
         if (
             state != State.ATTACK
+            && !onlyShootSpaceship
             && (
                 CanSeePlayer()
                 || noticingPlayerTime < Time.time
@@ -220,8 +261,6 @@ public class EnemyMechController : MonoBehaviour
             stateDelay = 0;
         }
 
-        mech.hitByPlayerFlag = false;
-
         float distToTarget = Vector3.Distance(targetPos, mech.transform.position);
         // if (state == State.ATTACK && distToTarget < minMoveDist) {
         //     // Set another random offset to move continuously while attacking.
@@ -229,7 +268,33 @@ public class EnemyMechController : MonoBehaviour
         // }
 
         if (distToTarget > minMoveDist) {
-            mech.Move((targetPos - mech.transform.position).normalized);
+            Vector2Int gridCurr = level.GetGridAt(mech.transform.position);
+            Vector2Int gridTar = level.GetGridAt(targetPos);
+
+            if (gridCurr == gridTar) {
+                mech.Move((targetPos - mech.transform.position).normalized);
+            }
+            else {
+                Vector2Int nextGrid = level.GetNextGrid(gridCurr, gridTar);
+                if (nextGrid != this.nextGrid) {
+                    this.nextGrid = nextGrid;
+                    nextGridTargetPos = level.GetRandomPosInGrid(nextGrid);
+                }
+
+                Vector3 fromToTar = targetPos - mech.transform.position;
+                Vector3 fromToRandomGrid = nextGridTargetPos - mech.transform.position;
+
+                Vector3 projected = Vector3.Project(fromToRandomGrid, fromToTar);
+
+                fromToRandomGrid.y = projected.y;
+
+                // Debug.DrawRay(transform.position, fromToRandomGrid, Color.blue);
+                // Debug.DrawRay(transform.position, fromToTar, Color.green);
+
+                // Debug.DrawLine(level.GetCenterPosInGrid(gridCurr), level.GetCenterPosInGrid(nextGrid), Color.red);
+
+                mech.Move(fromToRandomGrid.normalized);
+            }
         }
         else {
             mech.Move(Vector3.zero);

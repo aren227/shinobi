@@ -104,6 +104,8 @@ public class SwordController2 : MonoBehaviour
         mech.skeleton.DisableHandIk(isRightHanded);
 
         swordVelocitySolver.Finish();
+
+        target.skeleton.GetPart(PartName.BODY).Hit(10000);
     }
 
     public void SetRightHand(bool rightHand) {
@@ -212,9 +214,9 @@ public class SwordController2 : MonoBehaviour
                 }
             }
 
-            if (Mathf.Abs(beginAngle - angle) > deathAngle) {
-                target.Kill();
-            }
+            // if (Mathf.Abs(beginAngle - angle) > deathAngle) {
+            //     target.Kill();
+            // }
 
             swordTransform.position = swingPivot + rot * Vector3.forward * beginDepth;
             swordTransform.rotation = rot;
