@@ -12,6 +12,8 @@ public class Bullet : MonoBehaviour
 
     CapsuleCollider capsuleCollider;
 
+    public Mech owner;
+
     void Awake() {
         capsuleCollider = GetComponent<CapsuleCollider>();
 
@@ -33,7 +35,7 @@ public class Bullet : MonoBehaviour
             FindObjectOfType<ParticleManager>().CreateBulletImpact(hit.point, hit.normal);
 
             Mech mech = hit.collider.GetComponentInParent<Mech>();
-            if (mech) mech.GiveDamage(hit.collider, damage);
+            if (mech) mech.GiveDamage(owner, hit.collider, damage);
 
             return;
         }

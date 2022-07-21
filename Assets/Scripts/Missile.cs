@@ -20,6 +20,8 @@ public class Missile : MonoBehaviour
     const float explosionRadius = 1f;
     const int explosionDamage = 10;
 
+    public Mech owner;
+
     void Awake() {
         capsuleCollider = GetComponent<CapsuleCollider>();
 
@@ -47,7 +49,7 @@ public class Missile : MonoBehaviour
 
             Mech mech = collider.GetComponentInParent<Mech>();
             if (mech) {
-                mech.GiveDamage(collider, explosionDamage);
+                mech.GiveDamage(owner, collider, explosionDamage);
             }
         }
     }

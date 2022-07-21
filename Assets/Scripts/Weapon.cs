@@ -14,6 +14,8 @@ public class Weapon : MonoBehaviour
 
     float lastShootTime;
 
+    List<TargetDelay> launchQueue = new List<TargetDelay>();
+
     public bool Shoot(Vector3 aimTarget, Transform targetTransform = null) {
         Item item = GetComponent<Item>();
         if (item == null || !item.isEquipped) return false;
@@ -31,6 +33,8 @@ public class Weapon : MonoBehaviour
 
             obj.transform.position = point.position + dir * pushForward;
             obj.transform.forward = dir;
+
+            obj.GetComponent<Bullet>().owner = mech;
         }
         else if (type == WeaponType.MISSLE_WEAPON) {
             GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.missile);
@@ -40,8 +44,17 @@ public class Weapon : MonoBehaviour
             obj.transform.position = point.position + point.forward * pushForward;
             obj.transform.forward = point.forward;
 
+            Missile missile = obj.GetComponent<Missile>();
+
+            missile.owner = mech;
+
             if (targetTransform != null) {
-                obj.GetComponent<Missile>().target = targetTransform;
+                missile.target = targetTransform;
+
+                Mech victim = targetTransform.root.GetComponent<Mech>();
+                if (victim) {
+                    victim.AddTargetedMissile(missile);
+                }
             }
             else {
                 obj.transform.forward = (aimTarget - obj.transform.position).normalized;
@@ -58,6 +71,36 @@ public class Weapon : MonoBehaviour
         int ammoLoss = Mathf.RoundToInt(damage * ammoLossPerDamage);
         ammo = Mathf.Max(ammo - ammoLoss, 0);
     }
+
+    void Update() {
+        for (int i = launchQueue.Count-1; i >= 0; i--) {
+            if (launchQueue[i].delay <= 0) {
+                Shoot(launchQueue[i].aimTarget, launchQueue[i].target);
+                launchQueue.RemoveAt(i);
+            }
+            else {
+                launchQueue[i] = new TargetDelay() {
+                    target = launchQueue[i].target,
+                    aimTarget = launchQueue[i].aimTarget,
+                    delay = launchQueue[i].delay - Time.deltaTime,
+                };
+            }
+        }
+    }
+
+    public void ScheduleLaunch(Vector3 aimTarget, Transform target, float delay) {
+        launchQueue.Add(new TargetDelay() {
+            target = target,
+            aimTarget = aimTarget,
+            delay = delay,
+        });
+    }
+}
+
+struct TargetDelay {
+    public Transform target;
+    public Vector3 aimTarget;
+    public float delay;
 }
 
 public enum WeaponType {

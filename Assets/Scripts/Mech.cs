@@ -26,6 +26,8 @@ public class Mech : MonoBehaviour
     public bool boost = false;
     float boostSince;
 
+    public bool hitByPlayerFlag = false;
+
     const float minimumBoostTime = 0.3f;
 
     public const float maxStemina = 100;
@@ -49,7 +51,9 @@ public class Mech : MonoBehaviour
 
     public Vector3 aimTarget { get; private set; }
 
-    public List<Mech> targets { get; private set; } = new List<Mech>();
+    public List<Transform> targets { get; private set; } = new List<Transform>();
+
+    public List<Missile> targetedMissiles {get; private set; } = new List<Missile>();
 
     public MechArmature mechArmature;
 
@@ -108,10 +112,16 @@ public class Mech : MonoBehaviour
             targets.Clear();
             Mech meleeTarget = GetMeleeTarget();
             // @Todo: This sucks.
-            if (meleeTarget) targets.Add(meleeTarget);
+            if (meleeTarget) targets.Add(meleeTarget.skeleton.cockpit.transform);
         }
         else {
             targets = GetVisibleTargets();
+        }
+
+        for (int i = targetedMissiles.Count-1; i >= 0; i--) {
+            if (!targetedMissiles[i]) {
+                targetedMissiles.RemoveAt(i);
+            }
         }
     }
 
@@ -220,8 +230,8 @@ public class Mech : MonoBehaviour
         yaw = -Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90;
     }
 
-    public List<Mech> GetVisibleTargets(int maxCount = 256) {
-        List<Mech> result = new List<Mech>();
+    public List<Transform> GetVisibleTargets(int maxCount = 256) {
+        List<Transform> result = new List<Transform>();
 
         // if (targetType == TargetType.NONE) return result;
 
@@ -276,16 +286,16 @@ public class Mech : MonoBehaviour
                 }
 
                 if (!failed) {
-                    result.Add(mech);
+                    result.Add(mech.skeleton.cockpit.transform);
                 }
             }
         }
 
-        List<KeyValuePair<Mech, float>> distList = new List<KeyValuePair<Mech, float>>();
+        List<KeyValuePair<Transform, float>> distList = new List<KeyValuePair<Transform, float>>();
 
-        foreach (Mech mech in result) {
-            Vector2 viewport = cam.WorldToViewportPoint(mech.skeleton.cockpit.transform.position);
-            distList.Add(new KeyValuePair<Mech, float>(mech, Vector2.Distance(Vector2.one * 0.5f, viewport)));
+        foreach (Transform target in result) {
+            Vector2 viewport = cam.WorldToViewportPoint(target.position);
+            distList.Add(new KeyValuePair<Transform, float>(target, Vector2.Distance(Vector2.one * 0.5f, viewport)));
         }
 
         distList.Sort((x, y) => {
@@ -479,7 +489,7 @@ public class Mech : MonoBehaviour
         inventory.GetItem(slot).GetComponent<Weapon>().Shoot(aimTarget, target);
     }
 
-    public void ShootBullets() {
+    public void ShootBullets(List<Transform> targets) {
         if (isUsingSword) return;
 
         Weapon left = null, right = null;
@@ -489,14 +499,18 @@ public class Mech : MonoBehaviour
         if (left != null && left.type != WeaponType.BULLET_WEAPON) left = null;
         if (right != null && right.type != WeaponType.BULLET_WEAPON) right = null;
 
-        // @Todo: If targets is empty, just shoot center.
+        if (targets.Count == 0) {
+            left?.Shoot(aimTarget);
+            right?.Shoot(aimTarget);
+            return;
+        }
 
         int index = 0;
         if (right != null) {
             if (index < targets.Count) {
                 if (isHided) EndHide();
 
-                right.Shoot(targets[index].skeleton.cockpit.transform.position);
+                right.Shoot(targets[index].position);
                 index = Mathf.Min(index+1, targets.Count-1);
             }
         }
@@ -504,7 +518,7 @@ public class Mech : MonoBehaviour
             if (index < targets.Count) {
                 if (isHided) EndHide();
 
-                left.Shoot(targets[index].skeleton.cockpit.transform.position);
+                left.Shoot(targets[index].position);
                 index = Mathf.Min(index+1, targets.Count-1);
             }
         }
@@ -523,23 +537,38 @@ public class Mech : MonoBehaviour
         return weapons;
     }
 
-    public void LaunchMissiles() {
-        // @Todo: Simple algorithm. Need to be refined.
-
+    public void LaunchMissiles(List<Transform> targets) {
         List<Weapon> weapons = GetMissileWeapons();
 
-        if (Mathf.Min(weapons.Count, targets.Count) > 0) {
-            if (isHided) EndHide();
+        if (weapons.Count == 0) return;
 
-            weapons.Sort((x, y) => x.ammo - y.ammo);
+        if (isHided) EndHide();
 
-            for (int i = 0; i < Mathf.Min(weapons.Count, targets.Count); i++) {
-                weapons[i].Shoot(Vector3.zero, targets[i].skeleton.cockpit.transform);
+        const float missileLaunchDelay = 0.1f;
+
+        if (targets.Count == 0) {
+            float delay = 0;
+            for (int i = 0; i < weapons.Count; i++) {
+                weapons[i].ScheduleLaunch(aimTarget, null, delay);
+                delay += missileLaunchDelay;
             }
+            return;
+        }
+
+        float[] targetDelay = new float[targets.Count];
+        for (int i = 0; i < weapons.Count; i++) {
+            weapons[i].ScheduleLaunch(Vector3.zero, targets[i % targets.Count], targetDelay[i % targets.Count]);
+            targetDelay[i % targets.Count] += missileLaunchDelay;
         }
     }
 
-    public void GiveDamage(Collider collider, int damage) {
+    public void AddTargetedMissile(Missile missile) {
+        targetedMissiles.Add(missile);
+    }
+
+    public void GiveDamage(Mech by, Collider collider, int damage) {
+        if (by == Mech.Player) hitByPlayerFlag = true;
+
         Part part = skeleton.GetPartByCollider(collider);
         if (part) {
             if (isHided) {
@@ -581,7 +610,9 @@ public class Mech : MonoBehaviour
             if (delta.sqrMagnitude > 1e-5f && Physics.CapsuleCast(
                 rigid.position + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
                 rigid.position + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
-                kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude + pad, LayerMask.GetMask("Kinematic"))) {
+                kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude + pad,
+                LayerMask.GetMask("Kinematic", "Ground", "Objective"))
+            ) {
 
                 Vector3 safe = delta.normalized * Mathf.Max(hit.distance - pad, 0);
                 rigid.MovePosition(rigid.position + safe);

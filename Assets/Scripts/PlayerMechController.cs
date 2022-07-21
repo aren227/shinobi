@@ -24,6 +24,34 @@ public class PlayerMechController : MonoBehaviour
         swordController2 = GetComponent<SwordController2>();
     }
 
+    void Start() {
+        foreach (Inventory.Slot slot in new Inventory.Slot[] {
+            Inventory.Slot.RIGHT_HAND,
+            Inventory.Slot.LEFT_HAND,
+        }) {
+            GameObject bulletWeapon = Instantiate(PrefabRegistry.Instance.bulletWeapon);
+
+            bulletWeapon.GetComponent<Weapon>().ammo = 1000;
+
+            mech.Equip(bulletWeapon.GetComponent<Item>(), slot);
+        }
+        foreach (Inventory.Slot slot in new Inventory.Slot[] {
+            Inventory.Slot.LEFT_SHOULDER,
+            Inventory.Slot.RIGHT_SHOULDER,
+        }) {
+            GameObject missileWeapon = Instantiate(PrefabRegistry.Instance.missileWeapon);
+
+            missileWeapon.GetComponent<Weapon>().ammo = 300;
+
+            mech.Equip(missileWeapon.GetComponent<Item>(), slot);
+        }
+        {
+            GameObject sword = Instantiate(PrefabRegistry.Instance.sword);
+
+            mech.Equip(sword.GetComponent<Item>(), Inventory.Slot.SWORD);
+        }
+    }
+
     bool IsInteractable() {
         return !FindObjectOfType<InventoryCanvas2>().open;
     }
@@ -157,10 +185,10 @@ public class PlayerMechController : MonoBehaviour
         }
         else if (!mech.isBulletTime) {
             if (Input.GetMouseButton(0)) {
-                mech.ShootBullets();
+                mech.ShootBullets(mech.targets);
             }
             if (Input.GetMouseButtonDown(1)) {
-                mech.LaunchMissiles();
+                mech.LaunchMissiles(mech.targets);
             }
         }
         else {
@@ -191,9 +219,7 @@ public class PlayerMechController : MonoBehaviour
             uiManager.SetTargets(markers, cameraController.cam);
         }
         else {
-            List<Transform> markers = new List<Transform>();
-            foreach (Mech mech in mech.targets) markers.Add(mech.skeleton.cockpit.transform);
-            uiManager.SetTargets(markers, cameraController.cam);
+            uiManager.SetTargets(mech.targets, cameraController.cam);
         }
 
         uiManager.SetStemina(Mech.maxStemina, mech.stemina, mech.skeleton.thruster.GetSteminaRequiredToBoost());
