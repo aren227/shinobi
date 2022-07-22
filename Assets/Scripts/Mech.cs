@@ -80,7 +80,7 @@ public class Mech : MonoBehaviour
 
         CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
         kinematicCapsule = new CapsuleParams() { center = capsuleCollider.center, radius = capsuleCollider.radius, height = capsuleCollider.height };
-        Destroy(capsuleCollider);
+        // Destroy(capsuleCollider);
 
         stemina = maxStemina;
 
@@ -386,7 +386,7 @@ public class Mech : MonoBehaviour
                 if (!Physics.CapsuleCast(
                     rigid.position + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
                     rigid.position + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
-                    kinematicCapsule.radius, delta.normalized, delta.magnitude + rigidbodyCastPad, LayerMask.GetMask("Kinematic"))
+                    kinematicCapsule.radius, delta.normalized, delta.magnitude + rigidbodyCastPad, ~LayerMask.GetMask("Mech"))
                 ) {
                     candidates.Add(mech);
                 }
@@ -662,7 +662,7 @@ public class Mech : MonoBehaviour
                 origin + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
                 origin + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
                 kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude + pad,
-                LayerMask.GetMask("Kinematic", "Ground", "Objective"))
+                LayerMask.GetMask("Kinematic", "Mech", "Ground", "Objective"))
             ) {
 
                 Vector3 safe = delta.normalized * Mathf.Max(hit.distance - pad, 0);

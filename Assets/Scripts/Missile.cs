@@ -47,7 +47,7 @@ public class Missile : MonoBehaviour
 
             RaycastHit hit;
             bool blocked = false;
-            if (Physics.Raycast(at, v.normalized, out hit, v.magnitude)) {
+            if (Physics.Raycast(at, v.normalized, out hit, v.magnitude, ~LayerMask.GetMask("Mech"), QueryTriggerInteraction.Collide)) {
                 if (hit.distance < v.magnitude - 0.01f) blocked = true;
             }
 
@@ -91,7 +91,7 @@ public class Missile : MonoBehaviour
         int count = Physics.CapsuleCastNonAlloc(
             transform.position + capsuleCollider.center - (capsuleCollider.height/2 + capsuleCollider.radius) * transform.forward,
             transform.position + capsuleCollider.center + (capsuleCollider.height/2 - capsuleCollider.radius) * transform.forward,
-            capsuleCollider.radius, delta.normalized, hits, delta.magnitude, ~LayerMask.GetMask("Projectile")
+            capsuleCollider.radius, delta.normalized, hits, delta.magnitude, ~LayerMask.GetMask("Projectile", "Mech"), QueryTriggerInteraction.Collide
         );
 
         int minIndex = -1;

@@ -168,7 +168,8 @@ public class SwordController2 : MonoBehaviour
                     swingPivot + rot * Vector3.forward * beginDepth,
                     swingPivot + rot * Vector3.forward * endDepth,
                     0.2f,
-                    LayerMask.GetMask("Frame", "Armor")
+                    LayerMask.GetMask("Frame", "Armor"),
+                    QueryTriggerInteraction.Collide
                 );
 
                 bool targetHit = false;
@@ -195,7 +196,8 @@ public class SwordController2 : MonoBehaviour
                     swingPivot + rot * Vector3.forward * beginDepth,
                     swingPivot + rot * Vector3.forward * endDepth,
                     0.2f,
-                    LayerMask.GetMask("Frame", "Armor")
+                    LayerMask.GetMask("Frame", "Armor"),
+                    QueryTriggerInteraction.Collide
                 );
 
                 bool targetHit = false;

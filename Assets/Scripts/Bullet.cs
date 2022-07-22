@@ -30,7 +30,7 @@ public class Bullet : MonoBehaviour
         int count = Physics.CapsuleCastNonAlloc(
             transform.position + capsuleCollider.center - (capsuleCollider.height/2 + capsuleCollider.radius) * transform.forward,
             transform.position + capsuleCollider.center + (capsuleCollider.height/2 - capsuleCollider.radius) * transform.forward,
-            capsuleCollider.radius, delta.normalized, hits, delta.magnitude, ~LayerMask.GetMask("Projectile")
+            capsuleCollider.radius, delta.normalized, hits, delta.magnitude, ~LayerMask.GetMask("Mech", "Projectile"), QueryTriggerInteraction.Collide
         );
 
         int minIndex = -1;

@@ -91,7 +91,7 @@ public class PlayerMechController : MonoBehaviour
         Vector3 aimTarget = cameraController.cameraTarget.position + cameraController.cameraTarget.forward * 1000;
 
         RaycastHit aimHit;
-        if (Physics.Raycast(cameraController.cameraTarget.position, cameraController.cameraTarget.forward, out aimHit, 1000)) {
+        if (Physics.Raycast(cameraController.cameraTarget.position, cameraController.cameraTarget.forward, out aimHit, 1000, ~LayerMask.GetMask("Mech"), QueryTriggerInteraction.Ignore)) {
             aimTarget = aimHit.point;
         }
 
@@ -200,7 +200,7 @@ public class PlayerMechController : MonoBehaviour
                     // Place a marker.
                     Ray ray = cameraController.cam.ViewportPointToRay(cursorPos);
                     RaycastHit hit;
-                    if (Physics.Raycast(ray, out hit, float.PositiveInfinity, LayerMask.GetMask("Armor", "Frame", "Thruster", "Weapon"))) {
+                    if (Physics.Raycast(ray, out hit, float.PositiveInfinity, LayerMask.GetMask("Armor", "Frame", "Thruster", "Weapon"), QueryTriggerInteraction.Collide)) {
                         Mech targetMech = hit.collider.GetComponentInParent<Mech>();
                         if (targetMech != mech) {
                             GameObject marker = new GameObject("Marker");
