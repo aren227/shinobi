@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ba4fc4d77623b4089b8e46edb45819, type: 3}
   m_Name: Normal Enemy
   m_EditorClassIdentifier: 
-  bodyArmorHealth: 300
-  bodyFrameHealth: 300
-  headArmorHealth: 200
-  headFrameHealth: 200
-  partsArmorHealth: 200
-  partsFrameHealth: 200
-  thrusterHealth: 50
+  bodyArmorHealth: 100
+  bodyFrameHealth: 100
+  headArmorHealth: 100
+  headFrameHealth: 100
+  partsArmorHealth: 50
+  partsFrameHealth: 50
+  thrusterHealth: 30

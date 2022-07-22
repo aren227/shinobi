@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ba4fc4d77623b4089b8e46edb45819, type: 3}
   m_Name: Player
   m_EditorClassIdentifier: 
-  bodyArmorHealth: 1500
-  bodyFrameHealth: 1500
+  bodyArmorHealth: 500
+  bodyFrameHealth: 500
   headArmorHealth: 1000
   headFrameHealth: 1000
-  partsArmorHealth: 1000
-  partsFrameHealth: 1000
-  thrusterHealth: 700
+  partsArmorHealth: 250
+  partsFrameHealth: 250
+  thrusterHealth: 500

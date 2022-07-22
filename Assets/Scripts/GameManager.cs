@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     public GameState state { get; private set; }
 
-    const int defenseTime = 10;
+    const int defenseTime = 60 * 5;
     const int enemySpawnCountPerWave = 2;
     const int enemySpawnDelay = 1;
     const int waveDelay = 30;
