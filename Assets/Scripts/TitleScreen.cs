@@ -15,6 +15,8 @@ public class TitleScreen : MonoBehaviour
     public Text resultText;
 
     void Start() {
+        Cursor.lockState = CursorLockMode.None;
+
         if (newGameButton) {
             newGameButton.onClick.AddListener(
                 () => SceneManager.LoadScene("SampleScene")

@@ -82,6 +82,10 @@ public class Part : MonoBehaviour
                 // rigidbody.velocity = Random.insideUnitSphere;
                 // rigidbody.angularVelocity = Random.insideUnitSphere;
             }
+
+            if (partName == PartName.BODY) {
+                SoundBank.Instance.PlaySound("glass_break", skeleton.cockpit.transform.position, 0.3f);
+            }
         }
     }
 

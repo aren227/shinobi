@@ -119,18 +119,16 @@ public class PlayerMechController : MonoBehaviour
             else mech.EndSword();
         }
 
-        if (Input.GetKeyDown(KeyCode.E)) {
-            if (!mech.isBulletTime) {
-                mech.BeginBulletTime();
-                markers.Clear();
-            }
-            else {
-                mech.EndBulletTime();
+        if (Input.GetKey(KeyCode.E) && !mech.isBulletTime) {
+            mech.BeginBulletTime();
+            markers.Clear();
+        }
+        if (!Input.GetKey(KeyCode.E) && mech.isBulletTime) {
+            mech.EndBulletTime();
 
-                List<Weapon> weapons = mech.GetMissileWeapons();
-                for (int i = 0; i < Mathf.Min(weapons.Count, markers.Count); i++) {
-                    weapons[i].Shoot(Vector3.zero, markers[i]);
-                }
+            List<Weapon> weapons = mech.GetMissileWeapons();
+            for (int i = 0; i < Mathf.Min(weapons.Count, markers.Count); i++) {
+                weapons[i].Shoot(Vector3.zero, markers[i]);
             }
         }
 

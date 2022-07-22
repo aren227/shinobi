@@ -66,6 +66,9 @@ public class Bullet : MonoBehaviour
             if (metalHit) {
                 SoundBank.Instance.PlaySound("bullet_hit", hit.point, 0.3f);
             }
+            else {
+                SoundBank.Instance.PlaySound("bullet_hit_ground", hit.point, 0.1f);
+            }
 
             return;
         }
