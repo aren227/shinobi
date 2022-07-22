@@ -5,7 +5,7 @@ using DG.Tweening;
 
 public class Spaceship : MonoBehaviour
 {
-    public const int maxHealth = 100;
+    public const int maxHealth = 1000;
 
     int health;
 
