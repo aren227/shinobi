@@ -294,6 +294,8 @@ public class EnemyMechController : MonoBehaviour
 
                 // Debug.DrawLine(level.GetCenterPosInGrid(gridCurr), level.GetCenterPosInGrid(nextGrid), Color.red);
 
+                // Debug.Log(gridCurr + " -> " + nextGrid);
+
                 mech.Move(fromToRandomGrid.normalized);
             }
         }

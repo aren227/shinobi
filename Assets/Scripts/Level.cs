@@ -15,7 +15,7 @@ public class Level : MonoBehaviour
 
     static Level _instance;
 
-    public const int xSize = 300, ySize = 100, zSize = 300;
+    public const int xSize = 300, ySize = 90, zSize = 300;
     public const int gridSize = 10;
 
     const int width = xSize/gridSize;
@@ -115,6 +115,16 @@ public class Level : MonoBehaviour
 
     void Start() {
         playerStatus.Initialize(GameManager.Instance.player);
+    }
+
+    void Update() {
+        // for (int i = 0; i < width; i++) {
+        //     for (int j = 0; j < height; j++) {
+        //         if (!valid[i, j]) continue;
+        //         Vector3 center = GetCenterPosInGrid(new Vector2Int(i, j));
+        //         Debug.DrawRay(center - Vector3.one * gridSize/2f, Vector3.one * gridSize, Color.yellow);
+        //     }
+        // }
     }
 
     public Mech SpawnEnemy() {

@@ -4960,7 +4960,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e3438d5dc8f0e64097c085bb2ac62db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boneName: Body
+  boneName: Bone
 --- !u!1 &6530760967083936272
 GameObject:
   m_ObjectHideFlags: 0
@@ -5095,7 +5095,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e3438d5dc8f0e64097c085bb2ac62db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boneName: Body
+  boneName: Bone
 --- !u!1 &6530760967654567381
 GameObject:
   m_ObjectHideFlags: 0
