@@ -16,9 +16,9 @@ public class SurfaceRenderer : MonoBehaviour
     bool disabled = false;
 
     void Awake() {
-        if (depthPassMat == null) depthPassMat = new Material(Shader.Find("Unlit/DepthPass"));
-        if (depthWriteMat == null) depthWriteMat = new Material(Shader.Find("Unlit/DepthWrite"));
-        if (depthWrite2Mat == null) depthWrite2Mat = new Material(Shader.Find("Unlit/DepthWrite2"));
+        if (depthPassMat == null) depthPassMat = PrefabRegistry.Instance.depthPassMat;
+        if (depthWriteMat == null) depthWriteMat = PrefabRegistry.Instance.depthWriteMat;
+        if (depthWrite2Mat == null) depthWrite2Mat = PrefabRegistry.Instance.depthWrite2Mat;
 
         meshFilter = GetComponent<MeshFilter>();
 

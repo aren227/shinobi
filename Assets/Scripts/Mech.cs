@@ -71,6 +71,14 @@ public class Mech : MonoBehaviour
 
     public bool manualMovement = false;
 
+    public AudioSource thrusterAudioSource;
+    public AudioSource forceFieldAudioSource;
+    public AudioSource metalCrakingAudioSource;
+
+    public float metalCrackingVolume = 0;
+    public float metalCrackingVolumeVel = 0;
+    public float targetMetalCrackingVolume = 0;
+
     void Awake() {
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
@@ -105,6 +113,11 @@ public class Mech : MonoBehaviour
             if (stemina <= 0) {
                 EndHide();
             }
+
+            forceFieldAudioSource.volume = 1;
+        }
+        else {
+            forceFieldAudioSource.volume = 0;
         }
 
         // Update targets
@@ -143,6 +156,11 @@ public class Mech : MonoBehaviour
         if (!boost && !isHided && !isBulletTime) {
             stemina = Mathf.Min(stemina + steminaRestoreRate * Time.deltaTime, maxStemina);
         }
+
+        thrusterAudioSource.volume = Mathf.Lerp(0.01f, 0.1f, velocity.magnitude / 30f);
+
+        metalCrackingVolume = Mathf.SmoothDamp(metalCrackingVolume, targetMetalCrackingVolume, ref metalCrackingVolumeVel, 0.1f);
+        metalCrakingAudioSource.volume = metalCrackingVolume;
     }
 
     public void Move(Vector3 moveDir) {
@@ -593,6 +611,8 @@ public class Mech : MonoBehaviour
         }
 
         if (isHided) EndHide();
+
+        // SoundBank.Instance.PlaySound("missile_launch", skeleton.cockpit.transform.position);
 
         const float missileLaunchDelay = 0.1f;
 

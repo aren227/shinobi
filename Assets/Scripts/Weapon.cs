@@ -6,7 +6,7 @@ public class Weapon : MonoBehaviour
 {
     public WeaponType type;
     public int ammo;
-    public float delay = 0.1f;
+    public const float delay = 0.05f;
 
     const float ammoLossPerDamage = 0.2f;
 
@@ -35,6 +35,8 @@ public class Weapon : MonoBehaviour
             obj.transform.forward = dir;
 
             obj.GetComponent<Bullet>().owner = mech;
+
+            SoundBank.Instance.PlaySound("bullet_shoot", transform.position, 0.3f);
         }
         else if (type == WeaponType.MISSLE_WEAPON) {
             GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.missile);

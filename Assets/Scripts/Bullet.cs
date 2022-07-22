@@ -6,7 +6,7 @@ public class Bullet : MonoBehaviour
 {
     const float speed = 600f;
     const float lifetime = 10;
-    const int damage = 10;
+    const int damage = 5;
 
     float spawnTimestamp;
 
@@ -51,10 +51,21 @@ public class Bullet : MonoBehaviour
             ParticleManager.Instance.CreateBulletImpact(hit.point, hit.normal);
 
             Mech mech = hit.collider.GetComponentInParent<Mech>();
-            if (mech) mech.GiveDamage(owner, hit.collider, damage);
+            bool metalHit = false;
+            if (mech) {
+                mech.GiveDamage(owner, hit.collider, damage);
+                metalHit = true;
+            }
 
             Spaceship spaceship = hit.collider.GetComponent<Spaceship>();
-            if (spaceship) spaceship.Hit(damage);
+            if (spaceship) {
+                spaceship.Hit(damage);
+                metalHit = true;
+            }
+
+            if (metalHit) {
+                SoundBank.Instance.PlaySound("bullet_hit", hit.point, 0.3f);
+            }
 
             return;
         }

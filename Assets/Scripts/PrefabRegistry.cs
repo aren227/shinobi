@@ -24,7 +24,13 @@ public class PrefabRegistry : MonoBehaviour
 
     public GameObject mech;
 
+    public GameObject audioSource;
+
     public GameObject bulletHole;
     public Material bulletHoleMat;
     public Material fresnelMat;
+
+    public Material depthPassMat;
+    public Material depthWriteMat;
+    public Material depthWrite2Mat;
 }

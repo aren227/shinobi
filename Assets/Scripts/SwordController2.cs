@@ -106,6 +106,8 @@ public class SwordController2 : MonoBehaviour
         swordVelocitySolver.Finish();
 
         target.skeleton.GetPart(PartName.BODY).Hit(10000);
+
+        mech.targetMetalCrackingVolume = 0;
     }
 
     public void SetRightHand(bool rightHand) {
@@ -141,6 +143,8 @@ public class SwordController2 : MonoBehaviour
                 else targetAngleVel = -700f;
 
                 smoothTime = 0.05f;
+
+                mech.targetMetalCrackingVolume = 0f;
             }
             else if (state == SwordSwingState.BLOCKED) {
                 smoothTime = 0.07f;
@@ -149,9 +153,13 @@ public class SwordController2 : MonoBehaviour
                 if (Input.GetMouseButton(0)) {
                     smoothTime = 2f;
                     targetAngleVel = -700f;
+
+                    mech.targetMetalCrackingVolume = 1f;
                 }
                 else {
                     smoothTime = 0.05f;
+
+                    mech.targetMetalCrackingVolume = 0f;
                 }
             }
 
@@ -189,6 +197,8 @@ public class SwordController2 : MonoBehaviour
                     // Reduce velocity
                     angleVel = 0;
                     angleAcc = 0;
+
+                    mech.metalCrakingAudioSource.volume = 1f;
                 }
             }
             else if (state == SwordSwingState.HIT) {

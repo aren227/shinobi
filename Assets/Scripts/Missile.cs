@@ -61,6 +61,8 @@ public class Missile : MonoBehaviour
             Spaceship spaceship = collider.GetComponent<Spaceship>();
             if (spaceship) spaceship.Hit(explosionDamage);
         }
+
+        SoundBank.Instance.PlaySound("explosion", at, 0.7f);
     }
 
     void Update() {

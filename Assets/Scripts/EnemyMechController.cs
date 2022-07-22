@@ -164,8 +164,6 @@ public class EnemyMechController : MonoBehaviour
         List<Transform> currentTargets = null;
 
         if (state == State.ATTACK) {
-            targetPos = player.transform.position + playerOffset * properDistance;
-
             if (!CanSeePlayer()) {
                 if (stateDelay > 1) {
                     // state = State.SEARCH;
@@ -182,6 +180,8 @@ public class EnemyMechController : MonoBehaviour
                 }
             }
             else {
+                targetPos = player.transform.position + playerOffset * properDistance;
+
                 stateDelay = 0;
 
                 currentTargets = playerTargetList;
