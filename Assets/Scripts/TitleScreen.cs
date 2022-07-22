@@ -6,10 +6,13 @@ using UnityEngine.UI;
 
 public class TitleScreen : MonoBehaviour
 {
+    public GlobalData globalData;
     public Button newGameButton;
     public Button creditsButton;
     public Button quitButton;
     public Button backToTitleButton;
+
+    public Text resultText;
 
     void Start() {
         if (newGameButton) {
@@ -31,6 +34,14 @@ public class TitleScreen : MonoBehaviour
             backToTitleButton.onClick.AddListener(
                 () => SceneManager.LoadScene("Title")
             );
+        }
+        if (resultText) {
+            if (globalData.isComplete) {
+                resultText.text = "MISSION COMPLETE";
+            }
+            else {
+                resultText.text = "MISSION FAILED";
+            }
         }
     }
 }

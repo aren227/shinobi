@@ -17,7 +17,7 @@ public class Spaceship : MonoBehaviour
     void Awake() {
         health = maxHealth;
 
-        farAway = transform.position + new Vector3(0, 1000, 0);
+        farAway = transform.position + new Vector3(0, 10000, 0);
         dest = transform.position;
     }
 

@@ -77,7 +77,7 @@ public class Skeleton : MonoBehaviour
 
     string[] boneNames = new string[] {
         "Bone", "Head", "UArm.L", "LArm.L", "UArm.R", "LArm.R",
-        "ULeg.L", "LLeg.L", "ULeg.R", "LLeg.R"
+        "ULeg.L", "LLeg.L", "ULeg.R", "LLeg.R",
     };
 
     PartName[] bonePartNames = new PartName[] {
@@ -88,7 +88,7 @@ public class Skeleton : MonoBehaviour
 
     string[] modelNames = new string[] {
         "Body", "Head", "Arm_R_Up", "Arm_R_Down", "Arm_L_Up", "Arm_L_Down",
-        "Leg_R_Up", "Leg_R_Down", "Leg_L_Up", "Leg_L_Down"
+        "Leg_R_Up", "Leg_R_Down", "Leg_L_Up", "Leg_L_Down",
     };
 
     void Awake() {
@@ -244,7 +244,7 @@ public class Skeleton : MonoBehaviour
             Transform child = current.GetChild(i);
 
             for (int j = 0; j < names.Length; j++) {
-                if (names[j] == child.name) {
+                if (child.name == names[j]) {
                     array[j] = child;
                     break;
                 }

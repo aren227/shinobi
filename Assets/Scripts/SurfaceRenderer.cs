@@ -93,8 +93,11 @@ public class SurfaceRenderer : MonoBehaviour
         cb.SetGlobalMatrix(Shader.PropertyToID("_ObjectToCube"), matrix);
 
         cb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
-        cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthWrite2Mat, 0, 0);
-        cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthWrite2Mat, 0, 1);
+
+        for (int i = 0; i < meshFilter.sharedMesh.subMeshCount; i++) {
+            cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthWrite2Mat, i, 0);
+            cb.DrawMesh(meshFilter.sharedMesh, transform.localToWorldMatrix, depthWrite2Mat, i, 1);
+        }
 
         if (cubeMeshFilter) cb.DrawMesh(cubeMeshFilter.sharedMesh, cubeMeshFilter.transform.localToWorldMatrix, depthWrite2Mat, 0, 2);
     }

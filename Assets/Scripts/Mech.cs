@@ -840,6 +840,15 @@ public class Mech : MonoBehaviour
             // @Todo: Display later if using sword.
             // UiManager.Instance.ShowSystemMessage("ENEMY DESTROYED");
         }
+
+        if (this == GameManager.Instance.player) {
+            if (GameManager.Instance.state == GameState.LEAVE) {
+                GameManager.Instance.BeginState(GameState.COMPLETED);
+            }
+            else {
+                GameManager.Instance.BeginState(GameState.FAILED);
+            }
+        }
     }
 }
 

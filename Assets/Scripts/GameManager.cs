@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
 
     static GameManager _instance;
 
+    public GlobalData globalData;
+
     public Mech player;
 
     UiManager uiManager;
@@ -27,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     public GameState state { get; private set; }
 
-    const int defenseTime = 60 * 5;
+    const int defenseTime = 10;
     const int enemySpawnCountPerWave = 2;
     const int enemySpawnDelay = 1;
     const int waveDelay = 30;
@@ -37,6 +39,7 @@ public class GameManager : MonoBehaviour
     Level level;
 
     Spaceship spaceship;
+    Door door;
 
     Coroutine fightStateCoroutine;
 
@@ -46,10 +49,11 @@ public class GameManager : MonoBehaviour
         level = FindObjectOfType<Level>();
         uiManager = FindObjectOfType<UiManager>();
         spaceship = FindObjectOfType<Spaceship>();
+        door = FindObjectOfType<Door>();
     }
 
     void Start() {
-        BeginState(GameState.PREPARE);
+        StartCoroutine(Prepare());
     }
 
     void Update() {
@@ -59,11 +63,13 @@ public class GameManager : MonoBehaviour
     }
 
     public void BeginState(GameState state) {
+        if (this.state == state) return;
+
         stateBeginTime = Time.time;
         this.state = state;
 
         if (state == GameState.PREPARE) {
-            StartCoroutine(Prepare());
+
         }
         if (state == GameState.FIGHT) {
             fightStateCoroutine = StartCoroutine(SpawnScheduler());
@@ -72,9 +78,18 @@ public class GameManager : MonoBehaviour
             StopCoroutine(fightStateCoroutine);
 
             StartCoroutine(Explosion());
+
+            Debug.Log("Mission failed.");
         }
         if (state == GameState.LEAVE) {
             StartCoroutine(Leave());
+        }
+        if (state == GameState.COMPLETED) {
+            Debug.Log("Mission complete.");
+
+            globalData.isComplete = true;
+
+            SceneManager.LoadScene("Result");
         }
     }
 
@@ -102,17 +117,27 @@ public class GameManager : MonoBehaviour
     IEnumerator Prepare() {
         spaceship.Arrive();
 
-        yield return new WaitForSeconds(15);
+        door.Open();
+
+        yield return new WaitForSeconds(10);
+
+        door.Close();
+
+        yield return new WaitForSeconds(5);
 
         BeginState(GameState.FIGHT);
     }
 
     IEnumerator Leave() {
+        door.Open();
+
+        yield return new WaitForSeconds(5);
+
         spaceship.Depart();
 
-        yield return new WaitForSeconds(15);
+        yield return new WaitForSeconds(3);
 
-        Debug.Log("Game done");
+        door.RemoveBarrier();
     }
 
     IEnumerator SpawnScheduler() {
@@ -133,7 +158,11 @@ public class GameManager : MonoBehaviour
     IEnumerator Explosion() {
         spaceship.Explode();
 
-        yield return null;
+        yield return new WaitForSeconds(5);
+
+        globalData.isComplete = false;
+
+        SceneManager.LoadScene("Result");
     }
 }
 
@@ -142,4 +171,5 @@ public enum GameState {
     FIGHT,
     FAILED,
     LEAVE,
+    COMPLETED,
 }
