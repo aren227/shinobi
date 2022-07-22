@@ -75,9 +75,16 @@ public class GameManager : MonoBehaviour
             fightStateCoroutine = StartCoroutine(SpawnScheduler());
         }
         if (state == GameState.FAILED) {
-            StopCoroutine(fightStateCoroutine);
+            if (fightStateCoroutine != null) StopCoroutine(fightStateCoroutine);
 
             StartCoroutine(Explosion());
+
+            Debug.Log("Mission failed.");
+        }
+        if (state == GameState.KILLED) {
+            if (fightStateCoroutine != null) StopCoroutine(fightStateCoroutine);
+
+            StartCoroutine(Killed());
 
             Debug.Log("Mission failed.");
         }
@@ -164,12 +171,21 @@ public class GameManager : MonoBehaviour
 
         SceneManager.LoadScene("Result");
     }
+
+    IEnumerator Killed() {
+        yield return new WaitForSeconds(5);
+
+        globalData.isComplete = false;
+
+        SceneManager.LoadScene("Result");
+    }
 }
 
 public enum GameState {
     PREPARE,
     FIGHT,
     FAILED,
+    KILLED,
     LEAVE,
     COMPLETED,
 }

@@ -5,7 +5,7 @@ using DG.Tweening;
 
 public class Spaceship : MonoBehaviour
 {
-    public const int maxHealth = 2000;
+    public const int maxHealth = 100;
 
     int health;
 
@@ -72,7 +72,10 @@ public class Spaceship : MonoBehaviour
             PartName.BODY,
         };
 
-        foreach (Mech mech in GameManager.Instance.meches) {
+        List<Mech> copied = new List<Mech>(GameManager.Instance.meches);
+
+        foreach (Mech mech in copied) {
+            if (!mech) return;
             foreach (PartName partName in partNames) {
                 Part part = mech.skeleton.GetPart(partName);
                 part.Hit(100000);
@@ -82,5 +85,7 @@ public class Spaceship : MonoBehaviour
         foreach (Rigidbody rigidbody in FindObjectsOfType<Rigidbody>()) {
             rigidbody.AddExplosionForce(1000, transform.position, 300);
         }
+
+        SoundBank.Instance.PlaySound("huge_explosion", transform.position, 0.7f, 150f, 1000f);
     }
 }

@@ -41,6 +41,10 @@ public class PlayerMechController : MonoBehaviour
         foreach (Inventory.Slot slot in new Inventory.Slot[] {
             Inventory.Slot.LEFT_SHOULDER,
             Inventory.Slot.RIGHT_SHOULDER,
+            Inventory.Slot.LEFT_ARM,
+            Inventory.Slot.RIGHT_ARM,
+            Inventory.Slot.LEFT_LEG,
+            Inventory.Slot.RIGHT_LEG,
         }) {
             GameObject missileWeapon = Instantiate(PrefabRegistry.Instance.missileWeapon);
 
@@ -258,9 +262,8 @@ public class PlayerMechController : MonoBehaviour
 
         // for (int i = 0; i < 10; i++) {
         //     if (Input.GetKeyDown(KeyCode.Alpha0 + i)) {
-        //         Part part = mech.skeleton.GetPart((PartName)i);
-        //         part.Hit(1000);
-        //         Debug.Log("Hit " + (PartName)i);
+        //         Part p = mech.skeleton.GetPart((PartName)i);
+        //         p.Hit(1000);
         //     }
         // }
     }

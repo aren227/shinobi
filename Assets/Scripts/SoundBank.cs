@@ -32,7 +32,7 @@ public class SoundBank : MonoBehaviour
         return soundCollection.clips[Random.Range(0, soundCollection.clips.Count)];
     }
 
-    public void PlaySound(string name, Vector3 at, float volume = 0.5f) {
+    public void PlaySound(string name, Vector3 at, float volume = 0.5f, float minDist = 25, float maxDist = 200) {
         AudioClip clip = GetSound(name);
         if (clip == null) return;
 
@@ -45,6 +45,9 @@ public class SoundBank : MonoBehaviour
         audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.pitch = Random.Range(0.7f, 1.3f);
+
+        audioSource.minDistance = minDist;
+        audioSource.maxDistance = maxDist;
 
         audioSource.Play();
     }

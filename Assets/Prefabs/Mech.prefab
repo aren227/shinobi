@@ -2675,6 +2675,7 @@ MonoBehaviour:
   metalCrackingVolume: 0
   metalCrackingVolumeVel: 0
   targetMetalCrackingVolume: 0
+  destroyAt: 0
 --- !u!54 &7580416314343576957
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3444,9 +3445,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7580416314343576955}
     m_Modifications:
+    - target: {fileID: 6530760967033896892, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.353
+      objectReference: {fileID: 0}
+    - target: {fileID: 6530760967033896892, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.748
+      objectReference: {fileID: 0}
     - target: {fileID: 6530760967033896893, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
       propertyPath: boneName
       value: Bone
+      objectReference: {fileID: 0}
+    - target: {fileID: 6530760967482955740, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.353
+      objectReference: {fileID: 0}
+    - target: {fileID: 6530760967482955740, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.748
       objectReference: {fileID: 0}
     - target: {fileID: 6530760967482955741, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
       propertyPath: boneName

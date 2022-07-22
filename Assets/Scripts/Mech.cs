@@ -79,6 +79,8 @@ public class Mech : MonoBehaviour
     public float metalCrackingVolumeVel = 0;
     public float targetMetalCrackingVolume = 0;
 
+    float destroyAt = float.PositiveInfinity;
+
     void Awake() {
         rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
@@ -161,6 +163,10 @@ public class Mech : MonoBehaviour
 
         metalCrackingVolume = Mathf.SmoothDamp(metalCrackingVolume, targetMetalCrackingVolume, ref metalCrackingVolumeVel, 0.1f);
         metalCrakingAudioSource.volume = metalCrackingVolume;
+
+        if (destroyAt < Time.time) {
+            Destroy(gameObject);
+        }
     }
 
     public void Move(Vector3 moveDir) {
@@ -834,6 +840,10 @@ public class Mech : MonoBehaviour
 
         isKilled = true;
 
+        destroyAt = Time.time + 10;
+
+        GameManager.Instance.meches.Remove(this);
+
         Debug.Log("Mech killed.");
 
         if (this != GameManager.Instance.player) {
@@ -842,12 +852,7 @@ public class Mech : MonoBehaviour
         }
 
         if (this == GameManager.Instance.player) {
-            if (GameManager.Instance.state == GameState.LEAVE) {
-                GameManager.Instance.BeginState(GameState.COMPLETED);
-            }
-            else {
-                GameManager.Instance.BeginState(GameState.FAILED);
-            }
+            GameManager.Instance.BeginState(GameState.KILLED);
         }
     }
 }

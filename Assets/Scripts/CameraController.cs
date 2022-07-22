@@ -45,6 +45,8 @@ public class CameraController : MonoBehaviour
 
         Mech mech = GameManager.Instance.player;
 
+        if (!mech) return;
+
         const float velocityResponsiveness = 1 / 40f;
 
         Vector3 origin = mech.transform.position - mech.velocity * velocityResponsiveness;
