@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,6 +18,8 @@ public class GameManager : MonoBehaviour
     static GameManager _instance;
 
     public Mech player;
+
+    UiManager uiManager;
 
     public List<Mech> meches = new List<Mech>();
 
@@ -36,13 +40,22 @@ public class GameManager : MonoBehaviour
 
     Coroutine fightStateCoroutine;
 
+    public bool isPaused;
+
     void Awake() {
         level = FindObjectOfType<Level>();
+        uiManager = FindObjectOfType<UiManager>();
         spaceship = FindObjectOfType<Spaceship>();
     }
 
     void Start() {
         BeginState(GameState.PREPARE);
+    }
+
+    void Update() {
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            SetPause(!isPaused);
+        }
     }
 
     public void BeginState(GameState state) {
@@ -63,6 +76,27 @@ public class GameManager : MonoBehaviour
         if (state == GameState.LEAVE) {
             StartCoroutine(Leave());
         }
+    }
+
+    public void SetPause(bool isPaused) {
+        this.isPaused = isPaused;
+
+        DOTween.Kill("timeScale", true);
+
+        if (isPaused) {
+            Time.timeScale = 0;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else {
+            Time.timeScale = 1;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
+        uiManager.SetPause(isPaused);
+    }
+
+    public void Restart() {
+        SceneManager.LoadScene("SampleScene");
     }
 
     IEnumerator Prepare() {

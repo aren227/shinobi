@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerMechController : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class PlayerMechController : MonoBehaviour
     Vector2 cursorPos;
 
     List<Transform> markers = new List<Transform>();
+
+    bool isPaused = false;
 
     void Awake() {
         cameraController = FindObjectOfType<CameraController>();
@@ -57,8 +60,7 @@ public class PlayerMechController : MonoBehaviour
     }
 
     void Update() {
-        // @Temp
-        if (!IsInteractable()) return;
+        if (GameManager.Instance.isPaused) return;
 
         Vector3[] dirs = new Vector3[] {
             Vector3.forward, Vector3.back, Vector3.left, Vector3.right, Vector3.up, Vector3.down

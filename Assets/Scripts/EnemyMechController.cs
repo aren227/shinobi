@@ -158,6 +158,7 @@ public class EnemyMechController : MonoBehaviour
     }
 
     void Update() {
+        if (GameManager.Instance.isPaused) return;
         if (mech.isKilled) return;
 
         List<Transform> currentTargets = null;

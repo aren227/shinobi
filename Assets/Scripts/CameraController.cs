@@ -41,6 +41,8 @@ public class CameraController : MonoBehaviour
     }
 
     void Update() {
+        if (GameManager.Instance.isPaused) return;
+
         Mech mech = GameManager.Instance.player;
 
         const float velocityResponsiveness = 1 / 40f;

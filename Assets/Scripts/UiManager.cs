@@ -46,6 +46,15 @@ public class UiManager : MonoBehaviour
 
     const float bloomCanvasAlpha = 0.75f;
 
+    public Image darkenImage;
+
+    public GameObject ingameBloomRoot;
+    public GameObject pauseBloomRoot;
+    public GameObject pauseButtonRoot;
+    public Button pauseContinueButton;
+    public Button pauseRestartButton;
+    public Button pauseBackToTitleButton;
+
     void Awake() {
         thermalTargetCursor.SetActive(false);
 
@@ -54,6 +63,13 @@ public class UiManager : MonoBehaviour
         bloomCanvasRawImage.color = new Color(1, 1, 1, bloomCanvasAlpha);
 
         bloomCanvasScaler = bloomCanvas.GetComponent<CanvasScaler>();
+
+        pauseContinueButton.onClick.AddListener(
+            () => GameManager.Instance.SetPause(false)
+        );
+        pauseRestartButton.onClick.AddListener(
+            () => GameManager.Instance.Restart()
+        );
     }
 
     void Start() {
@@ -186,5 +202,13 @@ public class UiManager : MonoBehaviour
     public void ShowSystemMessage(string text, float time = defaultSystemMessageTime) {
         systemMessageText.text = text;
         systemMessageRemainingTime = time;
+    }
+
+    public void SetPause(bool isPaused) {
+        darkenImage.enabled = isPaused;
+
+        ingameBloomRoot.SetActive(!isPaused);
+        pauseBloomRoot.SetActive(isPaused);
+        pauseButtonRoot.SetActive(isPaused);
     }
 }
