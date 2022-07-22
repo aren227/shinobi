@@ -34,110 +34,110 @@ public class InventoryCanvas2 : MonoBehaviour
     }
 
     void Update() {
-        if (open) {
-            if (Input.GetKeyDown(KeyCode.W)) {
-                SetCursor(selectableSlots[(selectableSlots.IndexOf(cursor)+1)%selectableSlots.Count]);
-            }
+        // if (open) {
+        //     if (Input.GetKeyDown(KeyCode.W)) {
+        //         SetCursor(selectableSlots[(selectableSlots.IndexOf(cursor)+1)%selectableSlots.Count]);
+        //     }
 
-            if (Input.GetKeyDown(KeyCode.X)) {
-                if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
-                    GameManager.Instance.player.Unequip(cursor);
-                }
-            }
-            if (picked != null && Input.GetKeyDown(KeyCode.Space)) {
-                if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
-                    GameManager.Instance.player.Unequip(cursor);
-                }
-                GameManager.Instance.player.Equip(picked, cursor);
-                picked = null;
+        //     if (Input.GetKeyDown(KeyCode.X)) {
+        //         if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
+        //             GameManager.Instance.player.Unequip(cursor);
+        //         }
+        //     }
+        //     if (picked != null && Input.GetKeyDown(KeyCode.Space)) {
+        //         if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
+        //             GameManager.Instance.player.Unequip(cursor);
+        //         }
+        //         GameManager.Instance.player.Equip(picked, cursor);
+        //         picked = null;
 
-                if (closeAfterSelect) {
-                    Close();
-                    return;
-                }
-            }
+        //         if (closeAfterSelect) {
+        //             Close();
+        //             return;
+        //         }
+        //     }
 
-            // Render textures.
-            rtCamera.enabled = true;
+        //     // Render textures.
+        //     rtCamera.enabled = true;
 
-            // @Todo: Refactor
-            {
-                GameObject playerModel = GameManager.Instance.player.model;
+        //     // @Todo: Refactor
+        //     {
+        //         GameObject playerModel = GameManager.Instance.player.model;
 
-                Vector3 prevPos = playerModel.transform.localPosition;
-                Quaternion prevRot = playerModel.transform.localRotation;
-                Vector3 prevScale = playerModel.transform.localScale;
+        //         Vector3 prevPos = playerModel.transform.localPosition;
+        //         Quaternion prevRot = playerModel.transform.localRotation;
+        //         Vector3 prevScale = playerModel.transform.localScale;
 
-                // @Hardcoded
-                playerModel.transform.position = rtCamera.transform.position + new Vector3(0, -1.5f, 6);
-                playerModel.transform.rotation = Quaternion.Euler(0, 180, 0);
+        //         // @Hardcoded
+        //         playerModel.transform.position = rtCamera.transform.position + new Vector3(0, -1.5f, 6);
+        //         playerModel.transform.rotation = Quaternion.Euler(0, 180, 0);
 
-                rtCamera.targetTexture = playerImage.renderTexture;
+        //         rtCamera.targetTexture = playerImage.renderTexture;
 
-                // @Todo: For performance reason, we have to render this object ONLY.
-                // But idk just do it for now.
-                rtCamera.Render();
+        //         // @Todo: For performance reason, we have to render this object ONLY.
+        //         // But idk just do it for now.
+        //         rtCamera.Render();
 
-                playerModel.transform.localPosition = prevPos;
-                playerModel.transform.localRotation = prevRot;
-                playerModel.transform.localScale = prevScale;
-            }
-            if (picked != null) {
-                Item item = picked;
+        //         playerModel.transform.localPosition = prevPos;
+        //         playerModel.transform.localRotation = prevRot;
+        //         playerModel.transform.localScale = prevScale;
+        //     }
+        //     if (picked != null) {
+        //         Item item = picked;
 
-                GameObject itemModel = item.model;
+        //         GameObject itemModel = item.model;
 
-                Vector3 prevPos = itemModel.transform.localPosition;
-                Quaternion prevRot = itemModel.transform.localRotation;
-                Vector3 prevScale = itemModel.transform.localScale;
+        //         Vector3 prevPos = itemModel.transform.localPosition;
+        //         Quaternion prevRot = itemModel.transform.localRotation;
+        //         Vector3 prevScale = itemModel.transform.localScale;
 
-                // @Hardcoded
-                itemModel.transform.position = rtCamera.transform.position + new Vector3(0, 0, 3);
-                itemModel.transform.rotation = Quaternion.Euler(0, 90, 0);
+        //         // @Hardcoded
+        //         itemModel.transform.position = rtCamera.transform.position + new Vector3(0, 0, 3);
+        //         itemModel.transform.rotation = Quaternion.Euler(0, 90, 0);
 
-                rtCamera.targetTexture = left.itemImage.renderTexture;
+        //         rtCamera.targetTexture = left.itemImage.renderTexture;
 
-                // @Todo: For performance reason, we have to render this object ONLY.
-                // But idk just do it for now.
-                rtCamera.Render();
+        //         // @Todo: For performance reason, we have to render this object ONLY.
+        //         // But idk just do it for now.
+        //         rtCamera.Render();
 
-                itemModel.transform.localPosition = prevPos;
-                itemModel.transform.localRotation = prevRot;
-                itemModel.transform.localScale = prevScale;
-            }
-            if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
-                Item item = GameManager.Instance.player.inventory.GetItem(cursor);
+        //         itemModel.transform.localPosition = prevPos;
+        //         itemModel.transform.localRotation = prevRot;
+        //         itemModel.transform.localScale = prevScale;
+        //     }
+        //     if (GameManager.Instance.player.inventory.GetItem(cursor) != null) {
+        //         Item item = GameManager.Instance.player.inventory.GetItem(cursor);
 
-                GameObject itemModel = item.model;
+        //         GameObject itemModel = item.model;
 
-                Vector3 prevPos = itemModel.transform.localPosition;
-                Quaternion prevRot = itemModel.transform.localRotation;
-                Vector3 prevScale = itemModel.transform.localScale;
+        //         Vector3 prevPos = itemModel.transform.localPosition;
+        //         Quaternion prevRot = itemModel.transform.localRotation;
+        //         Vector3 prevScale = itemModel.transform.localScale;
 
-                // @Hardcoded
-                itemModel.transform.position = rtCamera.transform.position + new Vector3(0, 0, 3);
-                itemModel.transform.rotation = Quaternion.Euler(0, 90, 0);
+        //         // @Hardcoded
+        //         itemModel.transform.position = rtCamera.transform.position + new Vector3(0, 0, 3);
+        //         itemModel.transform.rotation = Quaternion.Euler(0, 90, 0);
 
-                rtCamera.targetTexture = right.itemImage.renderTexture;
+        //         rtCamera.targetTexture = right.itemImage.renderTexture;
 
-                // @Todo: For performance reason, we have to render this object ONLY.
-                // But idk just do it for now.
-                rtCamera.Render();
+        //         // @Todo: For performance reason, we have to render this object ONLY.
+        //         // But idk just do it for now.
+        //         rtCamera.Render();
 
-                itemModel.transform.localPosition = prevPos;
-                itemModel.transform.localRotation = prevRot;
-                itemModel.transform.localScale = prevScale;
-            }
+        //         itemModel.transform.localPosition = prevPos;
+        //         itemModel.transform.localRotation = prevRot;
+        //         itemModel.transform.localScale = prevScale;
+        //     }
 
-            rtCamera.enabled = false;
-        }
+        //     rtCamera.enabled = false;
+        // }
 
-        if (Input.GetKeyDown(KeyCode.Tab) && !open) {
-            Open(null);
-        }
-        else if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && open) {
-            Close();
-        }
+        // if (Input.GetKeyDown(KeyCode.Tab) && !open) {
+        //     Open(null);
+        // }
+        // else if ((Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) && open) {
+        //     Close();
+        // }
     }
 
     public void Open(Item picked) {

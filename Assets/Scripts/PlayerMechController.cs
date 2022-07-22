@@ -140,10 +140,10 @@ public class PlayerMechController : MonoBehaviour
         }
 
         // @Todo: Better ui.
-        if (Input.GetKeyDown(KeyCode.R)) {
+        if (Input.GetKeyDown(KeyCode.F)) {
             Item[] items = FindObjectsOfType<Item>();
             Item selected = null;
-            float minDist = 3;
+            float minDist = 7;
             foreach (Item item in items) {
                 if (item.isEquipped) continue;
                 if (minDist > Vector3.Distance(item.transform.position, mech.transform.position)) {
@@ -152,7 +152,11 @@ public class PlayerMechController : MonoBehaviour
                 }
             }
 
-            if (selected != null) mech.TryToEquip(selected);
+            if (selected != null) {
+                if (mech.TryToEquip(selected)) {
+                    SoundBank.Instance.PlaySound("ammo_pickup", mech.skeleton.cockpit.transform.position, 0.5f);
+                }
+            }
         }
 
         if (mech.isUsingSword) {
