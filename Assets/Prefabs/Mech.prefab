@@ -713,6 +713,8 @@ MonoBehaviour:
   hitByPlayerFlag: 0
   stemina: 0
   model: {fileID: 4637163599762317133}
+  velocityVel: {x: 0, y: 0, z: 0}
+  manualMovement: 0
 --- !u!54 &7580416314343576957
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -739,8 +741,8 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 1
-  m_Height: 4
+  m_Radius: 0.7
+  m_Height: 3.5
   m_Direction: 1
   m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!114 &7580416314343576959
@@ -919,6 +921,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a59f96646ea39c41b44e9b9c873a703, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state: 2
+  onlyShootSpaceship: 0
 --- !u!1 &8828524127369518508
 GameObject:
   m_ObjectHideFlags: 0

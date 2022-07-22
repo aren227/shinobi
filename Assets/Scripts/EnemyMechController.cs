@@ -183,10 +183,10 @@ public class EnemyMechController : MonoBehaviour
             }
             else {
                 stateDelay = 0;
+
+                currentTargets = playerTargetList;
             }
             stateDelay = 0;
-
-            currentTargets = playerTargetList;
         }
         else if (state == State.SEARCH) {
             if (Vector3.Distance(targetPos, transform.position) < 3 || stateDelay >= searchMaxTime) {
@@ -302,7 +302,7 @@ public class EnemyMechController : MonoBehaviour
         }
 
         if (state == State.ATTACK) {
-            mech.Aim(player.skeleton.cockpit.transform.position);
+            if (!player.isHided) mech.Aim(player.skeleton.cockpit.transform.position);
         }
         else if (state == State.SEARCH) {
             mech.Aim(targetPos);

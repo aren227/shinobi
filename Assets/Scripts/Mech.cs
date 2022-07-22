@@ -32,8 +32,8 @@ public class Mech : MonoBehaviour
     public float stemina = 0;
 
     const float boostSteminaConsumRate = 10;
-    const float hideSteminaConsumRate = 10;
-    const float bulletTimeSteminaConsumeRate = 10;
+    const float hideSteminaConsumRate = 20;
+    const float bulletTimeSteminaConsumeRate = 20;
     const float steminaRestoreRate = 10;
 
     public const float minSteminaRequiredToBoost = 5;
@@ -657,9 +657,10 @@ public class Mech : MonoBehaviour
         const float pad = 0.1f;
         for (int i = 0; i < 3; i++) {
             RaycastHit hit;
+            Vector3 origin = rigid.position - delta.normalized * pad;
             if (delta.sqrMagnitude > 1e-5f && Physics.CapsuleCast(
-                rigid.position + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
-                rigid.position + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
+                origin + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
+                origin + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
                 kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude + pad,
                 LayerMask.GetMask("Kinematic", "Ground", "Objective"))
             ) {
