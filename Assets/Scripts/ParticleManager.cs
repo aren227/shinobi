@@ -17,44 +17,43 @@ public class ParticleManager : MonoBehaviour
     static ParticleManager _instance;
 
     public GameObject bulletImpact;
-    public GameObject bulletTrail;
     public GameObject missileExplosion;
     public GameObject hugeExplosion;
 
     // @Todo: Implement pooling.
 
     public void CreateBulletImpact(Vector3 pos, Vector3 normal) {
-        GameObject cloned = GameObject.Instantiate(bulletImpact);
+        GameObject cloned = PoolManager.Instance.Spawn("bulletImpact");
 
         cloned.transform.position = pos;
         cloned.transform.rotation = Quaternion.FromToRotation(Vector3.up, normal);
     }
 
     public void CreateMissileExplosion(Vector3 pos) {
-        GameObject cloned = GameObject.Instantiate(missileExplosion);
+        GameObject cloned = PoolManager.Instance.Spawn("missileExplosion");
 
         cloned.transform.position = pos;
     }
 
-    public void CreateBulletTrail(Vector3 start, Vector3 end) {
-        GameObject obj = Instantiate(bulletTrail);
+    // public void CreateBulletTrail(Vector3 start, Vector3 end) {
+    //     GameObject obj = Instantiate(bulletTrail);
 
-        LineRenderer lineRenderer = obj.GetComponent<LineRenderer>();
+    //     LineRenderer lineRenderer = obj.GetComponent<LineRenderer>();
 
-        lineRenderer.SetPositions(new Vector3[] {
-            start, end
-        });
+    //     lineRenderer.SetPositions(new Vector3[] {
+    //         start, end
+    //     });
 
-        // @Hardcoded
-        Color trailColor = new Color(0.3f, 0.3f, 0.3f, 0.3f);
-        const float lifetime = 1;
+    //     // @Hardcoded
+    //     Color trailColor = new Color(0.3f, 0.3f, 0.3f, 0.3f);
+    //     const float lifetime = 1;
 
-        lineRenderer.startColor = lineRenderer.endColor = trailColor;
-        DOTween.To(() => lineRenderer.startColor, x => lineRenderer.startColor = x, new Color(trailColor.r, trailColor.g, trailColor.b, 0), lifetime);
-        DOTween.To(() => lineRenderer.endColor, x => lineRenderer.endColor = x, new Color(trailColor.r, trailColor.g, trailColor.b, 0), lifetime).OnComplete(() => {
-            Destroy(obj);
-        });
-    }
+    //     lineRenderer.startColor = lineRenderer.endColor = trailColor;
+    //     DOTween.To(() => lineRenderer.startColor, x => lineRenderer.startColor = x, new Color(trailColor.r, trailColor.g, trailColor.b, 0), lifetime);
+    //     DOTween.To(() => lineRenderer.endColor, x => lineRenderer.endColor = x, new Color(trailColor.r, trailColor.g, trailColor.b, 0), lifetime).OnComplete(() => {
+    //         Destroy(obj);
+    //     });
+    // }
 
     // Dictionary<string, ParticlePool> pools = new Dictionary<string, ParticlePool>();
 

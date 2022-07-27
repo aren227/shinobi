@@ -47,7 +47,6 @@ public class Bullet : MonoBehaviour
         if (minIndex != -1) {
             RaycastHit hit = hits[minIndex];
 
-            Destroy(gameObject);
             ParticleManager.Instance.CreateBulletImpact(hit.point, hit.normal);
 
             Mech mech = hit.collider.GetComponentInParent<Mech>();
@@ -69,6 +68,8 @@ public class Bullet : MonoBehaviour
             else {
                 SoundBank.Instance.PlaySound("bullet_hit_ground", hit.point, 0.1f);
             }
+
+            PoolManager.Instance.Despawn(gameObject);
 
             return;
         }

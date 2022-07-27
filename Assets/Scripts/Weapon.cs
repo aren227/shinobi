@@ -25,7 +25,7 @@ public class Weapon : MonoBehaviour
         if (ammo <= 0 || Time.time - lastShootTime < delay) return false;
 
         if (type == WeaponType.BULLET_WEAPON) {
-            GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.bullet);
+            GameObject obj = PoolManager.Instance.Spawn("bullet");
 
             const float pushForward = 4f;
 
@@ -39,7 +39,7 @@ public class Weapon : MonoBehaviour
             SoundBank.Instance.PlaySound("bullet_shoot", transform.position, 0.3f);
         }
         else if (type == WeaponType.MISSLE_WEAPON) {
-            GameObject obj = GameObject.Instantiate(PrefabRegistry.Instance.missile);
+            GameObject obj = PoolManager.Instance.Spawn("missile");
 
             const float pushForward = 1f;
 

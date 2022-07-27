@@ -21,7 +21,9 @@ public class PoolManager : MonoBehaviour
     void Start() {
         RegisterPool("audioSource", PrefabRegistry.Instance.audioSource);
         RegisterPool("bullet", PrefabRegistry.Instance.bullet);
+        RegisterPool("bulletImpact", ParticleManager.Instance.bulletImpact);
         RegisterPool("missile", PrefabRegistry.Instance.missile);
+        RegisterPool("missileExplosion", ParticleManager.Instance.missileExplosion);
     }
 
     public void RegisterPool(string name, GameObject prefab) {

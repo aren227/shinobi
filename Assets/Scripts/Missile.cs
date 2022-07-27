@@ -26,18 +26,21 @@ public class Missile : MonoBehaviour
 
     RaycastHit[] hits = new RaycastHit[64];
 
-    void Awake() {
+    void OnEnable() {
         capsuleCollider = GetComponent<CapsuleCollider>();
 
         spawnTimestamp = Time.time;
 
         randomValue = Random.Range(0f, 1f);
+
+        foreach (AudioSource audioSource in GetComponentsInChildren<AudioSource>()) {
+            audioSource.Play();
+        }
     }
 
     void Explode(Vector3 at) {
         transform.position = at;
 
-        Destroy(gameObject);
         ParticleManager.Instance.CreateMissileExplosion(transform.position);
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
@@ -63,6 +66,8 @@ public class Missile : MonoBehaviour
         }
 
         SoundBank.Instance.PlaySound("explosion", at, 0.7f);
+
+        PoolManager.Instance.Despawn(gameObject);
     }
 
     void Update() {
