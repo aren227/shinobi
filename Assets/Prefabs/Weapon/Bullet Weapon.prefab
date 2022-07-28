@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 5053933094280064701}
   - component: {fileID: 2351044697609579308}
   - component: {fileID: 59241363670744030}
+  - component: {fileID: 1256339924086613418}
   m_Layer: 9
   m_Name: Bullet Weapon
   m_TagString: Untagged
@@ -111,7 +112,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   ammo: 300
-  delay: 0.1
   point: {fileID: 9168277653248270934}
 --- !u!54 &59241363670744030
 Rigidbody:
@@ -129,6 +129,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1256339924086613418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9168277654305634644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 905322ba906f1624ba6e866a3ebb74bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onInteract:
+    m_PersistentCalls:
+      m_Calls: []
+  disableUntil: 0
+  mainText: 
+  subText: 
 --- !u!1001 &9168277652435655773
 PrefabInstance:
   m_ObjectHideFlags: 0

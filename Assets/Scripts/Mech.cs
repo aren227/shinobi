@@ -722,6 +722,13 @@ public class Mech : MonoBehaviour
                 return true;
             }
 
+            Weapon weapon = item.GetComponent<Weapon>();
+            if (weapon && AddAmmo(weapon.type, weapon.ammo)) {
+                SoundBank.Instance.PlaySound("ammo_pickup", skeleton.cockpit.transform.position, 0.5f);
+                Destroy(item.gameObject);
+                return true;
+            }
+
             return false;
         }
         else if (item.equipAt == EquipAt.AUXILIARY) {
@@ -740,6 +747,13 @@ public class Mech : MonoBehaviour
                 return true;
             }
 
+            Weapon weapon = item.GetComponent<Weapon>();
+            if (weapon && AddAmmo(weapon.type, weapon.ammo)) {
+                SoundBank.Instance.PlaySound("ammo_pickup", skeleton.cockpit.transform.position, 0.5f);
+                Destroy(item.gameObject);
+                return true;
+            }
+
             return false;
         }
         else if (item.equipAt == EquipAt.SWORD) {
@@ -748,6 +762,16 @@ public class Mech : MonoBehaviour
             }
             Equip(item, Inventory.Slot.SWORD);
 
+            return true;
+        }
+        return false;
+    }
+
+    public bool AddAmmo(WeaponType weaponType, int ammo) {
+        List<Weapon> weapons = inventory.GetWeapons(weaponType);
+        if (weapons.Count > 0) {
+            weapons[0].ammo += ammo;
+            inventory.BalanceAmmo(weaponType);
             return true;
         }
         return false;
