@@ -17,6 +17,8 @@ public class UiManager : MonoBehaviour
 
     static UiManager _instance;
 
+    Camera cam;
+
     public RawImage steminaRawImage;
     public Text speedText;
     public Image crosshairImage;
@@ -41,6 +43,7 @@ public class UiManager : MonoBehaviour
     public Canvas bloomCanvas;
     CanvasScaler bloomCanvasScaler;
 
+    public RectTransform bloomCanvasRectTransform;
     public RawImage bloomCanvasRawImage;
 
     List<GameObject> thermalTargetCursors = new List<GameObject>();
@@ -56,8 +59,15 @@ public class UiManager : MonoBehaviour
     public Button pauseRestartButton;
     public Button pauseBackToTitleButton;
 
+    public Interactable currentInteractable { get; private set; }
+    public InteractableUi interactableUi;
+
     void Awake() {
+        cam = FindObjectOfType<CameraController>().cam;
+
         thermalTargetCursor.SetActive(false);
+
+        bloomCanvasRectTransform = bloomCanvas.GetComponent<RectTransform>();
 
         bloomCanvasCamera.enabled = true;
 
@@ -102,6 +112,13 @@ public class UiManager : MonoBehaviour
             systemMessageText.text = "";
         }
         systemMessageRemainingTime = Mathf.Max(systemMessageRemainingTime - Time.deltaTime, 0);
+
+        if (currentInteractable) {
+            RectTransform rect = interactableUi.GetComponent<RectTransform>();
+            rect.anchoredPosition = GetAnchoredPositionFromWorld(currentInteractable.transform.position);
+
+            interactableUi.SetText(currentInteractable.mainText, currentInteractable.subText);
+        }
     }
 
     public void SetStemina(float maxStemina, float stemina, float requiredToBoost) {
@@ -125,6 +142,17 @@ public class UiManager : MonoBehaviour
         );
 
         crosshairImage.GetComponent<RectTransform>().anchoredPosition = anchored;
+    }
+
+    public Vector2 GetAnchoredPositionFromWorld(Vector3 worldPos) {
+        Vector2 viewport = cam.WorldToViewportPoint(worldPos);
+
+        Vector2 anchored = new Vector2(
+            ((viewport.x*bloomCanvasRectTransform.sizeDelta.x)-(bloomCanvasRectTransform.sizeDelta.x*0.5f)),
+            ((viewport.y*bloomCanvasRectTransform.sizeDelta.y)-(bloomCanvasRectTransform.sizeDelta.y*0.5f))
+        );
+
+        return anchored;
     }
 
     public void SetTargets(List<Transform> targets, Camera cam) {
@@ -153,15 +181,7 @@ public class UiManager : MonoBehaviour
             // thermalTargetCursors[i].GetComponentInChildren<Image>().color = color;
 
             RectTransform rect = thermalTargetCursors[i].GetComponent<RectTransform>();
-
-            Vector2 viewport = cam.WorldToViewportPoint(targets[i].position);
-
-            Vector2 anchored = new Vector2(
-                ((viewport.x*canvasRect.sizeDelta.x)-(canvasRect.sizeDelta.x*0.5f)),
-                ((viewport.y*canvasRect.sizeDelta.y)-(canvasRect.sizeDelta.y*0.5f))
-            );
-
-            rect.anchoredPosition = anchored;
+            rect.anchoredPosition = GetAnchoredPositionFromWorld(targets[i].position);
         }
 
         // Disable remainders.
@@ -214,5 +234,16 @@ public class UiManager : MonoBehaviour
         ingameBloomRoot.SetActive(!isPaused);
         pauseBloomRoot.SetActive(isPaused);
         pauseButtonRoot.SetActive(isPaused);
+    }
+
+    public void SetInteractable(Interactable interactable) {
+        currentInteractable = interactable;
+        if (currentInteractable == null) {
+            interactableUi.gameObject.SetActive(false);
+        }
+        else {
+            interactableUi.gameObject.SetActive(true);
+            interactableUi.SetText(interactable.mainText, interactable.subText);
+        }
     }
 }

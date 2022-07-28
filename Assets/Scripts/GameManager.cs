@@ -29,10 +29,11 @@ public class GameManager : MonoBehaviour
 
     public GameState state { get; private set; }
 
-    const int defenseTime = 60 * 5;
+    public int passengers { get; private set; }
+    const float passengerDelay = 2f;
     const int enemySpawnCountPerWave = 2;
     const int enemySpawnDelay = 1;
-    const int waveDelay = 30;
+    const int waveDelay = 15;
 
     public float stateBeginTime;
 
@@ -53,7 +54,7 @@ public class GameManager : MonoBehaviour
     }
 
     void Start() {
-        StartCoroutine(Prepare());
+
     }
 
     void Update() {
@@ -121,18 +122,11 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("SampleScene");
     }
 
-    IEnumerator Prepare() {
-        spaceship.Arrive();
-
-        door.Open();
-
-        yield return new WaitForSeconds(10);
-
-        door.Close();
-
-        yield return new WaitForSeconds(5);
-
-        BeginState(GameState.FIGHT);
+    IEnumerator Board() {
+        while (state == GameState.FIGHT) {
+            yield return new WaitForSeconds(passengerDelay);
+            passengers++;
+        }
     }
 
     IEnumerator Leave() {
@@ -148,7 +142,7 @@ public class GameManager : MonoBehaviour
     }
 
     IEnumerator SpawnScheduler() {
-        while (Time.time - stateBeginTime <= defenseTime) {
+        while (state == GameState.FIGHT) {
             Debug.Log("Begin wave");
 
             for (int i = 0; i < enemySpawnCountPerWave; i++) {

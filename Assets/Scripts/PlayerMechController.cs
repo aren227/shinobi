@@ -141,25 +141,33 @@ public class PlayerMechController : MonoBehaviour
             else mech.EndHide();
         }
 
+        Interactable interactable = Interactable.GetInteractable(mech.skeleton.cockpit.transform.position);
+        uiManager.SetInteractable(interactable);
         // @Todo: Better ui.
         if (Input.GetKeyDown(KeyCode.F)) {
-            Item[] items = FindObjectsOfType<Item>();
-            Item selected = null;
-            float minDist = 7;
-            foreach (Item item in items) {
-                if (item.isEquipped) continue;
-                if (minDist > Vector3.Distance(item.transform.position, mech.transform.position)) {
-                    selected = item;
-                    minDist = Vector3.Distance(item.transform.position, mech.transform.position);
-                }
-            }
-
-            if (selected != null) {
-                if (mech.TryToEquip(selected)) {
-                    SoundBank.Instance.PlaySound("ammo_pickup", mech.skeleton.cockpit.transform.position, 0.5f);
-                }
+            if (interactable) {
+                interactable.Interact();
             }
         }
+
+        // if (Input.GetKeyDown(KeyCode.F)) {
+        //     Item[] items = FindObjectsOfType<Item>();
+        //     Item selected = null;
+        //     float minDist = 7;
+        //     foreach (Item item in items) {
+        //         if (item.isEquipped) continue;
+        //         if (minDist > Vector3.Distance(item.transform.position, mech.transform.position)) {
+        //             selected = item;
+        //             minDist = Vector3.Distance(item.transform.position, mech.transform.position);
+        //         }
+        //     }
+
+        //     if (selected != null) {
+        //         if (mech.TryToEquip(selected)) {
+        //             SoundBank.Instance.PlaySound("ammo_pickup", mech.skeleton.cockpit.transform.position, 0.5f);
+        //         }
+        //     }
+        // }
 
         if (mech.isUsingSword) {
             // mech.targetType = TargetType.VITAL;
