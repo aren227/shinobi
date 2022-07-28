@@ -81,6 +81,7 @@ public class CameraController : MonoBehaviour
 
         float xShift = 0;
         if (!mech.isUsingSword) xShift = shootXOffset;
+        xShift = shootXOffset;
 
         Vector3 rotatedOffset = origin;
 

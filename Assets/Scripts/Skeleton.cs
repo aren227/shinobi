@@ -76,18 +76,18 @@ public class Skeleton : MonoBehaviour
     float leftHandIkTime, rightHandIkTime;
 
     string[] boneNames = new string[] {
-        "Bone", "Head", "UArm.L", "LArm.L", "UArm.R", "LArm.R",
+        "Bone", "Head", "UArm.L", "LArm.L", "Hand.L", "UArm.R", "LArm.R", "Hand.R",
         "ULeg.L", "LLeg.L", "ULeg.R", "LLeg.R",
     };
 
     PartName[] bonePartNames = new PartName[] {
-        PartName.BODY, PartName.HEAD, PartName.UPPER_LEFT_ARM, PartName.LOWER_LEFT_ARM,
-        PartName.UPPER_RIGHT_ARM, PartName.LOWER_RIGHT_ARM,
+        PartName.BODY, PartName.HEAD, PartName.UPPER_LEFT_ARM, PartName.LOWER_LEFT_ARM, PartName.NONE,
+        PartName.UPPER_RIGHT_ARM, PartName.LOWER_RIGHT_ARM, PartName.NONE,
         PartName.UPPER_LEFT_LEG, PartName.LOWER_LEFT_LEG, PartName.UPPER_RIGHT_LEG, PartName.LOWER_RIGHT_LEG,
     };
 
     string[] modelNames = new string[] {
-        "Body", "Head", "Arm_R_Up", "Arm_R_Down", "Arm_L_Up", "Arm_L_Down",
+        "Body", "Head", "Arm_R_Up", "Arm_R_Down", null, "Arm_L_Up", "Arm_L_Down", null,
         "Leg_R_Up", "Leg_R_Down", "Leg_L_Up", "Leg_L_Down",
     };
 
@@ -199,6 +199,15 @@ public class Skeleton : MonoBehaviour
         // SetBodySlice(new Vector3(1, 1, 0).normalized, Mathf.InverseLerp(-1, 1, Mathf.Sin(Time.time)));
     }
 
+    public void BeginMeleeAttackAnimation(bool isRight) {
+        if (isRight) {
+            animator.SetTrigger("Right Attack");
+        }
+        else {
+            animator.SetTrigger("Left Attack");
+        }
+    }
+
     public void EnableHandIk(bool isRight, bool isSwing, float time) {
         if (isRight) {
             rightHandIk.enabled = true;
@@ -271,15 +280,17 @@ public class Skeleton : MonoBehaviour
 
         for (int i = 0; i < boneNames.Length; i++) {
             if (bones[i] == null) Debug.LogError($"Bone {boneNames[i]} not found!");
-            if (models[i] == null) Debug.LogError($"Model {modelNames[i]} not found!");
-            if (models2[i] == null) Debug.LogError($"Model2 {modelNames[i]} not found!");
-            if (frameColliders[i] == null) Debug.LogError($"Frame collider {boneNames[i]} not found!");
-            if (armorColliders[i] == null) Debug.LogError($"Armor collider {boneNames[i]} not found!");
+            if (models[i] == null) Debug.LogWarning($"Model {modelNames[i]} not found!");
+            if (models2[i] == null) Debug.LogWarning($"Model2 {modelNames[i]} not found!");
+            if (frameColliders[i] == null) Debug.LogWarning($"Frame collider {boneNames[i]} not found!");
+            if (armorColliders[i] == null) Debug.LogWarning($"Armor collider {boneNames[i]} not found!");
         }
 
         parts = new Dictionary<PartName, Part>();
         for (int i = 0; i < boneNames.Length; i++) {
             Part part = bones[i].GetComponent<Part>();
+
+            if (part == null) continue;
 
             parts[part.partName] = part;
 
@@ -292,6 +303,8 @@ public class Skeleton : MonoBehaviour
         // We need another root objects because pivots of model is arbitrary.
         GameObject[] modelRoots = new GameObject[modelNames.Length];
         for (int i = 0; i < modelNames.Length; i++) {
+            if (models[i] == null) continue;
+
             modelRoots[i] = new GameObject("Model");
             modelRoots[i].transform.parent = bones[i];
 
@@ -310,6 +323,8 @@ public class Skeleton : MonoBehaviour
         // Attach armor
         GameObject[] modelRoots2 = new GameObject[modelNames.Length];
         for (int i = 0; i < modelNames.Length; i++) {
+            if (models2[i] == null) continue;
+
             modelRoots2[i] = new GameObject("Model2");
             modelRoots2[i].transform.parent = bones[i];
 
@@ -328,6 +343,8 @@ public class Skeleton : MonoBehaviour
         // Attach frame collider
         GameObject[] frameColliderRoots = new GameObject[modelNames.Length];
         for (int i = 0; i < modelNames.Length; i++) {
+            if (frameColliders[i] == null) continue;
+
             frameColliderRoots[i] = new GameObject("Frame Collider");
             frameColliderRoots[i].transform.parent = bones[i];
 
@@ -346,6 +363,8 @@ public class Skeleton : MonoBehaviour
         // Attach armor collider
         GameObject[] armorColliderRoots = new GameObject[modelNames.Length];
         for (int i = 0; i < modelNames.Length; i++) {
+            if (armorColliders[i] == null) continue;
+
             armorColliderRoots[i] = new GameObject("Armor Collider");
             armorColliderRoots[i].transform.parent = bones[i];
 
@@ -484,6 +503,7 @@ public enum PartName {
     LOWER_LEFT_LEG,
     UPPER_RIGHT_LEG,
     LOWER_RIGHT_LEG,
+    NONE,
 }
 
 public static class MatrixExtensions

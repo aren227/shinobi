@@ -196,6 +196,7 @@ public class PlayerMechController : MonoBehaviour
 
             // Newer version
             if (swordController2.state == SwordSwingState.IDLE && Input.GetMouseButtonDown(0)) {
+                mech.skeleton.BeginMeleeAttackAnimation(swordController2.isRightHanded);
                 mech.BeginMeleeAttack();
             }
         }
