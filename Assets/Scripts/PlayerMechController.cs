@@ -248,6 +248,8 @@ public class PlayerMechController : MonoBehaviour
             uiManager.SetTargets(mech.targets, cameraController.cam);
         }
 
+        uiManager.SetTargetedMissiles(mech.targetedMissiles, cameraController.cam);
+
         uiManager.SetStemina(Mech.maxStemina, mech.stemina, mech.skeleton.thruster.GetSteminaRequiredToBoost());
         uiManager.SetSpeed(mech.velocity.magnitude);
         uiManager.SetCrosshairPos(cursorPos);

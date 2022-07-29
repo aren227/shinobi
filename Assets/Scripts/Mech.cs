@@ -768,6 +768,10 @@ public class Mech : MonoBehaviour
         targetedMissiles.Add(missile);
     }
 
+    public void RemoveTargetedMissile(Missile missile) {
+        targetedMissiles.Remove(missile);
+    }
+
     public void GiveDamage(Mech by, Collider collider, int damage) {
         if (by == GameManager.Instance.player) hitByPlayerFlag = true;
 

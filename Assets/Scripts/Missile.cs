@@ -83,6 +83,13 @@ public class Missile : MonoBehaviour
                     Quaternion q = Quaternion.AngleAxis(-Mathf.Min(maxAngle, Vector3.Angle(dir, transform.forward)), Vector3.Cross(dir, transform.forward));
                     transform.forward = q * transform.forward;
                 }
+                else if (angle >= fov) {
+                    // Lose target.
+                    target = null;
+                    if (mech != null) {
+                        mech.RemoveTargetedMissile(this);
+                    }
+                }
             }
         }
 

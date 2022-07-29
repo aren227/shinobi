@@ -24,6 +24,7 @@ public class UiManager : MonoBehaviour
     public Image crosshairImage;
 
     public GameObject thermalTargetCursor;
+    public GameObject missileCursor;
 
     public Material crackOverlayMat;
     public Material strippedUiMat;
@@ -47,6 +48,7 @@ public class UiManager : MonoBehaviour
     public RawImage bloomCanvasRawImage;
 
     List<GameObject> thermalTargetCursors = new List<GameObject>();
+    List<GameObject> missileCursors = new List<GameObject>();
 
     const float bloomCanvasAlpha = 0.75f;
 
@@ -66,6 +68,7 @@ public class UiManager : MonoBehaviour
         cam = FindObjectOfType<CameraController>().cam;
 
         thermalTargetCursor.SetActive(false);
+        missileCursor.SetActive(false);
 
         bloomCanvasRectTransform = bloomCanvas.GetComponent<RectTransform>();
 
@@ -187,6 +190,38 @@ public class UiManager : MonoBehaviour
         // Disable remainders.
         for (int i = targets.Count; i < thermalTargetCursors.Count; i++) {
             thermalTargetCursors[i].SetActive(false);
+        }
+    }
+
+    public void SetTargetedMissiles(List<Missile> missiles, Camera cam) {
+        // @Copypasta: From SetTargets().
+        RectTransform canvasRect = bloomCanvas.GetComponent<RectTransform>();
+
+        int activatedCount = 0;
+
+        for (int i = 0; i < missiles.Count; i++) {
+            if (Vector3.Dot(missiles[i].transform.position - cam.transform.position, cam.transform.forward) <= 0) continue;
+
+            if (missileCursors.Count <= activatedCount) {
+                GameObject cloned = Instantiate(missileCursor, missileCursor.transform.parent);
+                missileCursors.Add(cloned);
+            }
+
+            missileCursors[activatedCount].SetActive(true);
+
+            RectTransform rect = missileCursors[activatedCount].GetComponent<RectTransform>();
+            rect.anchoredPosition = GetAnchoredPositionFromWorld(missiles[i].transform.position);
+
+            float dist = Vector3.Distance(missiles[i].transform.position, cam.transform.position);
+
+            rect.localScale = Vector3.one * Mathf.Lerp(1f, 0f, Mathf.InverseLerp(0f, 100f, dist));
+
+            activatedCount++;
+        }
+
+        // Disable remainders.
+        for (int i = activatedCount; i < missileCursors.Count; i++) {
+            missileCursors[i].SetActive(false);
         }
     }
 
