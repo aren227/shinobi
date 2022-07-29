@@ -86,7 +86,7 @@ public class PlayerMechController : MonoBehaviour
         if (moveDir.sqrMagnitude > 0 && Input.GetKeyDown(KeyCode.LeftShift) && !mech.boost) {
             mech.BeginBoost();
         }
-        else if (!Input.GetKey(KeyCode.LeftShift) && mech.boost) {
+        else if (!Input.GetKey(KeyCode.LeftShift) && mech.boost && !mech.isFollowing) {
             mech.EndBoost();
         }
 
@@ -99,9 +99,12 @@ public class PlayerMechController : MonoBehaviour
             aimTarget = aimHit.point;
         }
 
-        mech.Aim(aimTarget);
+        if (mech.swordController.state == SwordSwingState.IDLE) {
+            // @Todo: Better mech rotation.
+            // mech.yaw = cameraController.yaw;
 
-        mech.yaw = cameraController.yaw;
+            mech.Aim(aimTarget);
+        }
 
         if (mech.isBulletTime) {
             const float mouseSensitivity = 10f;
@@ -196,8 +199,14 @@ public class PlayerMechController : MonoBehaviour
 
             // Newer version
             if (swordController2.state == SwordSwingState.IDLE && Input.GetMouseButtonDown(0)) {
-                mech.skeleton.BeginMeleeAttackAnimation(swordController2.isRightHanded);
                 mech.BeginMeleeAttack();
+            }
+
+            if (swordController2.state == SwordSwingState.IDLE && !mech.isFollowing && Input.GetMouseButton(1)) {
+                mech.BeginFollowing();
+            }
+            if (mech.isFollowing && !Input.GetMouseButton(1)) {
+                mech.RequestEndFollowing();
             }
         }
         else if (!mech.isBulletTime) {

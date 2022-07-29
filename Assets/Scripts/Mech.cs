@@ -5,8 +5,6 @@ using DG.Tweening;
 
 public class Mech : MonoBehaviour
 {
-    public Rigidbody rigid { get; private set; }
-
     public float yaw = 0;
 
     CapsuleParams kinematicCapsule;
@@ -19,7 +17,7 @@ public class Mech : MonoBehaviour
 
     public bool disableMovement = false;
 
-    Vector3 accumulatedDelta;
+    public Vector3 accumulatedDelta;
 
     public bool boost { get; private set; } = false;
     float boostSince;
@@ -43,7 +41,7 @@ public class Mech : MonoBehaviour
     const float minSteminaRequiredToBulletTime = 3;
 
 
-    const float maxMeleeAttackRange = 7;
+    const float maxMeleeAttackRange = 20;
     public const float meleeAttackDistance = 2.5f;
 
     public TargetType targetType { get; private set; } = TargetType.VITAL;
@@ -64,7 +62,10 @@ public class Mech : MonoBehaviour
     public bool isUsingSword { get; private set; }
     public bool isHided { get; private set; }
     public bool isBulletTime { get; private set; }
+    public bool isFollowing { get; private set; }
+    FollowingVelocitySolver followingVelocitySolver;
 
+    public bool isBeingSliced = false;
     public bool isKilled { get; private set; }
 
     public Vector3 velocityVel;
@@ -82,11 +83,12 @@ public class Mech : MonoBehaviour
     float destroyAt = float.PositiveInfinity;
 
     void Awake() {
-        rigid = GetComponent<Rigidbody>();
         skeleton = GetComponent<Skeleton>();
         swordController = GetComponent<SwordController2>();
 
         AddVelocitySolver(GetComponent<AccelerationBasedVelocitySolver>());
+
+        followingVelocitySolver = GetComponent<FollowingVelocitySolver>();
 
         CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
         kinematicCapsule = new CapsuleParams() { center = capsuleCollider.center, radius = capsuleCollider.radius, height = capsuleCollider.height };
@@ -126,9 +128,16 @@ public class Mech : MonoBehaviour
         // @Todo: Update after move to get up-to-date result?
         if (isUsingSword) {
             targets.Clear();
-            Mech meleeTarget = GetMeleeTarget();
-            // @Todo: This sucks.
-            if (meleeTarget) targets.Add(meleeTarget.skeleton.cockpit.transform);
+            if (isFollowing) {
+                if (!followingVelocitySolver.canceled) {
+                    targets.Add(followingVelocitySolver.target.skeleton.cockpit.transform);
+                }
+            }
+            else {
+                Mech meleeTarget = GetMeleeTarget();
+                // @Todo: This sucks.
+                if (meleeTarget) targets.Add(meleeTarget.skeleton.cockpit.transform);
+            }
         }
         else {
             targets = GetVisibleTargets();
@@ -142,10 +151,11 @@ public class Mech : MonoBehaviour
 
         // Lose control after sword animation is finished.
         if (isKilled) {
-            if (!disableMovement && rigid.isKinematic) {
-                rigid.isKinematic = false;
-                rigid.useGravity = true;
-            }
+            // @Todo: Death animation
+            // if (!disableMovement && rigid.isKinematic) {
+            //     rigid.isKinematic = false;
+            //     rigid.useGravity = true;
+            // }
         }
 
         if (isBulletTime) {
@@ -167,11 +177,24 @@ public class Mech : MonoBehaviour
         if (destroyAt < Time.time) {
             Destroy(gameObject);
         }
+
+        if (isFollowing) {
+            if (followingVelocitySolver.canceled) {
+                // @Hardcoded
+                if (velocity.magnitude <= 0.1f) {
+                    EndFollowing();
+                }
+            }
+            else {
+                Aim(followingVelocitySolver.target.skeleton.cockpit.transform.position);
+                if (!boost) {
+                    RequestEndFollowing();
+                }
+            }
+        }
     }
 
     public void Move(Vector3 moveDir) {
-        if (manualMovement) return;
-
         if (boost) {
             stemina = Mathf.Max(stemina - boostSteminaConsumRate * Time.deltaTime, 0);
             if (stemina <= 0 && Time.time - boostSince > minimumBoostTime) {
@@ -184,7 +207,50 @@ public class Mech : MonoBehaviour
 
         velocity = Vector3.SmoothDamp(velocity, targetVelocity, ref velocityVel, smoothTime);
 
-        accumulatedDelta += velocity * Time.deltaTime;
+        if (isKilled || manualMovement) return;
+
+        Vector3 delta = velocity * Time.deltaTime;
+
+        const float pad = 0.1f;
+        for (int i = 0; i < 3; i++) {
+            RaycastHit hit;
+            Vector3 origin = transform.position - delta.normalized * pad;
+            if (delta.sqrMagnitude > 1e-5f && Physics.CapsuleCast(
+                origin + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
+                origin + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
+                kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude + pad,
+                LayerMask.GetMask("Kinematic", "Mech", "Ground", "Objective"))
+            ) {
+
+                Vector3 safe = delta.normalized * Mathf.Max(hit.distance - pad, 0);
+                transform.position = transform.position + safe;
+
+                delta = Vector3.ProjectOnPlane(delta, hit.normal);
+
+                if (isFollowing && boost) {
+                    if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Mech")) {
+                        Mech target = hit.collider.transform.root.GetComponent<Mech>();
+
+                        followingVelocitySolver.Reflect(hit.normal, this, target);
+                    }
+                    else {
+                        followingVelocitySolver.Reflect(hit.normal, this, null);
+                    }
+
+                    RequestEndFollowing();
+
+                    break;
+                }
+
+            }
+            else {
+                transform.position = transform.position + delta;
+
+                break;
+            }
+        }
+
+        transform.eulerAngles = new Vector3(0, yaw, 0);
     }
 
     public void AddVelocitySolver(VelocitySolver velocitySolver) {
@@ -197,6 +263,7 @@ public class Mech : MonoBehaviour
 
     public bool BeginBoost() {
         if (disableMovement) return false;
+        if (isFollowing) return false;
 
         int requiredStemina = skeleton.thruster.GetSteminaRequiredToBoost();
 
@@ -269,8 +336,6 @@ public class Mech : MonoBehaviour
     }
 
     public void Aim(Vector3 aimTarget) {
-        if (swordController.state != SwordSwingState.IDLE) return;
-
         this.aimTarget = aimTarget;
 
         skeleton.leftGunPivot.forward = (aimTarget - skeleton.leftGunPivot.position).normalized;
@@ -403,15 +468,14 @@ public class Mech : MonoBehaviour
             if (Vector3.Dot(cockpit - myCockpit, cam.transform.forward) > 0
                 && Vector3.Distance(cockpit, myCockpit) < maxMeleeAttackRange
                 && 0 <= viewport.x && viewport.x <= 1 && 0 <= viewport.y && viewport.y <= 1) {
-                // Can I move to it?
-                Vector3 targetPos = GetMeleeAttackPos(mech);
-                Vector3 delta = (targetPos - rigid.position);
 
-                if (!Physics.CapsuleCast(
-                    rigid.position + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
-                    rigid.position + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
-                    kinematicCapsule.radius, delta.normalized, delta.magnitude + rigidbodyCastPad, ~LayerMask.GetMask("Mech"))
-                ) {
+                Vector3 sourcePos = skeleton.cockpit.transform.position;
+                Vector3 targetPos = mech.skeleton.cockpit.transform.position;
+                Vector3 delta = (targetPos - sourcePos);
+
+                RaycastHit hit;
+
+                if (!Physics.SphereCast(sourcePos, 0.2f, delta.normalized, out hit, delta.magnitude, LayerMask.GetMask("Ground"))) {
                     candidates.Add(mech);
                 }
             }
@@ -502,17 +566,79 @@ public class Mech : MonoBehaviour
         UpdatePivots();
     }
 
+    public void BeginFollowing() {
+        if (!isUsingSword || isFollowing) return;
+        if (targets.Count == 0) return;
+
+        bool boosted = BeginBoost();
+        if (!boosted) return;
+
+        isFollowing = true;
+
+        followingVelocitySolver.Init(targets[0].root.GetComponent<Mech>());
+
+        AddVelocitySolver(followingVelocitySolver);
+    }
+
+    public void RequestEndFollowing() {
+        if (!isFollowing || followingVelocitySolver.canceled) return;
+
+        EndBoost();
+
+        followingVelocitySolver.canceled = true;
+    }
+
+    public void EndFollowing() {
+        if (!isFollowing) return;
+
+        isFollowing = false;
+
+        RemoveVelocitySolver(followingVelocitySolver);
+    }
+
     public void BeginMeleeAttack() {
         if (swordController.state != SwordSwingState.IDLE) return;
+        if (isFollowing && followingVelocitySolver.canceled) return;
 
         // @Todo: Make a dedicated variable for storing melee target.
-        if (targets.Count == 0) return;
+        // if (targets.Count == 0) return;
 
         if (isHided) EndHide();
 
-        Mech target = targets[0].GetComponentInParent<Mech>();
+        RequestEndFollowing();
 
-        swordController.BeginAttack(target);
+        if (targets.Count == 0) {
+            swordController.BeginAttack(null);
+        }
+        else {
+            swordController.BeginAttack(targets[0].root.GetComponent<Mech>());
+        }
+    }
+
+    public void BeginSlice() {
+        if (isBeingSliced) return;
+
+        isBeingSliced = true;
+
+        Vector3 forward = skeleton.slicePivot.rotation * Vector3.up;
+
+        GameObject sliceCube = Instantiate(PrefabRegistry.Instance.sliceEffectBox);
+        sliceCube.transform.parent = skeleton.slicePivot;
+
+        const float boxSize = 10;
+
+        sliceCube.transform.localPosition = new Vector3(0, -boxSize/2, 0);
+        sliceCube.transform.localRotation = Quaternion.identity;
+        sliceCube.transform.localScale = new Vector3(0.3f, boxSize, 10);
+
+        skeleton.SetHoleCube(sliceCube.GetComponent<MeshFilter>());
+
+        sliceCube.transform.DOLocalMove(new Vector3(0, 2 -boxSize/2, 0), 1f).OnComplete(() => {
+            if (!isKilled) {
+                Kill();
+                // skeleton.GetPart(PartName.BODY).Hit(10000);
+            }
+        });
     }
 
     // public void BeginSwing() {
@@ -671,41 +797,6 @@ public class Mech : MonoBehaviour
 
             weapon.Hit(damage);
         }
-    }
-
-    void FixedUpdate() {
-        if (manualMovement || isKilled) return;
-
-        Vector3 delta = accumulatedDelta;
-
-        accumulatedDelta = Vector3.zero;
-
-        const float pad = 0.1f;
-        for (int i = 0; i < 3; i++) {
-            RaycastHit hit;
-            Vector3 origin = rigid.position - delta.normalized * pad;
-            if (delta.sqrMagnitude > 1e-5f && Physics.CapsuleCast(
-                origin + kinematicCapsule.center - (kinematicCapsule.height/2 + kinematicCapsule.radius) * Vector3.up,
-                origin + kinematicCapsule.center + (kinematicCapsule.height/2 - kinematicCapsule.radius) * Vector3.up,
-                kinematicCapsule.radius, delta.normalized, out hit, delta.magnitude + pad,
-                LayerMask.GetMask("Kinematic", "Mech", "Ground", "Objective"))
-            ) {
-
-                Vector3 safe = delta.normalized * Mathf.Max(hit.distance - pad, 0);
-                rigid.MovePosition(rigid.position + safe);
-
-                delta = Vector3.ProjectOnPlane(delta, hit.normal);
-            }
-            else {
-                rigid.MovePosition(rigid.position + delta);
-
-                break;
-            }
-        }
-
-        // if (moveDir.sqrMagnitude > 0) {
-        rigid.MoveRotation(Quaternion.Euler(0, yaw, 0));
-        // }
     }
 
     public bool TryToEquip(Item item) {

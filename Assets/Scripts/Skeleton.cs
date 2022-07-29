@@ -54,6 +54,8 @@ public class Skeleton : MonoBehaviour
     public Transform rightHandIkHint;
     public Transform rightHandIkSwingHint;
 
+    public Transform slicePivot;
+
     public TwoBoneIKConstraint leftHandIk;
     public TwoBoneIKConstraint rightHandIk;
 

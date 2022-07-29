@@ -2008,7 +2008,7 @@ MonoBehaviour:
   m_Data:
     m_Root: {fileID: 588053354153879250}
     m_Mid: {fileID: 9034879599765336229}
-    m_Tip: {fileID: 4010850990028177819}
+    m_Tip: {fileID: 0}
     m_Target: {fileID: 4367539092750242955}
     m_Hint: {fileID: 4647242911812304837}
     m_TargetPositionWeight: 1
@@ -2393,7 +2393,7 @@ MonoBehaviour:
   m_Data:
     m_Root: {fileID: 5996831049093762748}
     m_Mid: {fileID: 7703123299479322747}
-    m_Tip: {fileID: 1796574677413156661}
+    m_Tip: {fileID: 0}
     m_Target: {fileID: 6737850035121916386}
     m_Hint: {fileID: 6133111177593838818}
     m_TargetPositionWeight: 1
@@ -2609,7 +2609,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7580416314343576955}
   - component: {fileID: 7580416314343576956}
-  - component: {fileID: 7580416314343576957}
   - component: {fileID: 7580416314343576958}
   - component: {fileID: 7580416314343576959}
   - component: {fileID: 3629586524374499110}
@@ -2664,9 +2663,11 @@ MonoBehaviour:
   yaw: 0
   velocity: {x: 0, y: 0, z: 0}
   disableMovement: 0
+  accumulatedDelta: {x: 0, y: 0, z: 0}
   hitByPlayerFlag: 0
   stemina: 0
   model: {fileID: 4637163599762317133}
+  isBeingSliced: 0
   velocityVel: {x: 0, y: 0, z: 0}
   manualMovement: 0
   thrusterAudioSource: {fileID: 711693326383836786}
@@ -2675,23 +2676,6 @@ MonoBehaviour:
   metalCrackingVolume: 0
   metalCrackingVolumeVel: 0
   targetMetalCrackingVolume: 0
-  destroyAt: 0
---- !u!54 &7580416314343576957
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7580416314343576954}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 1
-  m_Constraints: 80
-  m_CollisionDetection: 1
 --- !u!136 &7580416314343576958
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2754,6 +2738,7 @@ MonoBehaviour:
   leftHandIkSwingHint: {fileID: 3750427976007984799}
   rightHandIkHint: {fileID: 6133111177593838818}
   rightHandIkSwingHint: {fileID: 8690277932441693464}
+  slicePivot: {fileID: 402934210222181950}
   leftHandIk: {fileID: 3943858157185377741}
   rightHandIk: {fileID: 7925533126764827832}
   hideEffect: {fileID: 3025107067819090718}
@@ -2864,12 +2849,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e880b25bdba694793896f0c8fd3e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  swingAngleVelocityCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &549487282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2884,6 +2863,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   state: 2
   onlyShootSpaceship: 0
+  overrideTargetPosFor: 0
+  overrideTargetPos: {x: 0, y: 0, z: 0}
 --- !u!1 &7883915203897410587
 GameObject:
   m_ObjectHideFlags: 0
@@ -3445,6 +3426,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7580416314343576955}
     m_Modifications:
+    - target: {fileID: 1296079982037096744, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_RootOrder
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 2908396215422241369, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+      propertyPath: m_RootOrder
+      value: 23
+      objectReference: {fileID: 0}
     - target: {fileID: 6530760967033896892, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.353
@@ -3530,6 +3519,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d4d7aad2b0c07f46973fd4ffde9e4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &402934210222181950 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1296079982037096744, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
+  m_PrefabInstance: {fileID: 1471299836588693270}
+  m_PrefabAsset: {fileID: 0}
 --- !u!198 &3025107067819090718 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 4436131112692282376, guid: d47c8026590d47b47948d71e93e48c92, type: 3}
@@ -3678,11 +3672,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -4273136489435970354, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
   m_PrefabInstance: {fileID: 5520263501965779484}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1796574677413156661 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6085873064515810601, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
-  m_PrefabInstance: {fileID: 5520263501965779484}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2955685771048817662 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1900696180921994782, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -3735,11 +3724,6 @@ MonoBehaviour:
   armorDurability: 200
   frameDurability: 200
   health: 0
---- !u!4 &4010850990028177819 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -346058288965737593, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
-  m_PrefabInstance: {fileID: 5520263501965779484}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4341071642426734274 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1106337666906680098, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}
@@ -3857,10 +3841,10 @@ MonoBehaviour:
   - {fileID: 8194714335302515646}
   - {fileID: 588053354153879250}
   - {fileID: 9034879599765336229}
-  - {fileID: 4010850990028177819}
+  - {fileID: 0}
   - {fileID: 5996831049093762748}
   - {fileID: 7703123299479322747}
-  - {fileID: 1796574677413156661}
+  - {fileID: 0}
 --- !u!4 &5409195977972385271 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: dc5156d7164590c49b28965dfdd0b5af, type: 3}

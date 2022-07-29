@@ -70,6 +70,9 @@ public class EnemyMechController : MonoBehaviour
     Vector2Int nextGrid = new Vector2Int(-1000, -1000);
     Vector3 nextGridTargetPos;
 
+    public float overrideTargetPosFor = 0;
+    public Vector3 overrideTargetPos;
+
     void SetRandomOffset() {
         // Vector3 sphere = Random.onUnitSphere;
         // sphere.y *= 0.2f;
@@ -157,6 +160,11 @@ public class EnemyMechController : MonoBehaviour
             && Vector3.Angle(mech.skeleton.headBone.forward, player.transform.position - mech.transform.position) <= (state == State.ATTACK ? fovWhenAttack : fovWhenNotAttack);
     }
 
+    public void OverrideTargetPos(Vector3 target, float time) {
+        overrideTargetPosFor = time;
+        overrideTargetPos = target;
+    }
+
     void Update() {
         if (GameManager.Instance.isPaused) return;
         if (mech.isKilled) return;
@@ -215,6 +223,11 @@ public class EnemyMechController : MonoBehaviour
             }
         }
 
+        if (overrideTargetPosFor > 0) {
+            targetPos = overrideTargetPos;
+            overrideTargetPosFor = Mathf.Max(overrideTargetPosFor - Time.deltaTime, 0);
+        }
+
         float minTargetedMissileDist = float.PositiveInfinity;
         Missile minDistMissile = null;
         foreach (Missile missile in mech.targetedMissiles) {
@@ -228,6 +241,7 @@ public class EnemyMechController : MonoBehaviour
         if (
             (
                 Vector3.Distance(targetPos, mech.transform.position) > boostMinDist
+                || Vector3.Distance(player.transform.position, mech.transform.position) < 15f
                 || (minDistMissile != null && minTargetedMissileDist < missileNoticeDistance && minDistMissile.randomValue < missileAvoidProb)
             )
          ) {
