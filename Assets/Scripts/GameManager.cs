@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
     }
 
     IEnumerator Leave() {
-        door.Open();
+        // door.Open();
 
         yield return new WaitForSeconds(5);
 
@@ -138,7 +138,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(3);
 
-        door.RemoveBarrier();
+        // door.RemoveBarrier();
     }
 
     IEnumerator SpawnScheduler() {
